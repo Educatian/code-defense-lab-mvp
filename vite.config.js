@@ -1,7 +1,8 @@
 import { defineConfig } from "vite";
 import { resolve } from "node:path";
 
-export default defineConfig({
+export default defineConfig(({ command }) => ({
+  base: command === "build" ? "/code-defense-lab-mvp/" : "/",
   server: {
     host: "127.0.0.1",
     port: 4173,
@@ -31,4 +32,4 @@ export default defineConfig({
       },
     },
   },
-});
+}));
