@@ -250,6 +250,7 @@ function createDefaultAssignment(overrides = {}) {
     sourceCode: overrides.sourceCode || starterCode,
     starterCode,
     draftCode: overrides.draftCode || starterCode,
+    submissionConfirmed: Boolean(overrides.submissionConfirmed),
     mutationFile: overrides.mutationFile || overrides.sourceFile || "mutation.py",
     mutationCode: overrides.mutationCode || starterCode,
     mutationFailureOutput:
@@ -817,7 +818,7 @@ function getAssignmentProgressState(assignment) {
   const responses = normalizeResponses(assignment.responses);
   const flow = getEnabledFlow(assignment);
   const checks = {
-    submission: Boolean((assignment.draftCode || "").trim()),
+    submission: hasCommittedSubmission(assignment),
     hotspot: !assignment.modules.hotspot || countAnswered(Object.values(responses.hotspot)) > 0,
     trace: !assignment.modules.trace || countAnswered(Object.values(responses.trace)) > 0,
     mutation: !assignment.modules.mutation || Boolean(responses.mutation.plan.trim()),
@@ -1033,6 +1034,7 @@ function normalizeAssignment(assignment, fallbackId) {
     id: assignment?.id || fallbackId,
     modules: createDefaultModules(assignment?.modules || {}),
     responses: normalizeResponses(assignment?.responses),
+    submissionConfirmed: Boolean(assignment?.submissionConfirmed),
   });
 }
 
@@ -1083,7 +1085,12 @@ function loadState() {
 }
 
 function saveState(state) {
-  window.localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  try {
+    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 function totalAssignments(courses) {
@@ -1113,10 +1120,35 @@ function getAssignmentDraft(assignment) {
   return assignment?.draftCode?.trim() ? assignment.draftCode : assignment?.starterCode || defaultDraft;
 }
 
+function hasCheckpointEvidence(assignment) {
+  return getResponseCoverage(assignment).answered > 0;
+}
+
+function hasCommittedSubmission(assignment) {
+  const draftCode = String(assignment?.draftCode || "").trim();
+  const starterCode = String(assignment?.starterCode || assignment?.sourceCode || "").trim();
+  return Boolean(
+    assignment?.submissionConfirmed ||
+      hasCheckpointEvidence(assignment) ||
+      (draftCode && starterCode && draftCode !== starterCode)
+  );
+}
+
 function updateAssignmentDraft(state, assignmentId, code) {
   const { assignment } = findAssignment(state, assignmentId);
   if (assignment) assignment.draftCode = code;
   state.draftCode = code;
+  return state;
+}
+
+function markSubmissionConfirmed(state, assignmentId) {
+  const { assignment } = findAssignment(state, assignmentId);
+  if (assignment) assignment.submissionConfirmed = true;
+  return state;
+}
+
+function clearReviewContext(state) {
+  state.reviewContext = null;
   return state;
 }
 
@@ -1377,6 +1409,7 @@ function renderProfessorCourses(state) {
       const nextState = loadState();
       nextState.activeCourseId = link.dataset.courseId || nextState.activeCourseId;
       nextState.activeAssignmentId = link.dataset.assignmentId || nextState.activeAssignmentId;
+      clearReviewContext(nextState);
       saveState(nextState);
     });
   });
@@ -1479,6 +1512,7 @@ function renderProfessorDashboard() {
     });
     nextState.activeCourseId = id;
     nextState.activeAssignmentId = "";
+    clearReviewContext(nextState);
     saveState(nextState);
     refresh();
     if (courseFeedback) courseFeedback.textContent = `${title} was registered and is now available for assignment launch.`;
@@ -1516,6 +1550,7 @@ function renderProfessorDashboard() {
     );
     nextState.activeCourseId = course.id;
     nextState.activeAssignmentId = assignmentId;
+    clearReviewContext(nextState);
     saveState(nextState);
     refresh();
     if (assignmentFeedback) assignmentFeedback.textContent = `${title} was added to ${course.title}.`;
@@ -1774,6 +1809,7 @@ function renderStudentPortal() {
         const nextState = loadState();
         nextState.activeCourseId = button.dataset.courseId || nextState.activeCourseId;
         nextState.activeAssignmentId = button.dataset.assignmentId || nextState.activeAssignmentId;
+        clearReviewContext(nextState);
         saveState(nextState);
         const { assignment } = findAssignment(nextState, nextState.activeAssignmentId);
         const progress = getAssignmentProgressState(assignment);
@@ -1787,6 +1823,7 @@ function renderStudentPortal() {
     const course = findCourse(nextState, courseSelect.value);
     nextState.activeCourseId = courseSelect.value;
     nextState.activeAssignmentId = course?.assignments?.[0]?.id || "";
+    clearReviewContext(nextState);
     saveState(nextState);
     refresh();
   });
@@ -1805,11 +1842,14 @@ function renderStudentSubmission() {
   const dueBadge = document.getElementById("submission-due-badge");
   const moduleSummary = document.getElementById("submission-module-summary");
   const sourceFile = document.getElementById("submission-source-file");
+  const nextLink = document.getElementById("submission-next-link");
+  const nextCopy = document.getElementById("submission-next-copy");
 
   const state = loadState();
   const { course, assignment } = findAssignment(state, state.activeAssignmentId);
   if (!course || !assignment) return;
   const responses = normalizeResponses(assignment.responses);
+  const submissionReady = hasCommittedSubmission(assignment);
 
   courseLabel.textContent = `${course.title} / ${assignment.title}`;
   if (title) title.textContent = `${assignment.title} Submission`;
@@ -1824,8 +1864,9 @@ function renderStudentSubmission() {
     if (codeInput) {
       codeInput.value = getAssignmentDraft(assignment);
       codeInput.addEventListener("input", () => {
-      const nextState = loadState();
-      updateAssignmentDraft(nextState, nextState.activeAssignmentId, codeInput.value);
+        const nextState = loadState();
+        updateAssignmentDraft(nextState, nextState.activeAssignmentId, codeInput.value);
+        markSubmissionConfirmed(nextState, nextState.activeAssignmentId);
         saveState(nextState);
       });
     }
@@ -1833,8 +1874,27 @@ function renderStudentSubmission() {
     bindRadioGroup("provenance", responses.provenance, (value) => {
       const nextState = loadState();
       updateAssignmentResponse(nextState, nextState.activeAssignmentId, "provenance", null, value);
+      markSubmissionConfirmed(nextState, nextState.activeAssignmentId);
       saveState(nextState);
     });
+
+    if (nextCopy) {
+      nextCopy.textContent = submissionReady
+        ? "Your baseline is saved. Continue into explanation of the algorithm's pressure points whenever you're ready."
+        : "Starter code is preloaded for orientation. Moving forward confirms that this is the version you want to defend in the next checkpoints.";
+      const duplicateCopy = nextCopy.previousElementSibling;
+      if (duplicateCopy?.tagName === "P" && !duplicateCopy.id) {
+        duplicateCopy.style.display = "none";
+      }
+    }
+
+    if (nextLink) {
+      nextLink.addEventListener("click", () => {
+        const nextState = loadState();
+        markSubmissionConfirmed(nextState, nextState.activeAssignmentId);
+        saveState(nextState);
+      });
+    }
 
     renderStepProgress({
       assignment,
@@ -1906,6 +1966,7 @@ function renderCreateAssignment() {
     const course = findCourse(nextState, courseSelect.value);
     nextState.activeCourseId = course.id;
     nextState.activeAssignmentId = course.assignments[0]?.id || "";
+    clearReviewContext(nextState);
     saveState(nextState);
     refresh();
   });
@@ -1913,6 +1974,7 @@ function renderCreateAssignment() {
   assignmentSelect.addEventListener("change", () => {
     const nextState = loadState();
     nextState.activeAssignmentId = assignmentSelect.value;
+    clearReviewContext(nextState);
     saveState(nextState);
     refresh();
   });
