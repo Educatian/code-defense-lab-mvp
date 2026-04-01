@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Trace Mode - Code Defense Lab</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+    <script>
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              surface: "#f7f9fb",
+              "surface-container-lowest": "#ffffff",
+              "surface-container-low": "#f0f4f7",
+              "surface-container-high": "#e1e9ee",
+              "surface-container-highest": "#d9e4ea",
+              outline: "#717c82",
+              "outline-variant": "#a9b4b9",
+              primary: "#545f73",
+              tertiary: "#00649a",
+              secondary: "#526074",
+              error: "#9f403d",
+              "on-surface": "#2a3439",
+              "on-surface-variant": "#566166"
+            },
+            fontFamily: {
+              headline: ["Space Grotesk"],
+              body: ["Inter"],
+              mono: ["JetBrains Mono"]
+            }
+          }
+        }
+      };
+    </script>
+    <style>
+      .material-symbols-outlined { font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 24; }
+      .mono-tight { font-family: "JetBrains Mono", monospace; line-height: 1.4; }
+      body { min-height: max(884px, 100dvh); }
+    </style>
+  </head>
+  <body class="bg-surface text-on-surface font-body min-h-screen flex flex-col">
+    <header class="bg-slate-50 border-b border-slate-200/80 text-slate-700 docked full-width top-0 z-40 sticky">
+      <div class="flex justify-between items-center w-full px-6 py-4 max-w-full">
+        <div class="flex items-center gap-4">
+          <div class="w-8 h-8 rounded-full bg-slate-200 overflow-hidden flex-shrink-0">
+            <img alt="Instructor Profile" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDlmNNMx89o0QH8Q2TlTz1IF0VSW5Qc3HiVIu9HlPOfs_EtfppX4zcrYROdNqCO6JToobd9QCkNHjMkw8M6wDd3J301GzzXuVd9A0b2ZOIUW6F62PAp6jVZnjCwGG1oVLsMFUIeUs3WshHtFxuAYLAIMniu-9LOPVAADhyCtuB_h7pfFLeioZ6K3kEf5sNiFWDK9jCAGtpcrvd230oVjxm9CZ1zKPNwSuTsBxQhdlo5wWPjuN_GUukIO7WzY8ZDayY6x-NLiOqTpVAy" />
+          </div>
+          <h1 class="text-xl font-bold tracking-tight text-slate-900 font-headline">Code Defense Lab</h1>
+        </div>
+        <nav class="hidden md:flex items-center gap-8">
+          <a class="text-slate-500 hover:text-slate-900 transition-colors font-headline font-bold text-lg" href="./student-portal.html">My Courses</a>
+          <a class="text-slate-900 font-semibold font-headline font-bold text-lg" href="./student-submission.html">Current Homework</a>
+          <a class="text-slate-500 hover:text-slate-900 transition-colors font-headline font-bold text-lg" href="./student-result.html">Results</a>
+        </nav>
+        <button class="material-symbols-outlined text-slate-700 p-2 rounded-full hover:bg-slate-200/50 transition-colors">settings</button>
+      </div>
+    </header>
+
+    <div class="flex flex-1 overflow-hidden">
+      <aside class="hidden lg:flex h-full w-64 flex-col py-8 bg-slate-50 border-r border-slate-200 shrink-0">
+        <div class="px-6 mb-8">
+          <h2 class="text-lg font-bold font-headline text-slate-900 uppercase tracking-tighter">Assessment Flow</h2>
+          <p class="mt-2 text-[10px] font-mono uppercase tracking-[0.18em] text-slate-400">Understanding checkpoints</p>
+        </div>
+        <nav class="flex flex-col gap-1 px-2">
+          <a class="text-slate-500 hover:bg-slate-100 transition-colors px-4 py-3 rounded-sm font-mono flex items-center gap-3" href="./student-submission.html"><span class="material-symbols-outlined">upload_file</span><span class="text-sm tracking-tighter">Submission</span></a>
+          <a class="text-slate-500 hover:bg-slate-100 transition-colors px-4 py-3 rounded-sm font-mono flex items-center gap-3" href="./hotspot-questions.html"><span class="material-symbols-outlined">biotech</span><span class="text-sm tracking-tighter">Hotspots</span></a>
+          <a class="bg-slate-200 text-slate-900 font-mono px-4 py-3 rounded-sm flex items-center gap-3" href="./trace-mode-task.html"><span class="material-symbols-outlined">account_tree</span><span class="text-sm tracking-tighter">Trace</span></a>
+          <a class="text-slate-500 hover:bg-slate-100 transition-colors px-4 py-3 rounded-sm font-mono flex items-center gap-3" href="./mutation-task.html"><span class="material-symbols-outlined">query_stats</span><span class="text-sm tracking-tighter">Mutation</span></a>
+          <a class="text-slate-500 hover:bg-slate-100 transition-colors px-4 py-3 rounded-sm font-mono flex items-center gap-3" href="./repair-mode-task.html"><span class="material-symbols-outlined">build</span><span class="text-sm tracking-tighter">Repair</span></a>
+        </nav>
+      </aside>
+
+      <main class="flex-1 overflow-y-auto bg-surface p-6 md:p-10">
+        <div class="max-w-5xl mx-auto">
+          <div class="rounded-2xl bg-surface-container-lowest border border-outline-variant/10 p-5 shadow-sm mb-8">
+            <div class="flex flex-col md:flex-row md:items-end justify-between gap-4">
+              <div>
+                <p id="trace-course-label" class="text-tertiary font-mono text-xs uppercase tracking-[0.18em]">Advanced Algorithms / Homework 03</p>
+                <p class="mt-2 text-sm text-on-surface-variant">Turn explanation into prediction by showing the state transitions before the code runs.</p>
+              </div>
+              <div class="min-w-[220px]">
+                <div class="flex items-center justify-between text-[11px] font-mono uppercase tracking-[0.16em] text-slate-500 mb-2">
+                  <span id="trace-step-text">Step 3 of 5</span>
+                  <span id="trace-progress-text">60% Complete</span>
+                </div>
+                <div class="h-1.5 bg-surface-container-highest rounded-full overflow-hidden">
+                  <div id="trace-progress-bar" class="h-full bg-tertiary w-3/5"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <section class="bg-surface-container-lowest p-6 rounded-2xl border border-outline-variant/10 shadow-sm mb-10">
+            <p class="font-mono text-[10px] uppercase tracking-[0.18em] text-tertiary mb-2">Checkpoint 3</p>
+            <h2 id="trace-assignment-title" class="text-3xl md:text-4xl font-headline font-bold text-on-surface tracking-tight">Trace Mode Analysis</h2>
+            <p id="trace-intro-text" class="mt-3 max-w-3xl text-sm text-on-surface-variant leading-relaxed">The student now has to simulate execution from memory. This converts explanation into prediction and exposes whether they really understand state movement inside the algorithm.</p>
+            <p class="mt-4 text-xs text-slate-500">Use the active scenario to predict state changes before the code runs, then carry that reasoning into the mutation stage.</p>
+          </section>
+
+          <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            <div class="lg:col-span-7 flex flex-col gap-6">
+              <div class="bg-surface-container-lowest rounded-2xl border border-outline-variant/10 shadow-sm p-6">
+                <div class="flex items-center gap-2 mb-4">
+                  <span class="material-symbols-outlined text-tertiary">psychology</span>
+                  <h3 class="text-sm font-bold font-headline uppercase tracking-wider text-on-surface-variant">Active Scenario</h3>
+                </div>
+                <p id="trace-scenario-text" class="text-lg font-medium text-on-surface">Trace the following scenario: Input string is <span class="font-mono bg-white px-2 py-0.5 rounded shadow-sm text-tertiary">"pwwkew"</span>.</p>
+                <p class="mt-3 text-sm text-on-surface-variant leading-relaxed">The goal is not speed. The goal is to show that each update to <code class="font-mono text-tertiary">start</code>, <code class="font-mono text-tertiary">max_len</code>, and <code class="font-mono text-tertiary">char_map</code> can be predicted before the interpreter does it.</p>
+              </div>
+              <div class="bg-surface-container-lowest rounded-2xl overflow-hidden border border-outline-variant/10 shadow-sm">
+                <div class="bg-surface-container-high px-4 py-2 border-b border-outline-variant/10 flex justify-between items-center">
+                  <span id="trace-source-file" class="text-[10px] font-mono text-on-surface-variant uppercase tracking-widest">lengthOfLongestSubstring.py</span>
+                  <div class="flex gap-1.5">
+                    <div class="w-2 h-2 rounded-full bg-error/40"></div>
+                    <div class="w-2 h-2 rounded-full bg-secondary/40"></div>
+                    <div class="w-2 h-2 rounded-full bg-tertiary/40"></div>
+                  </div>
+                </div>
+                <div class="p-6 overflow-x-auto">
+<pre id="trace-code-block" class="mono-tight text-sm text-slate-800"><span class="text-slate-400">1</span>  def lengthOfLongestSubstring(s: str) -&gt; int:
+<span class="text-slate-400">2</span>      char_map = {}
+<span class="text-slate-400">3</span>      max_len = start = 0
+<span class="text-slate-400">4</span>      for i, char in enumerate(s):
+<span class="text-slate-400">5</span>          if char in char_map and start &lt;= char_map[char]:
+<span class="text-slate-400">6</span>              start = char_map[char] + 1
+<span class="text-slate-400">7</span>          else:
+<span class="text-slate-400">8</span>              max_len = max(max_len, i - start + 1)
+<span class="text-slate-400">9</span>          char_map[char] = i
+<span class="text-slate-400">10</span>     return max_len</pre>
+                </div>
+              </div>
+            </div>
+
+            <div class="lg:col-span-5">
+              <div class="bg-surface-container-lowest rounded-2xl p-8 shadow-sm border border-outline-variant/10">
+                <div class="flex items-center gap-2 mb-8 border-b border-outline-variant/10 pb-4">
+                  <span class="material-symbols-outlined text-secondary">terminal</span>
+                  <h3 class="text-sm font-bold font-headline uppercase tracking-wider text-on-surface-variant">Prediction Buffer</h3>
+                </div>
+                <form class="space-y-8">
+                  <p class="text-[10px] font-mono uppercase tracking-[0.18em] text-slate-400">Responses save automatically</p>
+                  <div class="space-y-3">
+                    <label class="block text-xs font-bold font-headline uppercase tracking-widest text-outline">Q1. State Delta</label>
+                    <p id="trace-question-1" class="text-sm text-on-surface-variant">What is the value of <code class="font-mono text-tertiary">max_len</code> after the second iteration?</p>
+                    <input id="trace-answer-1" class="w-full bg-surface-container-lowest border-0 border-b-2 border-surface-container focus:border-tertiary focus:ring-0 font-mono text-sm py-3 transition-colors" placeholder="Integer value" type="text" />
+                  </div>
+                  <div class="space-y-3">
+                    <label class="block text-xs font-bold font-headline uppercase tracking-widest text-outline">Q2. Memory Mapping</label>
+                    <p id="trace-question-2" class="text-sm text-on-surface-variant">What is the current state of the <code class="font-mono text-tertiary">char_map</code> dictionary?</p>
+                    <textarea id="trace-answer-2" class="w-full bg-surface-container-lowest border-0 border-b-2 border-surface-container focus:border-tertiary focus:ring-0 font-mono text-sm py-3 transition-colors resize-none" rows="3"></textarea>
+                  </div>
+                  <div class="space-y-3">
+                    <label class="block text-xs font-bold font-headline uppercase tracking-widest text-outline">Q3. Exit Vector</label>
+                    <p id="trace-question-3" class="text-sm text-on-surface-variant">Predict the output of the function for this input.</p>
+                    <input id="trace-answer-3" class="w-full bg-surface-container-lowest border-0 border-b-2 border-surface-container focus:border-tertiary focus:ring-0 font-mono text-sm py-3 transition-colors" placeholder="Return value" type="text" />
+                  </div>
+                  <div class="pt-6">
+                    <a id="trace-next-link" class="w-full bg-primary text-white font-bold py-4 rounded-lg flex items-center justify-center gap-3 shadow-md hover:bg-slate-700 transition-all group no-underline" href="./mutation-task.html">
+                      <span id="trace-next-label">Next Task: Mutation Task</span>
+                      <span class="material-symbols-outlined text-lg">arrow_forward</span>
+                    </a>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+    <script type="module" src="/src/shell.js"></script>
+    <script type="module" src="/src/workspace-state.js"></script>
+  </body>
+</html>

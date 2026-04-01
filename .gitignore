@@ -1,0 +1,10 @@
+node_modules/
+dist/
+.codex-dev.log
+.codex-dev.err.log
+.codex-dev-4174.log
+.codex-dev-4174.err.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*

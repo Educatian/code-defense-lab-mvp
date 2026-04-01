@@ -1,0 +1,222 @@
+:root {
+  --shell-bg: rgba(247, 251, 255, 0.9);
+  --shell-line: rgba(167, 182, 197, 0.42);
+  --shell-text: #223041;
+  --shell-muted: #5d6a77;
+  --shell-brand: #0f6398;
+  --shell-surface: rgba(255, 255, 255, 0.92);
+  --shell-shadow: 0 16px 50px rgba(21, 39, 58, 0.12);
+}
+
+.cdl-shell-nav {
+  position: fixed;
+  right: 18px;
+  bottom: 18px;
+  z-index: 1000;
+  width: min(360px, calc(100vw - 24px));
+  max-height: calc(100vh - 36px);
+  overflow: auto;
+  border-radius: 24px;
+  border: 1px solid var(--shell-line);
+  background: var(--shell-bg);
+  backdrop-filter: blur(18px);
+  box-shadow: var(--shell-shadow);
+  color: var(--shell-text);
+  font-family: Inter, sans-serif;
+}
+
+.cdl-shell-nav *,
+.cdl-shell-nav *::before,
+.cdl-shell-nav *::after {
+  box-sizing: border-box;
+}
+
+.cdl-shell-inner {
+  padding: 16px;
+}
+
+.cdl-shell-top {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.cdl-shell-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: rgba(15, 99, 152, 0.1);
+  color: var(--shell-brand);
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  font-family: "JetBrains Mono", monospace;
+}
+
+.cdl-shell-top strong {
+  display: block;
+  margin-top: 8px;
+  font-size: 17px;
+  line-height: 1.2;
+  font-family: "Space Grotesk", sans-serif;
+}
+
+.cdl-shell-top span {
+  display: block;
+  margin-top: 4px;
+  color: var(--shell-muted);
+  font-size: 13px;
+}
+
+.cdl-shell-toggle {
+  appearance: none;
+  border: 1px solid var(--shell-line);
+  background: var(--shell-surface);
+  color: var(--shell-text);
+  border-radius: 999px;
+  width: 34px;
+  height: 34px;
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.cdl-shell-sections {
+  display: grid;
+  gap: 10px;
+}
+
+.cdl-shell-meta {
+  margin-bottom: 12px;
+  border: 1px solid var(--shell-line);
+  background: rgba(255, 255, 255, 0.82);
+  border-radius: 18px;
+  padding: 12px;
+}
+
+.cdl-shell-meta h2 {
+  margin: 0 0 10px;
+  font-size: 11px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--shell-muted);
+  font-family: "JetBrains Mono", monospace;
+}
+
+.cdl-shell-meta-grid {
+  display: grid;
+  gap: 8px;
+}
+
+.cdl-shell-meta-card {
+  border-radius: 14px;
+  padding: 10px 12px;
+  background: rgba(248, 251, 255, 0.76);
+}
+
+.cdl-shell-meta-card strong {
+  display: block;
+  margin-bottom: 4px;
+  font-size: 13px;
+  font-family: "Space Grotesk", sans-serif;
+}
+
+.cdl-shell-meta-card p {
+  margin: 0;
+  color: var(--shell-muted);
+  font-size: 12px;
+  line-height: 1.55;
+}
+
+.cdl-shell-section {
+  border: 1px solid var(--shell-line);
+  background: rgba(255, 255, 255, 0.78);
+  border-radius: 18px;
+  padding: 12px;
+}
+
+.cdl-shell-section h2 {
+  margin: 0 0 8px;
+  font-size: 11px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--shell-muted);
+  font-family: "JetBrains Mono", monospace;
+}
+
+.cdl-shell-links {
+  display: grid;
+  gap: 8px;
+}
+
+.cdl-shell-links a {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 10px 12px;
+  border-radius: 14px;
+  border: 1px solid transparent;
+  text-decoration: none;
+  color: var(--shell-text);
+  background: rgba(248, 251, 255, 0.76);
+  font-size: 14px;
+}
+
+.cdl-shell-links a:hover {
+  border-color: rgba(15, 99, 152, 0.24);
+  transform: translateY(-1px);
+}
+
+.cdl-shell-links a.is-active {
+  border-color: rgba(15, 99, 152, 0.28);
+  background: rgba(15, 99, 152, 0.12);
+  color: #0a4f7c;
+  font-weight: 600;
+}
+
+.cdl-shell-links code {
+  color: var(--shell-muted);
+  font-size: 11px;
+  font-family: "JetBrains Mono", monospace;
+}
+
+.cdl-shell-flow {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.cdl-shell-flow a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 42px;
+  border-radius: 14px;
+  text-decoration: none;
+  color: var(--shell-text);
+  border: 1px solid var(--shell-line);
+  background: rgba(255, 255, 255, 0.86);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.cdl-shell-nav.is-collapsed .cdl-shell-sections,
+.cdl-shell-nav.is-collapsed .cdl-shell-flow {
+  display: none;
+}
+
+@media (max-width: 720px) {
+  .cdl-shell-nav {
+    left: 12px;
+    right: 12px;
+    bottom: 12px;
+    width: auto;
+  }
+}

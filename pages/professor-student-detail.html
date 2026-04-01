@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Professor View: Student Detail</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+    <script>
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              surface: "#f7f9fb",
+              "surface-container-lowest": "#ffffff",
+              "surface-container-low": "#f0f4f7",
+              "surface-container-high": "#e1e9ee",
+              "surface-container-highest": "#d9e4ea",
+              outline: "#717c82",
+              "outline-variant": "#a9b4b9",
+              primary: "#545f73",
+              tertiary: "#00649a",
+              secondary: "#526074",
+              error: "#9f403d",
+              "error-container": "#fe8983",
+              "on-error-container": "#752121",
+              "on-surface": "#2a3439",
+              "on-surface-variant": "#566166"
+            },
+            fontFamily: {
+              headline: ["Space Grotesk"],
+              body: ["Inter"],
+              mono: ["JetBrains Mono"]
+            }
+          }
+        }
+      };
+    </script>
+    <style>
+      .material-symbols-outlined { font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 24; }
+      body { min-height: max(884px, 100dvh); }
+    </style>
+  </head>
+  <body class="bg-surface text-on-surface">
+    <header class="bg-slate-50 flex justify-between items-center w-full px-6 py-4 max-w-full z-50 fixed">
+      <div class="flex items-center gap-4">
+        <img alt="Professor Profile" class="w-10 h-10 rounded-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBqd3ItYdhfY-mRNQiOSPylWD7SQes_PgLupYb4wZGggAFN6-FNcdmylvmlggO8E3CqpV77O-QKDqkRoKsh2XWAOvADGGyXahtbGqAGR1-PpKgd3gb0TMVTpPeciFjoxhdntwvMThB0evljV_yxYubvzuFFRiSTtGnUOUWwQPAE3VM8NPzNkT4CYTC1R4ixHWC16ddCUwMz_6osG8gTRA0rSIijTO13m4u4zIiBD0MGk51qrAIzI-MRzbgvvciHRZqKFaZMErtHS1fL" />
+        <span class="text-xl font-bold tracking-tight text-slate-900 font-headline">Code Defense Lab</span>
+      </div>
+      <div class="flex items-center gap-6">
+        <nav class="hidden md:flex items-center gap-6">
+          <a class="text-slate-500 transition-colors cursor-pointer px-2 py-1 rounded" href="./professor-dashboard.html">Dashboard</a>
+          <a class="text-slate-900 font-semibold transition-colors cursor-pointer px-2 py-1 rounded" href="./professor-student-detail.html">Students</a>
+          <a class="text-slate-500 transition-colors cursor-pointer px-2 py-1 rounded" href="../index.html">Role Select</a>
+        </nav>
+      </div>
+    </header>
+    <div class="flex min-h-screen pt-[72px] pb-[80px] md:pb-0">
+      <aside class="hidden lg:flex h-[calc(100vh-72px)] w-64 flex-col py-8 bg-slate-50 border-r border-slate-200 sticky top-[72px]">
+        <div class="px-6 mb-8"><h2 class="text-lg font-bold font-headline text-slate-900">Assessment Flow</h2></div>
+        <nav class="flex flex-col gap-1 px-2">
+          <div class="bg-slate-200 text-slate-900 font-mono px-4 py-2 rounded-sm flex items-center gap-3 scale-98 transition-transform cursor-pointer"><span class="material-symbols-outlined text-sm">upload_file</span><span class="font-mono text-sm tracking-tighter">Submission</span></div>
+          <div class="text-slate-500 px-4 py-2 font-mono flex items-center gap-3 cursor-pointer transition-colors"><span class="material-symbols-outlined text-sm">biotech</span><span class="font-mono text-sm tracking-tighter">Hotspots</span></div>
+          <div class="text-slate-500 px-4 py-2 font-mono flex items-center gap-3 cursor-pointer transition-colors"><span class="material-symbols-outlined text-sm">account_tree</span><span class="font-mono text-sm tracking-tighter">Trace</span></div>
+          <div class="text-slate-500 px-4 py-2 font-mono flex items-center gap-3 cursor-pointer transition-colors"><span class="material-symbols-outlined text-sm">query_stats</span><span class="font-mono text-sm tracking-tighter">Mutation</span></div>
+          <div class="text-slate-500 px-4 py-2 font-mono flex items-center gap-3 cursor-pointer transition-colors"><span class="material-symbols-outlined text-sm">build</span><span class="font-mono text-sm tracking-tighter">Repair</span></div>
+        </nav>
+      </aside>
+      <main class="flex-1 p-6 md:p-8 max-w-7xl mx-auto w-full">
+        <section class="mb-10 flex flex-col md:flex-row md:items-end justify-between gap-6">
+          <div class="flex items-start gap-6">
+            <div class="w-20 h-20 bg-surface-container-highest rounded-lg flex items-center justify-center overflow-hidden border-2 border-surface-container-high">
+              <img alt="Selected student profile" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCd8gzbajsZa2AtgRZg1UFmh57rTdGDZ9ncyQPVHJ6sz-bdn3hsYGBDxf-3cyeKPqFqUNOD0tUKPu9xJL_HRJqZbQWN8FDKo05rA3p2cW1ondeiORLE7bJ9MLoRlaWe6DlwaeoiQZwYRCJGp0z7vrGJLkLT8Py7Hvw4tye_dvoMQsCFum7HNkmYhaU-6MEQcozP_nxTwU9YKmmeAyTnOaX9-Cg2GWtBqJuSLfuzlc9usAwQyRyiFENcfIY1gSFNlJgGRLJNqhtJ3hoX" />
+            </div>
+            <div>
+              <div class="flex items-center gap-3 mb-1">
+                <h1 id="professor-student-name" class="font-headline text-3xl font-bold text-on-surface">Alex Chen</h1>
+                <span id="professor-student-id" class="font-mono text-[10px] bg-surface-container-high px-2 py-0.5 rounded text-on-surface-variant uppercase tracking-widest">ID: Pending</span>
+              </div>
+              <p id="professor-course-summary" class="text-on-surface-variant font-medium">Advanced Algorithms | Semester 1</p>
+              <div class="mt-3 flex gap-2">
+                <span id="professor-provenance-badge" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-surface-container-low border border-outline-variant/20"><span class="w-2 h-2 rounded-full bg-tertiary"></span>AI Assisted</span>
+                <span id="professor-flag-badge" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-error-container text-on-error-container border border-error/20"><span class="w-2 h-2 rounded-full bg-error"></span>Flag for Oral Defense</span>
+              </div>
+            </div>
+          </div>
+          <div class="flex gap-3">
+            <button class="bg-surface-container-high text-on-surface px-4 py-2 text-sm font-semibold rounded hover:bg-surface-container-highest transition-colors">Contact Student</button>
+            <a class="bg-primary text-white px-4 py-2 text-sm font-semibold rounded shadow-sm hover:opacity-90 transition-opacity flex items-center gap-2 no-underline" href="./professor-dashboard.html"><span class="material-symbols-outlined text-sm">check_circle</span>Mark as Reviewed</a>
+          </div>
+        </section>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          <div class="lg:col-span-8 space-y-6">
+            <div class="bg-surface-container-low rounded-xl overflow-hidden">
+              <div class="px-6 py-4 flex justify-between items-center bg-surface-container">
+                <div class="flex items-center gap-2">
+                  <span class="material-symbols-outlined text-primary text-xl">code</span>
+                  <span id="professor-source-file" class="font-mono text-sm font-bold">longest_substring.py</span>
+                </div>
+                <span class="font-mono text-[10px] text-on-surface-variant">SUBMITTED: 2H AGO</span>
+              </div>
+              <div class="p-6 bg-surface-container-highest font-mono text-sm leading-relaxed overflow-x-auto">
+<pre id="professor-source-code" class="text-slate-700"></pre>
+              </div>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div class="bg-surface-container-lowest p-6 rounded-xl border border-surface-container">
+                <h3 class="font-headline text-sm font-bold mb-4 flex items-center gap-2"><span class="material-symbols-outlined text-primary">biotech</span>Hotspot Identification</h3>
+                <div class="space-y-3">
+                  <div class="p-3 bg-surface-container-low rounded">
+                    <p class="font-mono text-[10px] uppercase tracking-[0.15em] text-slate-500 mb-1">Hotspot Focus</p>
+                    <p id="professor-hotspot-focus" class="text-sm text-on-surface-variant leading-relaxed">Hotspot focus appears here.</p>
+                  </div>
+                  <div class="p-3 bg-surface-container-low rounded">
+                    <p class="font-mono text-[10px] uppercase tracking-[0.15em] text-slate-500 mb-1">Student Response</p>
+                    <p id="professor-hotspot-response" class="text-sm text-on-surface-variant leading-relaxed">Saved hotspot response appears here.</p>
+                  </div>
+                </div>
+              </div>
+              <div class="bg-surface-container-lowest p-6 rounded-xl border border-surface-container">
+                <h3 class="font-headline text-sm font-bold mb-4 flex items-center gap-2"><span class="material-symbols-outlined text-primary">account_tree</span>Logic Trace</h3>
+                <div class="space-y-4">
+                  <div><p class="text-[10px] text-on-surface-variant font-bold uppercase tracking-widest mb-1">Scenario Input</p><div id="professor-trace-scenario" class="bg-surface-container-high px-3 py-2 rounded font-mono text-sm">Trace scenario appears here.</div></div>
+                  <div><p class="text-[10px] text-on-surface-variant font-bold uppercase tracking-widest mb-1">Student Trace Reasoning</p><p id="professor-trace-response" class="text-sm text-on-surface-variant leading-relaxed">Saved trace reasoning appears here.</p></div>
+                </div>
+              </div>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div class="bg-surface-container-lowest p-6 rounded-xl border border-surface-container">
+                <h3 class="font-headline text-sm font-bold mb-4 flex items-center gap-2"><span class="material-symbols-outlined text-primary">query_stats</span>Mutation Reasoning</h3>
+                <p id="professor-mutation-response" class="text-sm text-on-surface-variant leading-relaxed">Saved mutation reasoning appears here.</p>
+              </div>
+              <div class="bg-surface-container-lowest p-6 rounded-xl border border-surface-container">
+                <h3 class="font-headline text-sm font-bold mb-4 flex items-center gap-2"><span class="material-symbols-outlined text-primary">build</span>Repair Reasoning</h3>
+                <p id="professor-repair-response" class="text-sm text-on-surface-variant leading-relaxed">Saved repair reasoning appears here.</p>
+              </div>
+            </div>
+            <div class="bg-surface-container-lowest p-6 rounded-xl border border-outline-variant/10 shadow-sm">
+              <div class="flex items-center justify-between gap-4 mb-5">
+                <div>
+                  <p class="font-mono text-[10px] uppercase tracking-[0.18em] text-tertiary mb-2">Checkpoint Rubric</p>
+                  <h3 class="font-headline text-xl font-bold text-on-surface">Why this review recommendation was generated</h3>
+                </div>
+                <span class="text-xs text-on-surface-variant">Shared with student report</span>
+              </div>
+              <p id="professor-rubric-evidence" class="text-sm text-on-surface-variant leading-relaxed mb-5">Rubric evidence summary appears here.</p>
+              <div id="professor-rubric-dimensions" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+            </div>
+          </div>
+          <aside class="lg:col-span-4 space-y-6">
+            <div class="bg-surface-container p-1 rounded-xl shadow-sm">
+              <div class="bg-white p-6 rounded-[10px]">
+                <div class="flex items-center justify-between mb-6">
+                  <h3 class="font-headline text-sm font-bold text-on-surface uppercase tracking-tight">Understanding Consistency</h3>
+                  <div class="flex items-center gap-1.5"><div class="flex gap-1"><div class="w-1.5 h-1.5 rounded-full bg-error"></div><div class="w-1.5 h-1.5 rounded-full bg-surface-container-highest"></div><div class="w-1.5 h-1.5 rounded-full bg-surface-container-highest"></div></div><span id="professor-consistency-level" class="font-mono text-xs font-bold text-error">LOW</span></div>
+                </div>
+                <p id="professor-diagnostic-message" class="text-sm leading-relaxed text-on-surface">The student submitted highly optimized code but failed simple trace and repair tasks related to the same logic. This pattern strongly suggests a lack of fundamental understanding of the submitted algorithm.</p>
+                <div class="pt-6 border-t border-surface-container mt-6">
+                  <div id="professor-review-card" class="bg-error-container/20 border border-error/10 p-4 rounded-lg">
+                    <div class="flex items-center gap-3 mb-2"><span class="material-symbols-outlined text-error">warning</span><span id="professor-review-title" class="font-headline text-sm font-bold text-on-error-container">Flag for Oral Defense</span></div>
+                    <p id="professor-review-note" class="text-xs text-on-error-container opacity-80 leading-snug">Verification required to determine if the logic was synthesized by the student or external tools.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="bg-surface-container-low p-6 rounded-xl border border-surface-container-high">
+              <p class="text-[10px] text-on-surface-variant font-bold uppercase tracking-widest mb-4">Rubric Summary</p>
+              <div class="space-y-4">
+                <div>
+                  <p class="font-mono text-[10px] uppercase tracking-[0.15em] text-slate-500 mb-1">Strongest Signal</p>
+                  <p id="professor-strength-summary" class="text-sm text-on-surface-variant leading-relaxed">Strongest checkpoint summary appears here.</p>
+                </div>
+                <div>
+                  <p class="font-mono text-[10px] uppercase tracking-[0.15em] text-slate-500 mb-1">Main Gap</p>
+                  <p id="professor-gap-summary" class="text-sm text-on-surface-variant leading-relaxed">Main gap summary appears here.</p>
+                </div>
+                <div>
+                  <p class="font-mono text-[10px] uppercase tracking-[0.15em] text-slate-500 mb-1">Recommended Follow-Up</p>
+                  <p id="professor-next-step" class="text-sm text-on-surface-variant leading-relaxed">Recommended follow-up appears here.</p>
+                </div>
+              </div>
+            </div>
+            <div class="bg-surface-container-low p-6 rounded-xl border border-surface-container-high">
+              <p class="text-[10px] text-on-surface-variant font-bold uppercase tracking-widest mb-4">Submission Metadata</p>
+              <div class="space-y-3">
+                <div class="flex justify-between items-center text-xs"><span class="text-on-surface-variant">Consistency Score</span><span id="professor-consistency-score" class="font-mono font-bold">45%</span></div>
+                <div class="flex justify-between items-center text-xs"><span class="text-on-surface-variant">Response Coverage</span><span id="professor-response-coverage" class="font-mono font-bold">2 / 8</span></div>
+                <div class="flex justify-between items-center text-xs"><span class="text-on-surface-variant">Provenance</span><span id="professor-provenance-meta" class="font-mono font-bold text-error">AI Assisted</span></div>
+              </div>
+            </div>
+          </aside>
+        </div>
+      </main>
+    </div>
+    <script type="module" src="/src/shell.js"></script>
+    <script type="module" src="/src/workspace-state.js"></script>
+  </body>
+</html>

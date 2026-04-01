@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Code Defense Lab | Professor Dashboard</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+    <style>
+      body { min-height: max(884px, 100dvh); font-family: Inter, sans-serif; background: #f7f9fb; color: #2a3439; }
+      .material-symbols-outlined { font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 24; }
+    </style>
+  </head>
+  <body class="antialiased">
+    <header class="bg-slate-50 flex justify-between items-center w-full px-6 py-4 max-w-full sticky top-0 z-50 border-b border-slate-200/80">
+      <div class="flex items-center gap-4">
+        <div class="w-10 h-10 rounded-full bg-slate-200 flex items-center justify-center overflow-hidden">
+          <img class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCkORHtpeqKT5NEA-AaSi--sZuyFZqPzZC14bn2YOJWmUvKYl8oHVSu_7oPOMEqVlGo3DG1BcbMYRr1P6mL0QnVPY2mLioRofvqQr5LKNS_CCBcYcZ2k6EZyG-7-fyDZ_VV0M-rCuwG7xbXh8osdjGIrcoAKfhKPj1FHLNL91WdAywMlRuNMcPjEt3Dr99fjFjQFxVcuD3eePukYw49smO5RbUivMkv6EeY-XMSugqD6H219zc5Aa4F2FXpzppGC2LsWD5kjmtTwrFK" />
+        </div>
+        <div>
+          <span class="text-xl font-bold tracking-tight text-slate-900 font-['Space_Grotesk']">Code Defense Lab</span>
+          <p class="text-xs text-slate-500 font-['JetBrains_Mono'] uppercase tracking-[0.2em]">Professor Workspace</p>
+        </div>
+      </div>
+      <div class="hidden md:flex items-center gap-8">
+        <a class="text-slate-900 font-semibold" href="./professor-dashboard.html">Dashboard</a>
+        <a class="text-slate-500 hover:bg-slate-200/50 transition-colors px-2 py-1 rounded" href="./create-assignment.html">Detailed Builder</a>
+        <a class="text-slate-500 hover:bg-slate-200/50 transition-colors px-2 py-1 rounded" href="../index.html">Role Select</a>
+      </div>
+    </header>
+
+    <main class="max-w-[1500px] mx-auto p-6 lg:p-10 space-y-10">
+      <div class="flex flex-col md:flex-row md:items-end justify-between gap-6">
+        <div class="space-y-2">
+          <p class="text-sky-700 font-['JetBrains_Mono'] text-xs tracking-[0.22em] uppercase">Course and Assignment Control</p>
+          <h1 class="font-['Space_Grotesk'] text-4xl font-bold tracking-tight">Create courses, attach homework, then review understanding.</h1>
+          <p class="text-slate-500 max-w-3xl leading-relaxed">The professor path now starts before assessment. You register a course, decide which assignments are active, and only then monitor how students perform across correctness, trace, mutation, and repair.</p>
+        </div>
+        <div class="flex gap-3">
+          <a class="bg-slate-700 text-white px-6 py-3 rounded-xl font-['Space_Grotesk'] font-bold flex items-center gap-2 hover:opacity-90 transition-opacity shadow-lg no-underline" href="./create-assignment.html">
+            <span class="material-symbols-outlined text-sm">add</span>
+            Open Detailed Builder
+          </a>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm"><div class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-4">Active Courses</div><div id="stat-active-courses" class="text-4xl font-['Space_Grotesk'] font-bold">06</div><div class="text-sm text-slate-500 mt-1">Spring term sections</div></div>
+        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm"><div class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-4">Open Assignments</div><div id="stat-open-assignments" class="text-4xl font-['Space_Grotesk'] font-bold">14</div><div class="text-sm text-slate-500 mt-1">Across all registered courses</div></div>
+        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm"><div class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-4">Avg Consistency</div><div id="stat-avg-consistency" class="text-4xl font-['Space_Grotesk'] font-bold">72%</div><div id="stat-avg-caption" class="text-sm text-slate-500 mt-1">Class-wide understanding signal</div></div>
+        <div class="bg-red-50 p-6 rounded-2xl border border-red-100 shadow-sm"><div class="text-xs font-bold text-red-700 uppercase tracking-widest mb-4">Review Queue</div><div id="stat-review-queue" class="text-4xl font-['Space_Grotesk'] font-bold text-red-700">05</div><div id="stat-review-caption" class="text-sm text-red-700/80 mt-1">Needs oral defense or follow-up</div></div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        <div class="lg:col-span-8 space-y-6">
+          <section class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
+            <div class="flex items-center justify-between gap-4 mb-5">
+              <div>
+                <p class="font-['JetBrains_Mono'] text-[10px] uppercase tracking-[0.18em] text-sky-700 mb-2">Registered Courses</p>
+                <h2 class="font-['Space_Grotesk'] text-2xl font-bold">Course registry and active homework</h2>
+              </div>
+              <a class="text-sm font-semibold text-sky-700 no-underline" href="./create-assignment.html">Manage in detail</a>
+            </div>
+            <div id="course-registry" class="grid gap-4"></div>
+          </section>
+
+          <section class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
+            <div class="flex items-center justify-between gap-4 mb-5">
+              <div>
+                <p class="font-['JetBrains_Mono'] text-[10px] uppercase tracking-[0.18em] text-sky-700 mb-2">Review Queue</p>
+                <h2 class="font-['Space_Grotesk'] text-2xl font-bold">Students needing follow-up</h2>
+              </div>
+            </div>
+            <div class="overflow-x-auto">
+              <table class="w-full text-left border-collapse">
+                <thead>
+                  <tr class="bg-slate-100 font-['JetBrains_Mono'] text-[11px] text-slate-500 uppercase tracking-widest">
+                    <th class="px-4 py-3">Student</th>
+                    <th class="px-4 py-3">Course</th>
+                    <th class="px-4 py-3">Assignment</th>
+                    <th class="px-4 py-3">Correctness</th>
+                    <th class="px-4 py-3">Trace</th>
+                    <th class="px-4 py-3">Repair</th>
+                    <th class="px-4 py-3">Consistency</th>
+                    <th class="px-4 py-3">Risk</th>
+                    <th class="px-4 py-3">Action</th>
+                  </tr>
+                </thead>
+                <tbody id="review-queue-body" class="divide-y divide-slate-200 text-sm"></tbody>
+              </table>
+            </div>
+          </section>
+        </div>
+
+        <aside class="lg:col-span-4 space-y-6">
+          <section class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
+            <p class="font-['JetBrains_Mono'] text-[10px] uppercase tracking-[0.18em] text-sky-700 mb-2">Quick Register</p>
+            <h2 class="font-['Space_Grotesk'] text-2xl font-bold mb-4">Create a new course</h2>
+            <div class="space-y-4">
+              <label class="block">
+                <span class="text-xs font-semibold text-slate-500 uppercase tracking-[0.14em]">Course title</span>
+                <input id="course-title-input" class="mt-2 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3" value="Software Testing Foundations" />
+              </label>
+              <label class="block">
+                <span class="text-xs font-semibold text-slate-500 uppercase tracking-[0.14em]">Term and section</span>
+                <input id="course-term-input" class="mt-2 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3" value="Spring 2026 / Section C" />
+              </label>
+              <label class="block">
+                <span class="text-xs font-semibold text-slate-500 uppercase tracking-[0.14em]">Learner count</span>
+                <input id="course-count-input" class="mt-2 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3" type="number" value="28" />
+              </label>
+              <label class="block">
+                <span class="text-xs font-semibold text-slate-500 uppercase tracking-[0.14em]">Enrollment note</span>
+                <textarea id="course-note-input" class="mt-2 w-full min-h-[110px] rounded-xl border border-slate-200 bg-slate-50 px-4 py-3">Learners will use Code Defense Lab checkpoints after each programming assignment.</textarea>
+              </label>
+              <button id="register-course-btn" class="w-full rounded-xl bg-slate-700 text-white py-3 font-semibold">Register Course</button>
+              <p id="course-register-feedback" class="text-sm text-slate-500"></p>
+            </div>
+          </section>
+
+          <section class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
+            <p class="font-['JetBrains_Mono'] text-[10px] uppercase tracking-[0.18em] text-sky-700 mb-2">Assignment Launch</p>
+            <h2 class="font-['Space_Grotesk'] text-2xl font-bold mb-4">Attach homework to a course</h2>
+            <div class="space-y-4">
+              <label class="block">
+                <span class="text-xs font-semibold text-slate-500 uppercase tracking-[0.14em]">Course</span>
+                <select id="assignment-course-select" class="mt-2 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3"></select>
+              </label>
+              <label class="block">
+                <span class="text-xs font-semibold text-slate-500 uppercase tracking-[0.14em]">Assignment title</span>
+                <input id="assignment-title-input" class="mt-2 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3" value="Trace-First Sliding Window Lab" />
+              </label>
+              <label class="block">
+                <span class="text-xs font-semibold text-slate-500 uppercase tracking-[0.14em]">Due window</span>
+                <input id="assignment-due-input" class="mt-2 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3" value="Opens Apr 2 / Due Apr 9" />
+              </label>
+              <label class="block">
+                <span class="text-xs font-semibold text-slate-500 uppercase tracking-[0.14em]">Assignment prompt summary</span>
+                <textarea id="assignment-summary-input" class="mt-2 w-full min-h-[110px] rounded-xl border border-slate-200 bg-slate-50 px-4 py-3">Students submit code, then move through hotspot, trace, mutation, and repair for the same logic.</textarea>
+              </label>
+              <button id="register-assignment-btn" class="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-sky-700 text-white py-3 font-semibold">
+                Add Assignment to Course
+                <span class="material-symbols-outlined text-base">arrow_forward</span>
+              </button>
+              <p id="assignment-register-feedback" class="text-sm text-slate-500"></p>
+              <a class="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-slate-100 text-slate-700 py-3 font-semibold no-underline" href="./create-assignment.html">
+                Open Detailed Builder
+                <span class="material-symbols-outlined text-base">north_east</span>
+              </a>
+            </div>
+          </section>
+        </aside>
+      </div>
+    </main>
+    <script type="module" src="/src/shell.js"></script>
+    <script type="module" src="/src/workspace-state.js"></script>
+  </body>
+</html>

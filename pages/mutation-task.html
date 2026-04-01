@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Mutation Task | Code Defense Lab</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+    <script>
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              surface: "#f7f9fb",
+              "surface-container-lowest": "#ffffff",
+              "surface-container-low": "#f0f4f7",
+              "surface-container-high": "#e1e9ee",
+              "surface-container-highest": "#d9e4ea",
+              outline: "#717c82",
+              "outline-variant": "#a9b4b9",
+              primary: "#545f73",
+              tertiary: "#00649a",
+              secondary: "#526074",
+              error: "#9f403d",
+              "on-surface": "#2a3439",
+              "on-surface-variant": "#566166"
+            },
+            fontFamily: {
+              headline: ["Space Grotesk"],
+              body: ["Inter"],
+              mono: ["JetBrains Mono"]
+            }
+          }
+        }
+      };
+    </script>
+    <style>
+      .material-symbols-outlined { font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 24; }
+      .code-glow { box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.1); }
+      body { min-height: max(884px, 100dvh); }
+    </style>
+  </head>
+  <body class="bg-surface font-body text-on-surface min-h-screen flex flex-col">
+    <header class="bg-slate-50 border-b border-slate-200/80 flex justify-between items-center w-full px-6 py-4 max-w-full sticky top-0 z-40">
+      <div class="flex items-center gap-4">
+        <div class="w-10 h-10 rounded-full bg-surface-container-highest overflow-hidden border border-outline-variant/20">
+          <img class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAdf48k9_RaOFSAONPM0tY3FXdZ4FtOhYLCawAb_FvTxRrvrZK_mB36ZBIhtvTUpVTSogBwmq_IfHxcBW8mp-K0MMFV6aJIuvMo-wS1SJ2shgHKyTwiQkw5XkwnpesoGLvD-hTJAkE2AzSLQvHkzAiNcSj7o5_WmZx2MMGZtGP2HB_CWJvWM1GIJSKO5NcvsS3pGBGSREs4xrsCn2oV72pbrl8QCoolSvlN-jIz3gigaTFqki7yFGrnGiyXYB0Xrk-3NamdrrXVzXXO" />
+        </div>
+        <h1 class="text-xl font-bold tracking-tight text-slate-900 font-headline">Code Defense Lab</h1>
+      </div>
+      <nav class="hidden md:flex items-center gap-8">
+        <a class="text-slate-500 hover:text-slate-900 transition-colors font-headline font-bold text-lg" href="./student-portal.html">My Courses</a>
+        <a class="text-slate-900 font-semibold font-headline font-bold text-lg" href="./student-submission.html">Current Homework</a>
+        <a class="text-slate-500 hover:text-slate-900 transition-colors font-headline font-bold text-lg" href="./student-result.html">Results</a>
+      </nav>
+      <button class="material-symbols-outlined text-slate-700 p-2 rounded-full hover:bg-slate-200/50 transition-colors">settings</button>
+    </header>
+
+    <div class="flex flex-1 overflow-hidden">
+      <aside class="hidden lg:flex h-full w-64 flex-col py-8 bg-slate-50 border-r border-slate-200 shrink-0">
+        <div class="px-6 mb-8">
+          <h2 class="text-lg font-bold font-headline text-slate-900 uppercase tracking-tighter">Assessment Flow</h2>
+          <p class="mt-2 text-[10px] font-mono uppercase tracking-[0.18em] text-slate-400">Understanding checkpoints</p>
+        </div>
+        <nav class="flex flex-col gap-1 px-2">
+          <a class="text-slate-500 hover:bg-slate-100 transition-colors px-4 py-3 rounded-sm font-mono flex items-center gap-3" href="./student-submission.html"><span class="material-symbols-outlined">upload_file</span><span class="text-sm tracking-tighter">Submission</span></a>
+          <a class="text-slate-500 hover:bg-slate-100 transition-colors px-4 py-3 rounded-sm font-mono flex items-center gap-3" href="./hotspot-questions.html"><span class="material-symbols-outlined">biotech</span><span class="text-sm tracking-tighter">Hotspots</span></a>
+          <a class="text-slate-500 hover:bg-slate-100 transition-colors px-4 py-3 rounded-sm font-mono flex items-center gap-3" href="./trace-mode-task.html"><span class="material-symbols-outlined">account_tree</span><span class="text-sm tracking-tighter">Trace</span></a>
+          <a class="bg-slate-200 text-slate-900 font-mono px-4 py-3 rounded-sm flex items-center gap-3" href="./mutation-task.html"><span class="material-symbols-outlined">query_stats</span><span class="text-sm tracking-tighter">Mutation</span></a>
+          <a class="text-slate-500 hover:bg-slate-100 transition-colors px-4 py-3 rounded-sm font-mono flex items-center gap-3" href="./repair-mode-task.html"><span class="material-symbols-outlined">build</span><span class="text-sm tracking-tighter">Repair</span></a>
+        </nav>
+      </aside>
+
+      <main class="flex-1 overflow-y-auto p-6 md:p-10 bg-surface">
+        <div class="max-w-5xl mx-auto rounded-2xl bg-surface-container-lowest border border-outline-variant/10 p-5 shadow-sm mb-8">
+          <div class="flex flex-col md:flex-row md:items-end justify-between gap-4">
+            <div>
+              <p id="mutation-course-label" class="text-tertiary font-mono text-xs uppercase tracking-[0.18em]">Advanced Algorithms / Homework 03</p>
+              <p class="mt-2 text-sm text-on-surface-variant">Adapt the same algorithm to a changed contract without throwing away the original reasoning model.</p>
+            </div>
+            <div class="min-w-[220px]">
+              <div class="flex items-center justify-between text-[11px] font-mono uppercase tracking-[0.16em] text-slate-500 mb-2">
+                <span id="mutation-step-text">Step 4 of 5</span>
+                <span id="mutation-progress-text">80% Complete</span>
+              </div>
+              <div class="h-1.5 bg-surface-container-highest rounded-full overflow-hidden"><div id="mutation-progress-bar" class="h-full bg-tertiary w-4/5"></div></div>
+            </div>
+          </div>
+        </div>
+
+        <section class="max-w-5xl mx-auto bg-surface-container-lowest p-6 rounded-2xl border border-outline-variant/10 shadow-sm mb-6">
+          <p class="font-mono text-[10px] uppercase tracking-[0.18em] text-tertiary mb-2">Checkpoint 4</p>
+          <h1 class="text-3xl md:text-4xl font-headline font-bold text-on-surface tracking-tight">Mutation Task</h1>
+          <p id="mutation-intro-text" class="mt-3 max-w-3xl text-sm text-on-surface-variant leading-relaxed">This is the first transfer test. The student is no longer explaining the original algorithm; they must adapt it when the environment changes.</p>
+          <p id="mutation-module-state" class="mt-4 text-xs text-slate-500">Enabled modules: Hotspot, Trace, Mutation, Repair</p>
+        </section>
+
+        <div class="max-w-5xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-6">
+          <section class="lg:col-span-12 bg-surface-container-lowest p-6 rounded-2xl border border-outline-variant/10 shadow-sm">
+            <div class="flex items-start gap-4">
+              <div class="mt-1 bg-tertiary/10 p-2 rounded"><span class="material-symbols-outlined text-tertiary">terminal</span></div>
+              <div>
+                <h3 class="font-headline font-bold text-lg mb-2">Mutation Prompt</h3>
+                <p id="mutation-prompt-text" class="text-on-surface text-base leading-relaxed">
+                  Modify your code so it handles the case where the input <code class="bg-surface-container-highest px-1.5 py-0.5 rounded font-mono text-sm">s</code> is <code class="text-error font-mono">None</code> safely by returning <code class="text-tertiary font-mono">0</code>.
+                </p>
+                <p class="mt-3 text-sm text-on-surface-variant leading-relaxed">Keep the original reasoning model, but change the contract safely. A strong response makes the smallest possible fix without resetting the design.</p>
+              </div>
+            </div>
+          </section>
+
+          <section class="lg:col-span-8 flex flex-col bg-surface-container-lowest rounded-2xl border border-outline-variant/10 shadow-sm overflow-hidden">
+            <div class="bg-surface-container-high px-4 py-2 flex items-center justify-between border-b border-outline-variant/10">
+              <div class="flex items-center gap-2">
+                <span class="material-symbols-outlined text-sm text-on-surface-variant">description</span>
+                <span id="mutation-source-file" class="font-mono text-xs text-on-surface-variant font-medium">string_processor.py</span>
+              </div>
+              <div class="flex gap-1.5">
+                <div class="w-2.5 h-2.5 rounded-full bg-error/40"></div>
+                <div class="w-2.5 h-2.5 rounded-full bg-secondary/40"></div>
+                <div class="w-2.5 h-2.5 rounded-full bg-tertiary/40"></div>
+              </div>
+            </div>
+            <div class="flex-1 bg-[#1e2327] p-6 font-mono text-sm leading-relaxed text-slate-300 min-h-[400px] relative">
+              <div class="absolute left-0 top-0 bottom-0 w-12 bg-black/20 flex flex-col items-center pt-6 text-slate-600 select-none">
+                <span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span><span>7</span><span>8</span><span>9</span><span>10</span>
+              </div>
+              <div id="mutation-code-block" class="pl-8"></div>
+            </div>
+            <div class="bg-surface-container-low p-4 flex justify-between items-center border-t border-outline-variant/10">
+              <button class="bg-surface-container-high text-on-surface px-4 py-2 rounded font-mono text-xs font-bold uppercase tracking-widest flex items-center gap-2 hover:bg-surface-container-highest transition-colors">
+                <span class="material-symbols-outlined text-sm">play_arrow</span>Run Tests
+              </button>
+              <a id="mutation-next-link" class="bg-primary text-white px-6 py-2 rounded font-bold flex items-center gap-2 shadow-sm code-glow active:opacity-80 transition-all duration-150 no-underline" href="./repair-mode-task.html">
+                <span id="mutation-next-label">Submit Mutation</span>
+                <span class="material-symbols-outlined text-sm">send</span>
+              </a>
+            </div>
+          </section>
+
+          <aside class="lg:col-span-4 flex flex-col gap-6">
+            <div class="bg-surface-container-lowest p-6 rounded-2xl shadow-sm border border-outline-variant/10 flex-1">
+              <div class="flex items-center gap-2 mb-4 border-b border-outline-variant/10 pb-2">
+                <span class="material-symbols-outlined text-tertiary">terminal</span>
+                <h4 class="font-headline font-bold text-sm uppercase tracking-tight">Technical Log</h4>
+              </div>
+              <div class="font-mono text-xs space-y-3">
+                <div class="flex gap-2"><span class="text-slate-400">[14:02:11]</span><span class="text-tertiary">INIT</span><span class="text-on-surface-variant">Sandbox environment ready.</span></div>
+                <div class="flex gap-2"><span class="text-slate-400">[14:02:15]</span><span class="text-secondary">WARN</span><span class="text-on-surface-variant">Lint: Missing type validation.</span></div>
+                <div class="flex gap-2"><span class="text-slate-400">[14:02:18]</span><span class="text-error">FAIL</span><span class="text-on-surface-variant">Test <code class="text-error">null_input_edge</code> failed.</span></div>
+                <div class="pt-2 border-t border-surface-container-high mt-4">
+                  <div class="text-[10px] text-slate-400 mb-2">LAST OUTPUT:</div>
+                  <div class="bg-surface-container-low p-3 rounded text-error/80 leading-relaxed">TypeError: object of type 'NoneType' has no len()</div>
+                </div>
+              </div>
+            </div>
+            <div class="bg-surface-container-lowest p-5 rounded-2xl border border-outline-variant/10 shadow-sm">
+              <p class="font-mono text-[10px] uppercase tracking-[0.18em] text-tertiary mb-2">Student Response</p>
+              <p class="text-[10px] font-mono uppercase tracking-[0.18em] text-slate-400 mb-3">Responses save automatically</p>
+              <label class="block text-sm text-on-surface-variant mb-3" for="mutation-answer">Describe the exact defensive change you would make before moving on.</label>
+              <textarea id="mutation-answer" class="w-full min-h-[140px] bg-surface-container-low border-none focus:ring-0 p-3 text-sm rounded-sm resize-none" placeholder="I would add a guard clause before the loop so the function returns 0 when the input is None..."></textarea>
+            </div>
+            <div class="bg-surface-container-lowest border border-outline-variant/10 p-5 rounded-2xl shadow-sm">
+              <p class="font-mono text-[10px] uppercase tracking-[0.18em] text-tertiary mb-2">Why this matters</p>
+              <p id="mutation-why-card" class="text-sm text-slate-700 leading-relaxed">Students who only memorized the original answer often fail here. Students who understand the contract of the function usually add the guard clause immediately.</p>
+            </div>
+          </aside>
+        </div>
+      </main>
+    </div>
+    <script type="module" src="/src/shell.js"></script>
+    <script type="module" src="/src/workspace-state.js"></script>
+  </body>
+</html>

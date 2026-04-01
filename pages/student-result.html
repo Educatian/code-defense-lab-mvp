@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Student Result | Code Defense Lab</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+    <script>
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              surface: "#f7f9fb",
+              "surface-container-lowest": "#ffffff",
+              "surface-container-low": "#f0f4f7",
+              "surface-container-high": "#e1e9ee",
+              "surface-container-highest": "#d9e4ea",
+              outline: "#717c82",
+              "outline-variant": "#a9b4b9",
+              primary: "#545f73",
+              tertiary: "#00649a",
+              secondary: "#526074",
+              error: "#9f403d",
+              "error-container": "#fe8983",
+              "on-error-container": "#752121",
+              "on-surface": "#2a3439",
+              "on-surface-variant": "#566166"
+            },
+            fontFamily: {
+              headline: ["Space Grotesk"],
+              body: ["Inter"],
+              mono: ["JetBrains Mono"]
+            }
+          }
+        }
+      };
+    </script>
+    <style>
+      .material-symbols-outlined { font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 24; }
+      .code-pattern-bg { background-image: radial-gradient(#d9e4ea 0.5px, transparent 0.5px); background-size: 12px 12px; }
+      body { min-height: max(884px, 100dvh); }
+    </style>
+  </head>
+  <body class="bg-surface font-body text-on-surface selection:bg-slate-200 antialiased">
+    <header class="bg-slate-50 border-b border-slate-200/80 flex justify-between items-center w-full px-6 py-4 max-w-full sticky z-50">
+      <div class="flex items-center gap-4">
+        <div class="w-10 h-10 rounded-full bg-surface-container-highest flex items-center justify-center overflow-hidden border border-outline-variant/20">
+          <img class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCFNRzu_8HkCfDtA181r6Ih8C_WK628jmJCJzk6GnOZtq-VbfBKCdyUboX5q7JMUHJUA5nZfN8QiPe-ng7fQWt-py69Lbbyqcdd6X-YUbOPJ_xpZiQcmKJShcqFjhWhWFR-iLDKSeS2G28kYMadZqvidYifS9N9pVpUiGpMeTSLPZQ9XWTsansZm9qAKjcSNnncz0YmzkWjD6LqTM2SzVzmd4rvJdHC66cfpCzF1LGomqgBRarkj2OdYwMW60i30kx2eilTe1nPcucQ" />
+        </div>
+        <h1 class="text-xl font-bold tracking-tight text-slate-900 font-headline">Code Defense Lab</h1>
+      </div>
+      <div class="flex items-center gap-6">
+        <nav class="hidden md:flex items-center gap-8">
+          <a class="text-slate-500 hover:text-slate-900 transition-colors font-headline font-bold text-lg" href="./student-portal.html">My Courses</a>
+          <a class="text-slate-500 hover:text-slate-900 transition-colors font-headline font-bold text-lg" href="./student-submission.html">Current Homework</a>
+          <a class="text-slate-900 font-semibold font-headline font-bold text-lg" href="./student-result.html">Results</a>
+        </nav>
+      </div>
+    </header>
+    <main class="max-w-7xl mx-auto px-6 py-8 pb-32">
+      <div class="rounded-2xl bg-surface-container-lowest border border-outline-variant/10 p-5 shadow-sm mb-6">
+        <div class="flex flex-col md:flex-row md:items-end justify-between gap-4">
+          <div>
+            <p id="result-course-summary" class="text-tertiary font-mono text-xs uppercase tracking-[0.18em]">Advanced Algorithms | Due Apr 9 | Modules: Hotspot, Trace, Mutation, Repair</p>
+            <p class="mt-2 text-sm text-on-surface-variant">Read this report as coaching: what held up, what weakened under pressure, and what to practice next.</p>
+          </div>
+          <a class="bg-surface-container-high text-on-surface px-6 py-2.5 rounded-xl flex items-center gap-2 hover:bg-surface-container-highest transition-colors font-medium text-sm no-underline" href="./professor-student-detail.html">
+            <span class="material-symbols-outlined text-lg">arrow_forward</span>
+            Professor Review
+          </a>
+        </div>
+      </div>
+      <div class="mb-8 flex flex-col md:flex-row md:items-end justify-between gap-6">
+        <div>
+          <p class="font-mono text-tertiary text-xs tracking-widest uppercase mb-2">Technical Assessment Report</p>
+          <h2 id="result-assignment-title" class="font-headline text-4xl font-bold tracking-tight text-on-surface">Analysis: Student ID_8829-X</h2>
+          <p id="result-diagnostic-context" class="mt-3 max-w-2xl text-sm text-on-surface-variant leading-relaxed">This report is designed as feedback, not just detection. It compares success on the original code with success on explanation, prediction, adaptation, and repair.</p>
+        </div>
+      </div>
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <div class="lg:col-span-8 space-y-6">
+          <div id="result-metrics-grid" class="bg-surface-container-lowest p-6 rounded-2xl border border-outline-variant/10 shadow-sm flex flex-col md:flex-row justify-between items-end gap-6">
+              <div class="flex flex-col items-center w-full group"><div class="relative w-full h-48 bg-surface-container rounded-lg overflow-hidden"><div class="absolute bottom-0 w-full bg-tertiary transition-all duration-1000" style="height: 98%;"></div><div class="absolute inset-0 flex items-center justify-center font-mono font-bold text-lg mix-blend-difference text-white">98%</div></div><span class="mt-4 font-mono text-[10px] text-on-surface-variant uppercase tracking-widest text-center">Correctness</span></div>
+          </div>
+          <div class="bg-surface-container-lowest p-6 rounded-2xl border border-outline-variant/10 shadow-sm relative overflow-hidden code-pattern-bg">
+            <div class="flex items-start gap-4 mb-6">
+              <div class="bg-error text-white w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0"><span class="material-symbols-outlined">warning</span></div>
+              <div class="space-y-4">
+                <h3 class="font-headline text-xl font-bold text-on-surface">System Diagnostic Message</h3>
+                <p id="result-diagnostic-message" class="text-on-surface font-medium leading-relaxed">Warning: Significant gap detected between code correctness and comprehension. Oral defense is strongly recommended.</p>
+              </div>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div class="bg-surface-container-lowest p-5 rounded-lg border border-outline-variant/10">
+                <p class="font-mono text-[10px] text-secondary uppercase tracking-tighter mb-2">Technical Breakdown</p>
+                <p id="result-breakdown" class="font-mono text-sm leading-relaxed text-on-surface">Confidence mismatch: Strong explanation vs Weak trace performance.</p>
+              </div>
+              <div class="bg-surface-container-lowest p-5 rounded-lg border border-outline-variant/10 flex flex-col justify-center">
+                <div class="flex items-center gap-2 mb-1"><div class="w-2 h-2 rounded-full bg-error"></div><p class="font-mono text-[10px] text-secondary uppercase tracking-tighter">Consistency Integrity</p></div>
+                <p id="result-disparity-label" class="text-error font-bold font-headline text-lg italic">CRITICAL DISPARITY</p>
+              </div>
+            </div>
+            <div class="mt-4 bg-white/80 border border-outline-variant/10 rounded-lg p-5">
+              <p class="font-mono text-[10px] uppercase tracking-[0.18em] text-tertiary mb-2">How to read this</p>
+              <p class="text-sm text-on-surface-variant leading-relaxed">High correctness with low trace, mutation, or repair usually means the final answer was present but the internal model was unstable. The score is meant to guide follow-up teaching or oral defense, not to accuse by itself.</p>
+            </div>
+          </div>
+          <div class="bg-surface-container-lowest p-6 rounded-2xl border border-outline-variant/10 shadow-sm">
+            <div class="flex items-center justify-between gap-4 mb-5">
+              <div>
+                <p class="font-mono text-[10px] uppercase tracking-[0.18em] text-tertiary mb-2">Student Evidence</p>
+                <h3 class="font-headline text-xl font-bold text-on-surface">Response Snapshot</h3>
+              </div>
+              <span class="text-xs text-on-surface-variant">Saved across the assessment flow</span>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div class="bg-surface-container-low p-4 rounded-lg">
+                <p class="font-mono text-[10px] uppercase tracking-[0.18em] text-secondary mb-2">Provenance</p>
+                <p id="result-provenance" class="text-sm text-on-surface">Written mostly by myself</p>
+              </div>
+              <div class="bg-surface-container-low p-4 rounded-lg">
+                <p class="font-mono text-[10px] uppercase tracking-[0.18em] text-secondary mb-2">Hotspot Response</p>
+                <p id="result-hotspot-response" class="text-sm text-on-surface-variant leading-relaxed">No hotspot response saved yet.</p>
+              </div>
+              <div class="bg-surface-container-low p-4 rounded-lg">
+                <p class="font-mono text-[10px] uppercase tracking-[0.18em] text-secondary mb-2">Trace Prediction</p>
+                <p id="result-trace-response" class="text-sm text-on-surface-variant leading-relaxed">No trace response saved yet.</p>
+              </div>
+              <div class="bg-surface-container-low p-4 rounded-lg">
+                <p class="font-mono text-[10px] uppercase tracking-[0.18em] text-secondary mb-2">Mutation Plan</p>
+                <p id="result-mutation-response" class="text-sm text-on-surface-variant leading-relaxed">No mutation response saved yet.</p>
+              </div>
+              <div class="bg-surface-container-low p-4 rounded-lg md:col-span-2">
+                <p class="font-mono text-[10px] uppercase tracking-[0.18em] text-secondary mb-2">Repair Explanation</p>
+                <p id="result-repair-response" class="text-sm text-on-surface-variant leading-relaxed">No repair response saved yet.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="lg:col-span-4 space-y-6">
+          <div class="bg-surface-container-lowest p-6 rounded-2xl border border-outline-variant/10 shadow-sm h-full flex flex-col justify-center">
+            <div class="text-center space-y-6">
+              <p class="font-mono text-xs text-secondary tracking-[0.2em] uppercase">Understanding Consistency Score</p>
+              <div class="relative inline-flex items-center justify-center">
+                <svg class="w-48 h-48 -rotate-90">
+                  <circle class="text-surface-container" cx="96" cy="96" fill="transparent" r="88" stroke="currentColor" stroke-width="8"></circle>
+                  <circle class="text-error" cx="96" cy="96" fill="transparent" r="88" stroke="currentColor" stroke-dasharray="552.92" stroke-dashoffset="304.1" stroke-linecap="round" stroke-width="12"></circle>
+                </svg>
+                <div class="absolute inset-0 flex flex-col items-center justify-center">
+                  <span id="result-consistency-score" class="font-headline text-5xl font-bold text-on-surface">45%</span>
+                  <span id="result-consistency-level" class="bg-error/10 text-error px-3 py-0.5 rounded-full font-mono text-[10px] font-bold mt-2">LOW</span>
+                </div>
+              </div>
+              <p id="result-consistency-caption" class="text-xs text-on-surface-variant text-center leading-relaxed">The current score indicates a mechanical proficiency that outweighs semantic understanding.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="bg-surface-container-lowest p-5 rounded-2xl border border-outline-variant/10 shadow-sm">
+          <p class="font-mono text-[10px] uppercase tracking-[0.18em] text-tertiary mb-2">What Went Well</p>
+          <p id="result-strength-summary" class="text-sm text-on-surface-variant leading-relaxed">Your strongest evidence will appear here once the checkpoints are completed.</p>
+        </div>
+        <div class="bg-surface-container-lowest p-5 rounded-2xl border border-outline-variant/10 shadow-sm">
+          <p class="font-mono text-[10px] uppercase tracking-[0.18em] text-tertiary mb-2">Needs Attention</p>
+          <p id="result-gap-summary" class="text-sm text-on-surface-variant leading-relaxed">The main gap in understanding will be summarized here.</p>
+        </div>
+        <div class="bg-surface-container-lowest p-5 rounded-2xl border border-outline-variant/10 shadow-sm">
+          <p class="font-mono text-[10px] uppercase tracking-[0.18em] text-tertiary mb-2">Next Learning Step</p>
+          <p id="result-next-step" class="text-sm text-on-surface-variant leading-relaxed">A targeted next step will appear here after the assessment flow is completed.</p>
+        </div>
+      </div>
+      <div class="mt-6 bg-surface-container-lowest p-6 rounded-2xl border border-outline-variant/10 shadow-sm">
+        <div class="flex items-center justify-between gap-4 mb-5">
+          <div>
+            <p class="font-mono text-[10px] uppercase tracking-[0.18em] text-tertiary mb-2">Rubric Detail</p>
+            <h3 class="font-headline text-xl font-bold text-on-surface">Why this feedback was generated</h3>
+          </div>
+          <span class="text-xs text-on-surface-variant">Checkpoint by checkpoint</span>
+        </div>
+        <div id="result-rubric-dimensions" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+      </div>
+    </main>
+    <script type="module" src="/src/shell.js"></script>
+    <script type="module" src="/src/workspace-state.js"></script>
+  </body>
+</html>

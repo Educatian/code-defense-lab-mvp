@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Code Defense Lab - Repair Mode</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+    <script>
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              surface: "#f7f9fb",
+              "surface-container-lowest": "#ffffff",
+              "surface-container-low": "#f0f4f7",
+              "surface-container-high": "#e1e9ee",
+              "surface-container-highest": "#d9e4ea",
+              outline: "#717c82",
+              "outline-variant": "#a9b4b9",
+              primary: "#545f73",
+              tertiary: "#00649a",
+              secondary: "#526074",
+              error: "#9f403d",
+              "error-dim": "#4e0309",
+              "on-surface": "#2a3439",
+              "on-surface-variant": "#566166"
+            },
+            fontFamily: {
+              headline: ["Space Grotesk"],
+              body: ["Inter"],
+              mono: ["JetBrains Mono"]
+            }
+          }
+        }
+      };
+    </script>
+    <style>
+      .material-symbols-outlined { font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 24; }
+      body { min-height: max(884px, 100dvh); }
+    </style>
+  </head>
+  <body class="bg-surface text-on-surface font-body min-h-screen flex flex-col">
+    <header class="bg-slate-50 border-b border-slate-200/80 flex justify-between items-center w-full px-6 py-4 max-w-full top-0 z-50 sticky">
+      <div class="flex items-center gap-4">
+        <div class="w-10 h-10 rounded-lg overflow-hidden bg-surface-container-highest border border-outline-variant/20">
+          <img class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAc7fR_ZG_rqTU-Yvv5mjGInjFGkK16UcmjoCEVEz0_rJk66CxcFYLFXPYUwNsws_hlLoB93PmpC55G14UJ2VP179_M8DWAXLFdlWn0USpw0DRzLlEoi7FpTbRIHE4yzHm5NoipkzeuawVaE1xIVZxfdp_eBujjUk4hlXgjzkJomsJYLL806c_ml7JgA_vCOHxg5VmpGg4LHyYN8x6VNDZTnuymQeFwgR4ekG-F60ryKtWjnyzLEY-4AYVAQcxpLhCq3f31EQsWWlOD" />
+        </div>
+        <span class="text-xl font-bold tracking-tight text-slate-900 font-headline">Code Defense Lab</span>
+      </div>
+      <nav class="hidden md:flex items-center gap-8">
+        <a class="text-slate-500 hover:text-slate-900 transition-colors font-headline font-bold text-lg" href="./student-portal.html">My Courses</a>
+        <a class="text-slate-900 font-semibold font-headline font-bold text-lg" href="./student-submission.html">Current Homework</a>
+        <a class="text-slate-500 hover:text-slate-900 transition-colors font-headline font-bold text-lg" href="./student-result.html">Results</a>
+      </nav>
+      <button class="material-symbols-outlined text-slate-700 p-2 rounded-full hover:bg-slate-200/50 transition-colors">settings</button>
+    </header>
+
+    <div class="flex flex-1 overflow-hidden">
+      <aside class="hidden lg:flex h-full w-64 flex-col py-8 bg-slate-50 border-r border-slate-200 shrink-0">
+        <div class="px-6 mb-8">
+          <h2 class="text-lg font-bold font-headline text-slate-900 uppercase tracking-tighter">Assessment Flow</h2>
+          <p class="mt-2 text-[10px] font-mono uppercase tracking-[0.18em] text-slate-400">Understanding checkpoints</p>
+        </div>
+        <nav class="flex flex-col gap-1 px-2">
+          <a class="text-slate-500 hover:bg-slate-100 transition-colors px-4 py-3 rounded-sm font-mono flex items-center gap-3" href="./student-submission.html"><span class="material-symbols-outlined">upload_file</span><span class="text-sm tracking-tighter">Submission</span></a>
+          <a class="text-slate-500 hover:bg-slate-100 transition-colors px-4 py-3 rounded-sm font-mono flex items-center gap-3" href="./hotspot-questions.html"><span class="material-symbols-outlined">biotech</span><span class="text-sm tracking-tighter">Hotspots</span></a>
+          <a class="text-slate-500 hover:bg-slate-100 transition-colors px-4 py-3 rounded-sm font-mono flex items-center gap-3" href="./trace-mode-task.html"><span class="material-symbols-outlined">account_tree</span><span class="text-sm tracking-tighter">Trace</span></a>
+          <a class="text-slate-500 hover:bg-slate-100 transition-colors px-4 py-3 rounded-sm font-mono flex items-center gap-3" href="./mutation-task.html"><span class="material-symbols-outlined">query_stats</span><span class="text-sm tracking-tighter">Mutation</span></a>
+          <a class="bg-slate-200 text-slate-900 font-mono px-4 py-3 rounded-sm flex items-center gap-3" href="./repair-mode-task.html"><span class="material-symbols-outlined">build</span><span class="text-sm tracking-tighter">Repair</span></a>
+        </nav>
+      </aside>
+
+      <main class="flex-1 overflow-y-auto bg-surface p-6 lg:p-10">
+        <div class="max-w-5xl mx-auto rounded-2xl bg-surface-container-lowest border border-outline-variant/10 p-5 shadow-sm mb-8">
+          <div class="flex flex-col md:flex-row md:items-end justify-between gap-4">
+            <div>
+              <p id="repair-course-label" class="text-tertiary font-mono text-xs uppercase tracking-[0.18em]">Advanced Algorithms / Homework 03</p>
+              <p class="mt-2 text-sm text-on-surface-variant">Recognize the same mental model in damaged form, then make the smallest fix that restores reliable behavior.</p>
+            </div>
+            <div class="min-w-[220px]">
+              <div class="flex items-center justify-between text-[11px] font-mono uppercase tracking-[0.16em] text-slate-500 mb-2">
+                <span id="repair-step-text">Step 5 of 5</span>
+                <span id="repair-progress-text">100% Complete</span>
+              </div>
+              <div class="h-1.5 bg-surface-container-highest rounded-full overflow-hidden">
+                <div id="repair-progress-bar" class="h-full bg-tertiary w-full"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <section class="max-w-5xl mx-auto bg-surface-container-lowest p-6 rounded-2xl border border-outline-variant/10 shadow-sm mb-10">
+          <p class="font-mono text-[10px] uppercase tracking-[0.18em] text-tertiary mb-2">Checkpoint 5</p>
+          <h1 id="repair-assignment-title" class="text-3xl md:text-4xl font-headline font-bold text-on-surface tracking-tight">Final Assessment: Repair Mode</h1>
+          <p id="repair-intro-text" class="mt-3 max-w-3xl text-sm text-on-surface-variant leading-relaxed">Repair is the strongest authenticity check in the student flow. Instead of writing fresh code, the learner must diagnose a broken version of familiar logic and make one precise correction.</p>
+          <p id="repair-module-state" class="mt-4 text-xs text-slate-500">By this point the student has already explained the pattern, traced state changes, and adapted the contract. Repair asks whether they can recognize the same mental model when it appears in damaged form.</p>
+        </section>
+
+        <div class="max-w-5xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-6">
+          <div class="lg:col-span-4 flex flex-col gap-6">
+            <div class="bg-surface-container-lowest p-6 rounded-2xl border border-outline-variant/10 shadow-sm">
+              <div class="flex items-center gap-3 mb-4">
+                <span class="material-symbols-outlined text-tertiary">terminal</span>
+                <h3 class="font-headline font-bold text-on-surface">Repair Prompt</h3>
+              </div>
+              <p id="repair-prompt-text" class="text-on-surface-variant text-sm leading-relaxed mb-6">A buggy version of your algorithm is shown below. It fails to update the <code class="bg-surface-container-highest px-1 rounded font-mono text-tertiary">left</code> pointer correctly, leading to an infinite loop in some cases. Fix the logic.</p>
+              <div class="space-y-3">
+                <div class="flex items-center gap-3 p-3 bg-surface-container-lowest rounded border-l-2 border-error"><span class="material-symbols-outlined text-error text-[20px]">error</span><span class="text-[11px] font-mono text-on-surface">Potential: O(infinite) runtime</span></div>
+                <div class="flex items-center gap-3 p-3 bg-surface-container-lowest rounded border-l-2 border-secondary"><span class="material-symbols-outlined text-secondary text-[20px]">info</span><span id="repair-issue-label" class="text-[11px] font-mono text-on-surface">Detected in: Binary Search Module</span></div>
+              </div>
+            </div>
+            <div class="bg-surface-container-lowest border border-outline-variant/10 p-6 rounded-2xl shadow-sm">
+              <p class="font-mono text-[10px] uppercase tracking-[0.18em] text-tertiary mb-2">Repair logic</p>
+              <p class="text-sm text-slate-700 leading-relaxed">Diagnose the smallest broken branch, then restore the intended behavior without rewriting the whole approach.</p>
+            </div>
+            <div class="bg-surface-container-lowest p-6 rounded-2xl border border-outline-variant/10 shadow-sm">
+              <p class="font-mono text-[10px] uppercase tracking-[0.18em] text-tertiary mb-2">Student Repair Note</p>
+              <p class="text-[10px] font-mono uppercase tracking-[0.18em] text-slate-400 mb-3">Responses save automatically</p>
+              <label class="block text-sm text-on-surface-variant mb-3" for="repair-answer">Name the exact line or branch you would fix and explain the correction.</label>
+              <textarea id="repair-answer" class="w-full min-h-[160px] bg-surface-container-low border-none focus:ring-0 p-3 text-sm rounded-sm resize-none" placeholder="The branch where nums[mid] is smaller than target should move left to mid + 1, otherwise the loop can stall..."></textarea>
+            </div>
+          </div>
+
+          <div class="lg:col-span-8 bg-surface-container-lowest rounded-2xl border border-outline-variant/10 shadow-sm overflow-hidden flex flex-col min-h-[500px]">
+            <div class="bg-surface-container-high px-4 py-2 flex items-center justify-between border-b border-outline-variant/5">
+              <div class="flex items-center gap-4">
+                <div class="flex gap-1.5"><div class="w-2.5 h-2.5 rounded-full bg-error/40"></div><div class="w-2.5 h-2.5 rounded-full bg-secondary/40"></div><div class="w-2.5 h-2.5 rounded-full bg-tertiary/40"></div></div>
+                <span id="repair-source-file" class="text-[11px] font-mono text-outline uppercase tracking-wider">binary_search.py</span>
+              </div>
+              <span class="text-[10px] font-mono text-outline">L: 14 C: 22</span>
+            </div>
+            <div id="repair-code-block" class="flex-1 p-6 font-mono text-sm leading-relaxed overflow-auto bg-slate-950 text-slate-300"></div>
+            <div class="p-4 bg-surface-container flex justify-between items-center gap-4">
+              <div class="flex items-center gap-2"><div class="w-2 h-2 rounded-full bg-error animate-pulse"></div><span class="text-[10px] font-mono text-on-surface uppercase tracking-tighter">Infinite loop risk detected</span></div>
+              <div class="flex gap-3">
+                <button class="bg-surface-container-high text-on-surface-variant font-headline font-bold text-xs px-6 py-2 rounded-lg hover:bg-surface-container-highest transition-colors flex items-center gap-2"><span class="material-symbols-outlined text-[16px]">refresh</span>Reset Draft</button>
+                <a id="repair-next-link" class="bg-primary text-white font-headline font-bold text-xs px-8 py-2 rounded-lg shadow-sm hover:opacity-90 transition-all flex items-center gap-2 no-underline" href="./student-result.html"><span class="material-symbols-outlined text-[16px]">published_with_changes</span><span id="repair-next-label">Verify Repair</span></a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+    <script type="module" src="/src/shell.js"></script>
+    <script type="module" src="/src/workspace-state.js"></script>
+  </body>
+</html>

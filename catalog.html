@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Code Defense Lab Learning Journey</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #f5f8fb;
+        --panel: #ffffff;
+        --line: #d7e1e8;
+        --text: #24313c;
+        --muted: #627180;
+        --brand: #0f6398;
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        min-height: 100vh;
+        font-family: Inter, sans-serif;
+        background:
+          radial-gradient(circle at top right, rgba(15,99,152,.08), transparent 32%),
+          linear-gradient(180deg, #f8fbfd 0%, var(--bg) 100%);
+        color: var(--text);
+      }
+      main {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 48px 20px 72px;
+      }
+      h1, h2 { font-family: "Space Grotesk", sans-serif; margin: 0; }
+      h1 { font-size: clamp(2.5rem, 6vw, 4.6rem); line-height: .95; letter-spacing: -.04em; }
+      p { color: var(--muted); line-height: 1.7; }
+      .eyebrow {
+        font-family: "JetBrains Mono", monospace;
+        text-transform: uppercase;
+        font-size: 12px;
+        letter-spacing: .2em;
+        color: var(--brand);
+      }
+      .hero {
+        display: grid;
+        gap: 24px;
+        grid-template-columns: 1.2fr .8fr;
+        align-items: end;
+        margin-bottom: 36px;
+      }
+      .panel {
+        background: rgba(255,255,255,.82);
+        border: 1px solid var(--line);
+        border-radius: 28px;
+        padding: 24px;
+        box-shadow: 0 24px 64px rgba(36,49,60,.08);
+      }
+      .panel strong {
+        display: block;
+        font-size: 28px;
+        margin-bottom: 8px;
+      }
+      .grid {
+        display: grid;
+        gap: 16px;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+      .card {
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: 22px;
+        padding: 20px;
+      }
+      .card h2 {
+        font-size: 1.4rem;
+        margin-bottom: 10px;
+      }
+      .links {
+        display: grid;
+        gap: 10px;
+        margin-top: 18px;
+      }
+      a {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 14px 16px;
+        text-decoration: none;
+        color: var(--text);
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        background: #fbfdff;
+      }
+      a:hover { border-color: #8fb7d4; transform: translateY(-1px); }
+      code {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 12px;
+        color: var(--brand);
+      }
+      @media (max-width: 860px) {
+        .hero, .grid { grid-template-columns: 1fr; }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <div class="hero">
+        <div>
+          <p class="eyebrow">Learning Journey</p>
+          <h1>Code Defense Lab flows from submission to proof of understanding.</h1>
+          <p>
+            This hub maps the product as a learning sequence: students first commit code, then
+            explain it, predict it, adapt it, repair it, and finally reflect on the consistency
+            of their understanding.
+          </p>
+        </div>
+        <div class="panel">
+          <strong>Assessment Logic</strong>
+          <p>
+            The main signal is not correctness alone, but whether a student can carry the same
+            logic across explanation, tracing, mutation, and repair.
+          </p>
+          <code>Start from the student flow to feel the intended learning arc.</code>
+        </div>
+      </div>
+
+      <div class="grid">
+        <section class="card">
+          <h2>Orientation</h2>
+          <div class="links">
+            <a href="./index.html"><span>Role Login Landing</span><code>index.html</code></a>
+            <a href="./pages/landing-page.html"><span>Landing Page</span><code>pages/landing-page.html</code></a>
+            <a href="./pages/landing-page-desktop.html"><span>Landing Page Desktop Variant</span><code>pages/landing-page-desktop.html</code></a>
+          </div>
+        </section>
+
+        <section class="card">
+          <h2>Instructor Lens</h2>
+          <div class="links">
+            <a href="./pages/professor-dashboard.html"><span>Professor Dashboard</span><code>pages/professor-dashboard.html</code></a>
+            <a href="./pages/professor-dashboard-desktop.html"><span>Professor Dashboard Desktop</span><code>pages/professor-dashboard-desktop.html</code></a>
+            <a href="./pages/create-assignment.html"><span>Create Assignment</span><code>pages/create-assignment.html</code></a>
+            <a href="./pages/professor-student-detail.html"><span>Professor Student Detail</span><code>pages/professor-student-detail.html</code></a>
+          </div>
+        </section>
+
+        <section class="card">
+          <h2>Student Learning Path</h2>
+          <div class="links">
+            <a href="./pages/student-portal.html"><span>1. Student Portal</span><code>pages/student-portal.html</code></a>
+            <a href="./pages/student-submission.html"><span>2. Student Submission</span><code>pages/student-submission.html</code></a>
+            <a href="./pages/hotspot-questions.html"><span>3. Hotspot Questions</span><code>pages/hotspot-questions.html</code></a>
+            <a href="./pages/trace-mode-task.html"><span>4. Trace Mode Task</span><code>pages/trace-mode-task.html</code></a>
+            <a href="./pages/mutation-task.html"><span>5. Mutation Task</span><code>pages/mutation-task.html</code></a>
+            <a href="./pages/repair-mode-task.html"><span>6. Repair Mode Task</span><code>pages/repair-mode-task.html</code></a>
+            <a href="./pages/student-result.html"><span>7. Student Result</span><code>pages/student-result.html</code></a>
+          </div>
+        </section>
+
+        <section class="card">
+          <h2>Alternate Prototype Views</h2>
+          <div class="links">
+            <a href="./pages/professor-dashboard-desktop.html"><span>Professor Desktop Variant</span><code>pages/professor-dashboard-desktop.html</code></a>
+          </div>
+        </section>
+      </div>
+    </main>
+    <script type="module" src="/src/shell.js"></script>
+  </body>
+</html>

@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Hotspot Analysis | Code Defense Lab</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+    <script>
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              surface: "#f7f9fb",
+              "surface-container-lowest": "#ffffff",
+              "surface-container-low": "#f0f4f7",
+              "surface-container-high": "#e1e9ee",
+              "surface-container-highest": "#d9e4ea",
+              outline: "#717c82",
+              "outline-variant": "#a9b4b9",
+              primary: "#545f73",
+              tertiary: "#00649a",
+              secondary: "#526074",
+              error: "#9f403d",
+              "on-surface": "#2a3439",
+              "on-surface-variant": "#566166"
+            },
+            fontFamily: {
+              headline: ["Space Grotesk"],
+              body: ["Inter"],
+              mono: ["JetBrains Mono"]
+            }
+          }
+        }
+      };
+    </script>
+    <style>
+      .material-symbols-outlined { font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 24; }
+      ::-webkit-scrollbar { width: 4px; }
+      ::-webkit-scrollbar-thumb { background: #d9e4ea; border-radius: 10px; }
+      body { min-height: max(884px, 100dvh); }
+    </style>
+  </head>
+  <body class="bg-surface font-body text-on-surface">
+    <header class="fixed top-0 z-50 w-full flex justify-between items-center px-6 py-4 bg-slate-50 border-b border-surface-container">
+      <div class="flex items-center gap-4">
+        <div class="w-10 h-10 rounded-full bg-surface-container-highest overflow-hidden">
+          <img alt="Student Profile" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBraZ-YQcarIemCT5HSm8g-kBycs9n2uRqnCIyZk9_h0c89vTQgbcIUG3WrXf47UoPq5vlkrbb1biK-OPZ-e9b11YTvkXWUA3oqlwABBwCwkfpZ2bp4-6LLmPigjU0BuYhypmjoUyGlAnsiedT4Rwi3ViM9W9cI_AP_c0IOWo1piDshQmS5Y-LZ_uboFlZWKLKuM4yUe3bCJPIE46F5rm6tkJVsshT6suUAtgU3Wyeg7uhWT62p1-g1TwrYc63U28nPZt68bwQYAdGv" />
+        </div>
+        <h1 class="text-xl font-bold tracking-tight text-slate-900 font-headline">Code Defense Lab</h1>
+      </div>
+      <nav class="hidden md:flex items-center gap-8">
+        <a class="text-slate-500 hover:text-slate-900 transition-colors font-headline font-bold text-lg" href="./student-portal.html">My Courses</a>
+        <a class="text-slate-900 font-semibold font-headline font-bold text-lg" href="./student-submission.html">Current Homework</a>
+        <a class="text-slate-500 hover:text-slate-900 transition-colors font-headline font-bold text-lg" href="./student-result.html">Results</a>
+      </nav>
+      <button class="material-symbols-outlined text-slate-700 p-2 rounded-full hover:bg-slate-200/50 transition-colors">settings</button>
+    </header>
+
+    <div class="flex h-screen pt-[72px] overflow-hidden">
+      <aside class="hidden lg:flex h-full w-64 flex-col py-8 bg-slate-50 border-r border-slate-200 shrink-0">
+        <div class="px-6 mb-8">
+          <h2 class="text-lg font-bold font-headline text-slate-900 uppercase tracking-tighter">Assessment Flow</h2>
+          <p class="mt-2 text-[10px] font-mono uppercase tracking-[0.18em] text-slate-400">Understanding checkpoints</p>
+        </div>
+        <nav class="flex flex-col gap-1 px-2">
+          <a class="text-slate-500 hover:bg-slate-100 transition-colors px-4 py-3 rounded-sm font-mono flex items-center gap-3" href="./student-submission.html"><span class="material-symbols-outlined">upload_file</span><span class="text-sm tracking-tighter">Submission</span></a>
+          <a class="bg-slate-200 text-slate-900 font-mono px-4 py-3 rounded-sm flex items-center gap-3" href="./hotspot-questions.html"><span class="material-symbols-outlined">biotech</span><span class="text-sm tracking-tighter">Hotspots</span></a>
+          <a class="text-slate-500 hover:bg-slate-100 transition-colors px-4 py-3 rounded-sm font-mono flex items-center gap-3" href="./trace-mode-task.html"><span class="material-symbols-outlined">account_tree</span><span class="text-sm tracking-tighter">Trace</span></a>
+          <a class="text-slate-500 hover:bg-slate-100 transition-colors px-4 py-3 rounded-sm font-mono flex items-center gap-3" href="./mutation-task.html"><span class="material-symbols-outlined">query_stats</span><span class="text-sm tracking-tighter">Mutation</span></a>
+          <a class="text-slate-500 hover:bg-slate-100 transition-colors px-4 py-3 rounded-sm font-mono flex items-center gap-3" href="./repair-mode-task.html"><span class="material-symbols-outlined">build</span><span class="text-sm tracking-tighter">Repair</span></a>
+        </nav>
+      </aside>
+
+      <main class="flex-1 overflow-y-auto bg-surface p-6 md:p-10">
+        <div class="max-w-5xl mx-auto rounded-2xl bg-surface-container-lowest border border-outline-variant/10 p-5 shadow-sm mb-6">
+          <div class="flex flex-col md:flex-row md:items-end justify-between gap-4">
+            <div>
+              <p id="hotspot-course-label" class="text-tertiary font-mono text-xs uppercase tracking-[0.18em]">Advanced Algorithms / Homework 03</p>
+              <p class="mt-2 text-sm text-on-surface-variant">Focus attention on the fragile lines first, then carry the same logic into later checkpoints.</p>
+            </div>
+            <div class="min-w-[220px]">
+              <div class="flex items-center justify-between text-[11px] font-mono uppercase tracking-[0.16em] text-slate-500 mb-2">
+                <span id="hotspot-step-text">Step 2 of 5</span>
+                <span id="hotspot-progress-text">40% Complete</span>
+              </div>
+              <div class="h-1.5 bg-surface-container-highest rounded-full overflow-hidden">
+                <div id="hotspot-progress-bar" class="h-full bg-tertiary w-2/5 transition-all duration-500"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <section class="max-w-5xl mx-auto bg-surface-container-lowest p-6 rounded-2xl border border-outline-variant/10 shadow-sm mb-6">
+          <p class="font-mono text-[10px] uppercase tracking-[0.18em] text-tertiary mb-2">Checkpoint 2</p>
+          <h1 class="text-3xl md:text-4xl font-headline font-bold text-on-surface tracking-tight">Hotspot Questions</h1>
+          <p id="hotspot-goal-text" class="mt-3 max-w-3xl text-sm text-on-surface-variant leading-relaxed">This step narrows attention to the few lines that control the algorithm. Students are not yet tracing execution; they are proving they know what each critical line is for.</p>
+          <p id="hotspot-module-summary" class="mt-4 text-xs text-slate-500">Enabled modules: Hotspot, Trace, Mutation, Repair</p>
+        </section>
+        <div class="max-w-5xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <section class="lg:col-span-7 bg-surface-container-lowest rounded-2xl overflow-hidden flex flex-col shadow-sm border border-outline-variant/10">
+          <div class="px-6 py-4 bg-surface-container-low border-b border-outline-variant/10">
+            <p class="font-mono text-[10px] uppercase tracking-[0.18em] text-tertiary mb-2">Learning goal</p>
+            <p class="text-sm text-slate-700 leading-relaxed">Inspect the most fragile logic lines first, then carry the same reasoning model into the trace stage.</p>
+            <p class="mt-3 text-xs text-slate-500">Responses entered here become evidence for the later prediction and repair checkpoints.</p>
+          </div>
+          <div class="px-6 py-4 bg-surface-container-highest/50 border-b border-outline-variant/10 flex justify-between items-center">
+            <div class="flex items-center gap-3">
+              <span class="material-symbols-outlined text-primary text-sm">code</span>
+              <h2 id="hotspot-source-file" class="font-mono text-sm font-bold uppercase tracking-widest text-on-surface-variant">source_submission.py</h2>
+            </div>
+            <div class="flex gap-2">
+              <span id="hotspot-assignment-title" class="px-2 py-0.5 rounded text-[10px] font-mono bg-surface-container-highest text-on-surface-variant">READ-ONLY</span>
+            </div>
+          </div>
+          <div class="flex-1 overflow-auto p-6 bg-[#fcfdfe] font-mono text-sm leading-relaxed relative">
+            <div class="flex">
+              <div class="w-10 text-right pr-4 text-outline-variant select-none border-r border-surface-container mr-4">
+                1<br />2<br />3<br />4<br />5<br />6<br />7<br />8<br />9<br />10<br />11<br />12<br />13<br />14<br />15<br />16<br />17<br />18<br />19<br />20
+              </div>
+              <div id="hotspot-code-block" class="flex-1 whitespace-pre text-slate-700"></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="lg:col-span-5 flex flex-col gap-4">
+          <div class="flex-1 space-y-4">
+            <div class="bg-surface-container-lowest p-6 shadow-sm rounded-2xl border border-outline-variant/10">
+              <div class="flex items-center gap-2 mb-4">
+                <span class="w-6 h-6 rounded bg-tertiary text-white flex items-center justify-center text-[10px] font-bold font-mono">Q1</span>
+                <h3 class="font-headline font-bold text-sm text-slate-800">Operational Intent</h3>
+              </div>
+              <p id="hotspot-question-1" class="text-sm text-on-surface-variant mb-4 leading-relaxed">What is the specific purpose of the <code class="bg-surface-container px-1 py-0.5 rounded font-mono text-tertiary">right</code> pointer in this loop?</p>
+              <textarea id="hotspot-answer-1" class="w-full h-24 bg-surface-container-low border-none focus:ring-0 p-3 text-sm rounded-sm" placeholder="Define the pointer's role in window expansion..."></textarea>
+            </div>
+            <div class="bg-surface-container-lowest p-6 shadow-sm rounded-2xl border border-outline-variant/10">
+              <div class="flex items-center gap-2 mb-4">
+                <span class="w-6 h-6 rounded bg-secondary text-white flex items-center justify-center text-[10px] font-bold font-mono">Q2</span>
+                <h3 class="font-headline font-bold text-sm text-slate-800">Boundary Logic</h3>
+              </div>
+              <p id="hotspot-question-2" class="text-sm text-on-surface-variant mb-4 leading-relaxed">Explain why the loop condition uses <code class="bg-surface-container px-1 py-0.5 rounded font-mono text-tertiary">len(s)</code> instead of <code class="bg-surface-container px-1 py-0.5 rounded font-mono text-tertiary">len(s)-1</code>.</p>
+              <textarea id="hotspot-answer-2" class="w-full h-24 bg-surface-container-low border-none focus:ring-0 p-3 text-sm rounded-sm" placeholder="Discuss array indexing and exclusive bounds..."></textarea>
+            </div>
+            <div class="bg-surface-container-lowest p-6 shadow-sm rounded-2xl border border-outline-variant/10">
+              <div class="flex items-center gap-2 mb-4">
+                <span class="w-6 h-6 rounded bg-error text-white flex items-center justify-center text-[10px] font-bold font-mono">Q3</span>
+                <h3 class="font-headline font-bold text-sm text-slate-800">Edge Case Analysis</h3>
+              </div>
+              <p id="hotspot-question-3" class="text-sm text-on-surface-variant mb-4 leading-relaxed">What would happen if the input string <code class="bg-surface-container px-1 py-0.5 rounded font-mono text-tertiary">s</code> is empty?</p>
+              <textarea id="hotspot-answer-3" class="w-full h-24 bg-surface-container-low border-none focus:ring-0 p-3 text-sm rounded-sm" placeholder="Predict system behavior for null/empty input..."></textarea>
+            </div>
+          </div>
+          <div class="bg-surface-container-lowest p-5 border border-outline-variant/10 shadow-sm rounded-2xl">
+            <p id="hotspot-focus-card" class="text-[11px] text-on-surface-variant mb-2 leading-relaxed">If the explanation is solid here, the next step asks for mental execution of the same logic without running the code.</p>
+            <p class="text-[10px] font-mono uppercase tracking-[0.18em] text-slate-400 mb-3">Responses save automatically</p>
+            <a id="hotspot-next-link" class="w-full flex items-center justify-center gap-3 bg-primary text-white py-3 rounded px-6 font-mono text-xs font-bold tracking-widest uppercase hover:bg-slate-700 transition-all no-underline" href="./trace-mode-task.html">
+              <span id="hotspot-next-label">Next Task: Trace Mode</span>
+              <span class="material-symbols-outlined text-sm">arrow_forward</span>
+            </a>
+          </div>
+        </section>
+        </div>
+      </main>
+    </div>
+    <script type="module" src="/src/shell.js"></script>
+    <script type="module" src="/src/workspace-state.js"></script>
+  </body>
+</html>
