@@ -35,6 +35,23 @@ const DEMO_PROVENANCE = [
 
 const REVIEW_QUEUE_SAMPLE_SIZE = 3;
 
+const LANGUAGE_CONFIG = {
+  python: {
+    key: "python",
+    label: "Python 3.11",
+    shortLabel: "Python",
+    extension: "py",
+    testFile: "test_suite.py",
+  },
+  r: {
+    key: "r",
+    label: "R 4.3",
+    shortLabel: "R",
+    extension: "R",
+    testFile: "test_suite.R",
+  },
+};
+
 const longestSubstringSource = [
   "def length_of_longest_substring(s: str) -> int:",
   "    char_map = {}",
@@ -182,7 +199,69 @@ const safeHandlerRepair = [
   "    return max_length",
 ].join("\n");
 
+const rollingWindowSource = [
+  "detect_signal_drift <- function(values, window_size = 3) {",
+  "  if (is.null(values) || length(values) < window_size) {",
+  "    return(FALSE)",
+  "  }",
+  "",
+  "  rolling_means <- c()",
+  "  for (idx in seq(window_size, length(values))) {",
+  "    segment <- values[(idx - window_size + 1):idx]",
+  "    rolling_means <- c(rolling_means, mean(segment))",
+  "  }",
+  "",
+  "  max(rolling_means) - min(rolling_means) > 5",
+  "}",
+].join("\n");
+
+const rollingWindowMutation = [
+  "detect_signal_drift <- function(values, window_size = 3) {",
+  "  if (is.null(values) || length(values) < window_size) {",
+  "    return(FALSE)",
+  "  }",
+  "",
+  "  rolling_means <- c()",
+  "  for (idx in seq(window_size, length(values))) {",
+  "    segment <- values[(idx - window_size + 1):idx]",
+  "    rolling_means <- c(rolling_means, mean(segment))",
+  "  }",
+  "",
+  "  max(rolling_means) - min(rolling_means) > 5",
+  "}",
+].join("\n");
+
+const rollingWindowRepair = [
+  "detect_signal_drift <- function(values, window_size = 3) {",
+  "  if (is.null(values) || length(values) < window_size) {",
+  "    return(FALSE)",
+  "  }",
+  "",
+  "  rolling_means <- c()",
+  "  for (idx in seq(window_size, length(values))) {",
+  "    segment <- values[(idx - window_size):idx]",
+  "    rolling_means <- c(rolling_means, mean(segment))",
+  "  }",
+  "",
+  "  max(rolling_means) - min(rolling_means) > 5",
+  "}",
+].join("\n");
+
 const defaultDraft = longestSubstringSource;
+
+function normalizeLanguage(value) {
+  return String(value || "").toLowerCase() === "r" ? "r" : "python";
+}
+
+function getLanguageConfig(language) {
+  return LANGUAGE_CONFIG[normalizeLanguage(language)] || LANGUAGE_CONFIG.python;
+}
+
+function buildFileName(title, language, suffix = "") {
+  const base = slugify(title || "solution").replace(/-/g, "_") || "solution";
+  const ext = getLanguageConfig(language).extension;
+  return `${base}${suffix}.${ext}`;
+}
 
 function createDefaultModules(overrides = {}) {
   return {
@@ -217,9 +296,12 @@ function createDefaultResponses(overrides = {}) {
 
 function createDefaultAssignment(overrides = {}) {
   const starterCode = overrides.starterCode || overrides.sourceCode || defaultDraft;
+  const language = normalizeLanguage(overrides.language);
+  const languageConfig = getLanguageConfig(language);
 
   return {
     id: overrides.id || "",
+    language,
     title: overrides.title || "Untitled Assignment",
     due: overrides.due || "Due date TBD",
     summary: overrides.summary || "Understanding checks will be configured for this assignment.",
@@ -246,21 +328,23 @@ function createDefaultAssignment(overrides = {}) {
         'assert length_of_longest_substring("bbbbb") == 1',
         'assert length_of_longest_substring("pwwkew") == 3',
       ].join("\n"),
-    sourceFile: overrides.sourceFile || "solution.py",
+    sourceFile: overrides.sourceFile || buildFileName(overrides.title || "solution", language),
     sourceCode: overrides.sourceCode || starterCode,
     starterCode,
     draftCode: overrides.draftCode || starterCode,
     submissionConfirmed: Boolean(overrides.submissionConfirmed),
-    mutationFile: overrides.mutationFile || overrides.sourceFile || "mutation.py",
+    mutationFile: overrides.mutationFile || buildFileName(overrides.title || "solution", language, "_mutation"),
     mutationCode: overrides.mutationCode || starterCode,
     mutationFailureOutput:
       overrides.mutationFailureOutput || "TypeError: object of type 'NoneType' has no len()",
-    repairFile: overrides.repairFile || overrides.sourceFile || "repair.py",
-      repairCode: overrides.repairCode || starterCode,
-      repairDetectedIn: overrides.repairDetectedIn || "Detected in: algorithm repair checkpoint",
-      modules: createDefaultModules(overrides.modules),
-      responses: createDefaultResponses(overrides.responses),
-    };
+    repairFile: overrides.repairFile || buildFileName(overrides.title || "solution", language, "_repair"),
+    repairCode: overrides.repairCode || starterCode,
+    repairDetectedIn: overrides.repairDetectedIn || "Detected in: algorithm repair checkpoint",
+    testFile: overrides.testFile || languageConfig.testFile,
+    runtimeLabel: overrides.runtimeLabel || languageConfig.label,
+    modules: createDefaultModules(overrides.modules),
+    responses: createDefaultResponses(overrides.responses),
+  };
 }
 
 const defaultState = {
@@ -350,6 +434,7 @@ const defaultState = {
         createDefaultAssignment({
           id: "secure-software-engineering-null-input",
           title: "Null Input Mutation Defense",
+          language: "python",
           due: "Due Apr 15",
           summary: "Learners patch function contracts when constraints change.",
           prompt:
@@ -375,6 +460,39 @@ const defaultState = {
           repairFile: "safe_handler_repair.py",
           repairCode: safeHandlerRepair,
           repairDetectedIn: "Detected in: defensive fallback value",
+        }),
+        createDefaultAssignment({
+          id: "secure-software-engineering-r-drift-detector",
+          title: "Rolling Mean Drift Detector",
+          language: "r",
+          due: "Due Apr 18",
+          summary: "R-based checkpoint on vector handling, NA-safe mutation, and repair reasoning.",
+          prompt:
+            "Write an R function that detects whether a rolling mean drifts beyond a fixed threshold. Learners may use AI assistance, but must defend the same logic through hotspot, trace, mutation, and repair.",
+          hotspotFocus:
+            "Focus on the slice that builds each rolling window. Explain why the lower and upper bounds produce the correct segment.",
+          traceScenario:
+            "Trace the function with a short numeric vector and show which sub-vector is averaged at each loop iteration.",
+          mutationPrompt:
+            "Adapt the function so it safely ignores NA values inside each rolling window instead of failing or returning NA for the whole detector.",
+          repairPrompt:
+            "Repair the R variant where the rolling window starts one element too early, causing the detector to average the wrong segment.",
+          hiddenTests: [
+            "stopifnot(detect_signal_drift(c(1, 2, 3, 9, 10), 3) == TRUE)",
+            "stopifnot(detect_signal_drift(c(1, 2, 3), 3) == FALSE)",
+            "stopifnot(detect_signal_drift(NULL, 3) == FALSE)",
+          ].join("\n"),
+          sourceFile: "rolling_mean_drift_detector.R",
+          sourceCode: rollingWindowSource,
+          starterCode: rollingWindowSource,
+          mutationFile: "rolling_mean_drift_detector_mutation.R",
+          mutationCode: rollingWindowMutation,
+          mutationFailureOutput: "Error in mean(segment) : missing values and NaN's not allowed",
+          repairFile: "rolling_mean_drift_detector_repair.R",
+          repairCode: rollingWindowRepair,
+          repairDetectedIn: "Detected in: rolling window lower-bound slice",
+          testFile: "test_suite.R",
+          runtimeLabel: "R 4.3",
         }),
       ],
     },
@@ -1032,6 +1150,7 @@ function normalizeAssignment(assignment, fallbackId) {
   return createDefaultAssignment({
     ...assignment,
     id: assignment?.id || fallbackId,
+    language: normalizeLanguage(assignment?.language),
     modules: createDefaultModules(assignment?.modules || {}),
     responses: normalizeResponses(assignment?.responses),
     submissionConfirmed: Boolean(assignment?.submissionConfirmed),
@@ -1375,6 +1494,7 @@ function renderProfessorCourses(state) {
                     <h4 class="font-semibold">${assignment.title}</h4>
                     <p class="text-sm text-slate-500 mt-1">${assignment.summary}</p>
                     <p class="text-xs text-slate-400 mt-2">${assignment.due}</p>
+                    <p class="text-xs text-slate-400 mt-2">Language: ${assignment.runtimeLabel || getLanguageConfig(assignment.language).label}</p>
                     <p class="text-xs text-slate-400 mt-2">Modules: ${formatModuleList(assignment.modules) || "None"}</p>
                   </div>
                   <a class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-700 text-white no-underline edit-assignment-link" data-course-id="${course.id}" data-assignment-id="${assignment.id}" href="./create-assignment.html">Edit <span class="material-symbols-outlined text-base">north_east</span></a>
@@ -1457,6 +1577,7 @@ function renderProfessorDashboard() {
   const assignmentTitleInput = document.getElementById("assignment-title-input");
   const assignmentDueInput = document.getElementById("assignment-due-input");
   const assignmentSummaryInput = document.getElementById("assignment-summary-input");
+  const assignmentLanguageSelect = document.getElementById("assignment-language-select");
   const assignmentFeedback = document.getElementById("assignment-register-feedback");
   const activeCoursesStat = document.getElementById("stat-active-courses");
   const openAssignmentsStat = document.getElementById("stat-open-assignments");
@@ -1523,6 +1644,7 @@ function renderProfessorDashboard() {
     const title = assignmentTitleInput?.value.trim();
     const due = assignmentDueInput?.value.trim();
     const summary = assignmentSummaryInput?.value.trim();
+    const language = normalizeLanguage(assignmentLanguageSelect?.value);
 
     if (!courseId || !title) {
       if (assignmentFeedback) assignmentFeedback.textContent = "Choose a course and enter an assignment title.";
@@ -1540,6 +1662,7 @@ function renderProfessorDashboard() {
     course.assignments.push(
       createDefaultAssignment({
         id: assignmentId,
+        language,
         title,
         due: due || "Due date TBD",
         summary: summary || "Understanding checks will be configured for this assignment.",
@@ -1787,6 +1910,7 @@ function renderStudentPortal() {
                   <h4 class="font-headline text-lg font-bold">${assignment.title}</h4>
                   <p class="text-sm text-on-surface-variant mt-1">${assignment.summary}</p>
                   <p class="text-xs text-slate-400 mt-2">${assignment.due}</p>
+                  <p class="text-xs text-slate-400 mt-2">Language: ${assignment.runtimeLabel || getLanguageConfig(assignment.language).label}</p>
                   <p class="text-xs text-slate-400 mt-2">Modules: ${formatModuleList(assignment.modules) || "None"}</p>
                   <p class="text-xs mt-2 ${assignment.id === state.activeAssignmentId ? "text-tertiary" : "text-slate-500"}">${(() => {
                     const progress = getAssignmentProgressState(assignment);
@@ -1858,8 +1982,10 @@ function renderStudentSubmission() {
     context.textContent = `Selected from ${course.title} (${course.term}). ${assignment.due}. Submit the version of the code you want to defend in the checkpoints that follow.`;
   }
   if (dueBadge) dueBadge.textContent = assignment.due;
-  if (moduleSummary) moduleSummary.textContent = `Assessment modules: ${formatModuleList(assignment.modules) || "None configured"}`;
-    if (sourceFile) sourceFile.textContent = assignment.sourceFile;
+  if (moduleSummary) {
+    moduleSummary.textContent = `Language: ${assignment.runtimeLabel || getLanguageConfig(assignment.language).label} | Assessment modules: ${formatModuleList(assignment.modules) || "None configured"}`;
+  }
+  if (sourceFile) sourceFile.textContent = assignment.sourceFile;
 
     if (codeInput) {
       codeInput.value = getAssignmentDraft(assignment);
@@ -1922,6 +2048,10 @@ function renderCreateAssignment() {
   const mutationInput = document.getElementById("builder-mutation-prompt");
   const repairInput = document.getElementById("builder-repair-prompt");
   const hiddenTestsInput = document.getElementById("builder-hidden-tests");
+  const languageSelect = document.getElementById("builder-language-select");
+  const runtimeLabel = document.getElementById("builder-runtime-label");
+  const runtimeHint = document.getElementById("builder-runtime-hint");
+  const hiddenTestsFile = document.getElementById("builder-hidden-tests-file");
   const moduleInputs = {
     hotspot: document.getElementById("builder-module-hotspot"),
     trace: document.getElementById("builder-module-trace"),
@@ -1955,6 +2085,10 @@ function renderCreateAssignment() {
     if (mutationInput) mutationInput.value = assignment.mutationPrompt;
     if (repairInput) repairInput.value = assignment.repairPrompt;
     if (hiddenTestsInput) hiddenTestsInput.value = assignment.hiddenTests;
+    if (languageSelect) languageSelect.value = normalizeLanguage(assignment.language);
+    if (runtimeLabel) runtimeLabel.textContent = assignment.runtimeLabel || getLanguageConfig(assignment.language).label;
+    if (runtimeHint) runtimeHint.textContent = `${getLanguageConfig(assignment.language).shortLabel} assignment environment`;
+    if (hiddenTestsFile) hiddenTestsFile.textContent = assignment.testFile || getLanguageConfig(assignment.language).testFile;
 
     Object.entries(moduleInputs).forEach(([module, input]) => {
       if (input) input.checked = Boolean(assignment.modules[module]);
@@ -1979,6 +2113,13 @@ function renderCreateAssignment() {
     refresh();
   });
 
+  languageSelect?.addEventListener("change", () => {
+    const config = getLanguageConfig(languageSelect.value);
+    if (runtimeLabel) runtimeLabel.textContent = config.label;
+    if (runtimeHint) runtimeHint.textContent = `${config.shortLabel} assignment environment`;
+    if (hiddenTestsFile) hiddenTestsFile.textContent = config.testFile;
+  });
+
   publishButton.addEventListener("click", () => {
     const nextState = loadState();
     const course = nextState.courses.find((item) => item.id === courseSelect.value);
@@ -1998,15 +2139,19 @@ function renderCreateAssignment() {
     assignment.mutationPrompt = mutationInput?.value.trim() || assignment.mutationPrompt;
     assignment.repairPrompt = repairInput?.value.trim() || assignment.repairPrompt;
     assignment.hiddenTests = hiddenTestsInput?.value.trim() || assignment.hiddenTests;
+    assignment.language = normalizeLanguage(languageSelect?.value);
+    const languageConfig = getLanguageConfig(assignment.language);
     assignment.modules = createDefaultModules({
       hotspot: moduleInputs.hotspot?.checked,
       trace: moduleInputs.trace?.checked,
       mutation: moduleInputs.mutation?.checked,
       repair: moduleInputs.repair?.checked,
     });
-    assignment.sourceFile = `${slugify(assignment.title).replace(/-/g, "_")}.py`;
-    assignment.mutationFile = `${slugify(assignment.title).replace(/-/g, "_")}_mutation.py`;
-    assignment.repairFile = `${slugify(assignment.title).replace(/-/g, "_")}_repair.py`;
+    assignment.sourceFile = buildFileName(assignment.title, assignment.language);
+    assignment.mutationFile = buildFileName(assignment.title, assignment.language, "_mutation");
+    assignment.repairFile = buildFileName(assignment.title, assignment.language, "_repair");
+    assignment.testFile = languageConfig.testFile;
+    assignment.runtimeLabel = languageConfig.label;
 
     saveState(nextState);
     refresh();
@@ -2045,7 +2190,9 @@ function renderHotspotQuestions() {
   }
   if (sourceFile) sourceFile.textContent = assignment.sourceFile;
   if (focusCard) focusCard.textContent = assignment.hotspotFocus;
-  if (modules) modules.textContent = `Enabled modules: ${formatModuleList(assignment.modules) || "None configured"}`;
+  if (modules) {
+    modules.textContent = `Language: ${assignment.runtimeLabel || getLanguageConfig(assignment.language).label} | Enabled modules: ${formatModuleList(assignment.modules) || "None configured"}`;
+  }
   if (questionOne) questionOne.textContent = `Which line best expresses this focus: ${assignment.hotspotFocus}`;
   if (questionTwo) questionTwo.textContent = `How does that line support the assignment prompt: ${assignment.prompt}`;
   if (questionThree) {
@@ -2171,7 +2318,7 @@ function renderMutationTask() {
   if (whyCard) {
     whyCard.textContent = `Students who understand ${assignment.title} usually adapt quickly when the contract changes. This mutation uses: ${assignment.mutationPrompt}`;
   }
-    if (moduleState) moduleState.textContent = `Enabled modules: ${formatModuleList(assignment.modules) || "None configured"}`;
+    if (moduleState) moduleState.textContent = `Language: ${assignment.runtimeLabel || getLanguageConfig(assignment.language).label} | Enabled modules: ${formatModuleList(assignment.modules) || "None configured"}`;
     if (logOutput) logOutput.textContent = assignment.mutationFailureOutput;
     renderMutationPanel(codeBlock, assignment.mutationCode);
     bindStoredValue(answer, responses.mutation.plan, (value) => {
@@ -2217,7 +2364,7 @@ function renderRepairMode() {
   }
   if (sourceFile) sourceFile.textContent = assignment.repairFile;
     if (issueLabel) issueLabel.textContent = assignment.repairDetectedIn;
-    if (moduleState) moduleState.textContent = `Enabled modules: ${formatModuleList(assignment.modules) || "None configured"}`;
+    if (moduleState) moduleState.textContent = `Language: ${assignment.runtimeLabel || getLanguageConfig(assignment.language).label} | Enabled modules: ${formatModuleList(assignment.modules) || "None configured"}`;
     renderInlineCode(codeBlock, assignment.repairCode, "dark");
     bindStoredValue(answer, responses.repair.plan, (value) => {
       const nextState = loadState();
@@ -2273,7 +2420,7 @@ function renderStudentResult() {
 
   reportTitle.textContent = `Analysis: ${assignment.title}`;
   if (summary) {
-    summary.textContent = `${course.title} | ${assignment.due} | Modules: ${formatModuleList(assignment.modules) || "None configured"}`;
+    summary.textContent = `${course.title} | ${assignment.runtimeLabel || getLanguageConfig(assignment.language).label} | ${assignment.due} | Modules: ${formatModuleList(assignment.modules) || "None configured"}`;
   }
     if (diagnostic) {
       diagnostic.textContent = rubric.evidenceSummary;

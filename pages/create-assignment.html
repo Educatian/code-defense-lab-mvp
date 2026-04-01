@@ -108,7 +108,14 @@
                 </label>
                 <label class="space-y-1">
                   <span class="text-[10px] font-bold uppercase tracking-widest text-secondary">Assignment Title</span>
-                  <input id="builder-assignment-title" class="w-full bg-surface-container-low border-none p-3 transition-all text-sm rounded-sm" type="text" value="Memory Safety in Python Runtimes" />
+                  <input id="builder-assignment-title" class="w-full bg-surface-container-low border-none p-3 transition-all text-sm rounded-sm" type="text" value="Memory Safety Runtime Lab" />
+                </label>
+                <label class="space-y-1">
+                  <span class="text-[10px] font-bold uppercase tracking-widest text-secondary">Primary Language</span>
+                  <select id="builder-language-select" class="w-full bg-surface-container-low border-none p-3 transition-all text-sm rounded-sm">
+                    <option value="python" selected>Python</option>
+                    <option value="r">R</option>
+                  </select>
                 </label>
                 <label class="space-y-1 md:col-span-2">
                   <span class="text-[10px] font-bold uppercase tracking-widest text-secondary">Associated Course</span>
@@ -121,7 +128,7 @@
               </div>
               <label class="space-y-1 block">
                 <span class="text-[10px] font-bold uppercase tracking-widest text-secondary">Assignment Prompt</span>
-                <textarea id="builder-assignment-prompt" class="w-full bg-surface-container-low border-none p-3 transition-all text-sm rounded-sm resize-none" rows="6">Write a Python function to find the longest substring without repeating characters. Students may use AI assistance, but must defend the logic in hotspots, trace the execution on a hidden input, handle a what-if mutation, and repair a broken variant of the same algorithm.</textarea>
+                <textarea id="builder-assignment-prompt" class="w-full bg-surface-container-low border-none p-3 transition-all text-sm rounded-sm resize-none" rows="6">Write a function in Python or R. Students may use AI assistance, but must defend the logic in hotspots, trace the execution on a hidden input, handle a what-if mutation, and repair a broken variant of the same algorithm.</textarea>
               </label>
               <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <label class="space-y-1">
@@ -177,7 +184,7 @@
               </div>
               <div class="bg-surface-container-highest rounded-lg p-1">
                 <div class="flex items-center justify-between px-4 py-2 border-b border-white/20">
-                  <span class="font-mono text-xs opacity-60">test_suite.py</span>
+                  <span id="builder-hidden-tests-file" class="font-mono text-xs opacity-60">test_suite.py</span>
                   <span class="flex gap-2">
                     <span class="w-2 h-2 rounded-full bg-error"></span>
                     <span class="w-2 h-2 rounded-full bg-secondary"></span>
@@ -200,8 +207,9 @@ assert length_of_longest_substring(None) == 0</textarea>
                 <div class="space-y-1">
                   <label class="text-xs font-medium text-on-surface">Language</label>
                   <div class="flex items-center gap-3 p-3 bg-surface-container-lowest rounded-sm border-b-2 border-tertiary">
-                    <img alt="Python Logo" class="w-7 h-7 object-contain" src="https://upload.wikimedia.org/wikipedia/commons/c/c3/Python-logo-notext.svg" />
-                    <span class="font-mono text-sm font-bold">Python 3.11</span>
+                    <span class="material-symbols-outlined text-tertiary text-lg">terminal</span>
+                    <span id="builder-runtime-label" class="font-mono text-sm font-bold">Python 3.11</span>
+                    <span id="builder-runtime-hint" class="text-xs text-slate-500">Python assignment environment</span>
                     <span class="ml-auto material-symbols-outlined text-sm text-tertiary">lock</span>
                   </div>
                 </div>
