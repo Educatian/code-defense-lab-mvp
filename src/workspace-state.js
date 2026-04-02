@@ -1,3 +1,9 @@
+import {
+  initializeSupabaseWorkspaceSync,
+  isSupabaseWorkspaceConfigured,
+  queueSupabaseWorkspaceSave,
+} from "./supabase-state.js";
+
 const STORAGE_KEY = "code-defense-lab-workspace-state-v1";
 
 const MODULE_PATHS = {
@@ -1672,6 +1678,7 @@ function normalizeState(raw) {
   return {
     activeCourseId: state.activeCourseId || fallbackCourse?.id || "",
     activeAssignmentId: state.activeAssignmentId || fallbackAssignment?.id || "",
+    updatedAt: state.updatedAt || null,
     draftCode:
       typeof state.draftCode === "string" && state.draftCode.trim()
         ? state.draftCode
@@ -1693,7 +1700,12 @@ function loadState() {
 
 function saveState(state) {
   try {
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    const normalizedState = normalizeState({
+      ...state,
+      updatedAt: new Date().toISOString(),
+    });
+    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(normalizedState));
+    queueSupabaseWorkspaceSave(normalizedState);
     return true;
   } catch {
     return false;
@@ -3223,13 +3235,28 @@ function renderStudentResult() {
     );
 }
 
-renderProfessorDashboard();
-renderProfessorStudentDetail();
-renderStudentPortal();
-renderStudentSubmission();
-renderCreateAssignment();
-renderHotspotQuestions();
-renderTraceMode();
-renderMutationTask();
-renderRepairMode();
-renderStudentResult();
+function renderAllPages() {
+  renderProfessorDashboard();
+  renderProfessorStudentDetail();
+  renderStudentPortal();
+  renderStudentSubmission();
+  renderCreateAssignment();
+  renderHotspotQuestions();
+  renderTraceMode();
+  renderMutationTask();
+  renderRepairMode();
+  renderStudentResult();
+}
+
+renderAllPages();
+
+if (isSupabaseWorkspaceConfigured()) {
+  initializeSupabaseWorkspaceSync({
+    getLocalState: () => loadState(),
+    applyRemoteState: (remoteState) => {
+      const normalizedState = normalizeState(remoteState);
+      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(normalizedState));
+      renderAllPages();
+    },
+  });
+}

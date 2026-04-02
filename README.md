@@ -113,10 +113,29 @@ The repository currently includes these main views:
 - `CSS`
 - `Vanilla JavaScript`
 - `GitHub Pages`
+- `Supabase` for optional remote workspace-state sync
 
 ## State Model
 
-This MVP is front-end only.
+This MVP keeps working locally with `localStorage`, and can optionally mirror the shared workspace state to Supabase.
+
+### Supabase connection
+
+The project now supports a simple remote sync for the demo workspace state.
+
+Required env vars:
+
+- `VITE_SUPABASE_URL`
+- `VITE_SUPABASE_PUBLISHABLE_KEY`
+- `VITE_SUPABASE_WORKSPACE_TABLE`
+- `VITE_SUPABASE_WORKSPACE_ID`
+
+Setup files:
+
+- [`.env.example`](./.env.example)
+- [`supabase/workspace_states.sql`](./supabase/workspace_states.sql)
+
+The included SQL creates a `workspace_states` table and open demo policies so the front-end MVP can upsert a single shared state row using the publishable key. For a production system, replace this with authenticated user-scoped policies.
 
 There is no backend or database yet. Demo behavior is powered by shared browser state stored in `localStorage`, mainly through:
 
