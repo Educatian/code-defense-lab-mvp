@@ -2,6 +2,8 @@
 
 Role-based assessment prototype for code comprehension in the age of AI-assisted programming.
 
+![Code Defense Lab product screenshot](./.github/assets/code-defense-lab-hero.png)
+
 **Live demo:** [educatian.github.io/code-defense-lab-mvp](https://educatian.github.io/code-defense-lab-mvp/)  
 **Repository:** [github.com/Educatian/code-defense-lab-mvp](https://github.com/Educatian/code-defense-lab-mvp)
 
