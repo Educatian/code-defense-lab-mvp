@@ -123,6 +123,14 @@
                 <p id="result-provenance" class="text-sm text-on-surface">Written mostly by myself</p>
               </div>
               <div class="bg-surface-container-low p-4 rounded-lg">
+                <p class="font-mono text-[10px] uppercase tracking-[0.18em] text-secondary mb-2">AI Verification</p>
+                <p id="result-ai-verification" class="text-sm text-on-surface-variant leading-relaxed">No verification note saved yet.</p>
+              </div>
+              <div class="bg-surface-container-low p-4 rounded-lg md:col-span-2">
+                <p class="font-mono text-[10px] uppercase tracking-[0.18em] text-secondary mb-2">Data & Statistical Reasoning</p>
+                <p id="result-data-reasoning" class="text-sm text-on-surface-variant leading-relaxed">Not required for this assignment.</p>
+              </div>
+              <div class="bg-surface-container-low p-4 rounded-lg">
                 <p class="font-mono text-[10px] uppercase tracking-[0.18em] text-secondary mb-2">Hotspot Response</p>
                 <p id="result-hotspot-response" class="text-sm text-on-surface-variant leading-relaxed">No hotspot response saved yet.</p>
               </div>
@@ -183,6 +191,21 @@
           <span class="text-xs text-on-surface-variant">Checkpoint by checkpoint</span>
         </div>
         <div id="result-rubric-dimensions" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+      </div>
+      <div class="mt-6 grid grid-cols-1 lg:grid-cols-3 gap-4">
+        <div class="bg-surface-container-lowest p-5 rounded-2xl border border-outline-variant/10 shadow-sm">
+          <p class="font-mono text-[10px] uppercase tracking-[0.18em] text-tertiary mb-2">Hint Usage</p>
+          <p id="result-hint-usage" class="text-sm text-on-surface-variant leading-relaxed">No hints opened.</p>
+        </div>
+        <div class="bg-surface-container-lowest p-5 rounded-2xl border border-outline-variant/10 shadow-sm lg:col-span-2">
+          <div class="flex items-center justify-between gap-4 mb-4">
+            <div>
+              <p class="font-mono text-[10px] uppercase tracking-[0.18em] text-tertiary mb-2">Process Portfolio</p>
+              <h3 class="font-headline text-lg font-bold text-on-surface">How your reasoning evolved across checkpoints</h3>
+            </div>
+          </div>
+          <div id="result-portfolio-list" class="grid grid-cols-1 gap-3"></div>
+        </div>
       </div>
     </main>
     <script type="module" src="/src/shell.js"></script>

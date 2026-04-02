@@ -275,6 +275,16 @@ function createDefaultModules(overrides = {}) {
 function createDefaultResponses(overrides = {}) {
   return {
     provenance: overrides.provenance || "Written mostly by myself",
+    verification: {
+      tools: overrides.verification?.tools || "",
+      checks: overrides.verification?.checks || "",
+      uncertainty: overrides.verification?.uncertainty || "",
+    },
+    dataReasoning: {
+      dataset: overrides.dataReasoning?.dataset || "",
+      assumptions: overrides.dataReasoning?.assumptions || "",
+      interpretation: overrides.dataReasoning?.interpretation || "",
+    },
     hotspot: {
       q1: overrides.hotspot?.q1 || "",
       q2: overrides.hotspot?.q2 || "",
@@ -287,9 +297,11 @@ function createDefaultResponses(overrides = {}) {
     },
     mutation: {
       plan: overrides.mutation?.plan || "",
+      hintLevel: Number(overrides.mutation?.hintLevel || 0),
     },
     repair: {
       plan: overrides.repair?.plan || "",
+      hintLevel: Number(overrides.repair?.hintLevel || 0),
     },
   };
 }
@@ -298,10 +310,12 @@ function createDefaultAssignment(overrides = {}) {
   const starterCode = overrides.starterCode || overrides.sourceCode || defaultDraft;
   const language = normalizeLanguage(overrides.language);
   const languageConfig = getLanguageConfig(language);
+  const assessmentFocus = overrides.assessmentFocus || (language === "r" ? "data-science" : "programming");
 
   return {
     id: overrides.id || "",
     language,
+    assessmentFocus,
     title: overrides.title || "Untitled Assignment",
     due: overrides.due || "Due date TBD",
     summary: overrides.summary || "Understanding checks will be configured for this assignment.",
@@ -344,6 +358,8 @@ function createDefaultAssignment(overrides = {}) {
     runtimeLabel: overrides.runtimeLabel || languageConfig.label,
     modules: createDefaultModules(overrides.modules),
     responses: createDefaultResponses(overrides.responses),
+    portfolio: Array.isArray(overrides.portfolio) ? overrides.portfolio : [],
+    reviewNotes: overrides.reviewNotes && typeof overrides.reviewNotes === "object" ? overrides.reviewNotes : {},
   };
 }
 
@@ -562,10 +578,323 @@ function countAnswered(values) {
   return values.filter((value) => String(value || "").trim()).length;
 }
 
+function isDataScienceAssignment(assignment) {
+  return assignment?.assessmentFocus === "data-science";
+}
+
+function hasAiDeclared(provenance) {
+  return /AI|external/i.test(String(provenance || ""));
+}
+
+function getSubmissionEvidenceCounts(assignment) {
+  const responses = normalizeResponses(assignment?.responses);
+  const verificationAnswered = countAnswered([
+    responses.verification.tools,
+    responses.verification.checks,
+    responses.verification.uncertainty,
+  ]);
+  const verificationTotal = hasAiDeclared(responses.provenance) ? 3 : 2;
+  const dataAnswered = isDataScienceAssignment(assignment)
+    ? countAnswered([
+        responses.dataReasoning.dataset,
+        responses.dataReasoning.assumptions,
+        responses.dataReasoning.interpretation,
+      ])
+    : 0;
+  const dataTotal = isDataScienceAssignment(assignment) ? 3 : 0;
+
+  return {
+    verificationAnswered,
+    verificationTotal,
+    dataAnswered,
+    dataTotal,
+  };
+}
+
+function isSubmissionCheckpointComplete(assignment) {
+  const responses = normalizeResponses(assignment?.responses);
+  const submissionReady = hasCommittedSubmission(assignment);
+  const verificationReady =
+    Boolean(String(responses.verification.checks || "").trim()) &&
+    Boolean(String(responses.verification.uncertainty || "").trim()) &&
+    (!hasAiDeclared(responses.provenance) || Boolean(String(responses.verification.tools || "").trim()));
+  const dataReady =
+    !isDataScienceAssignment(assignment) ||
+    (Boolean(String(responses.dataReasoning.dataset || "").trim()) &&
+      Boolean(String(responses.dataReasoning.assumptions || "").trim()) &&
+      Boolean(String(responses.dataReasoning.interpretation || "").trim()));
+
+  return submissionReady && verificationReady && dataReady;
+}
+
 function summarizeText(text, fallback) {
   const normalized = String(text || "").trim().replace(/\s+/g, " ");
   if (!normalized) return fallback;
   return normalized.length > 180 ? `${normalized.slice(0, 177)}...` : normalized;
+}
+
+function compactText(text, max = 160) {
+  return summarizeText(text, "").slice(0, max);
+}
+
+function formatTimestampLabel(isoString) {
+  if (!isoString) return "Just now";
+  const date = new Date(isoString);
+  if (Number.isNaN(date.getTime())) return "Just now";
+  return date.toLocaleString("en-US", {
+    month: "short",
+    day: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+  });
+}
+
+function createDefaultReviewRecord(overrides = {}) {
+  return {
+    vivaNotes: {
+      q1: overrides.vivaNotes?.q1 || "",
+      q2: overrides.vivaNotes?.q2 || "",
+      q3: overrides.vivaNotes?.q3 || "",
+    },
+    instructorSummary: overrides.instructorSummary || "",
+    status: overrides.status || "pending",
+  };
+}
+
+function getPortfolioEntries(assignment, fallbackAssignment = null) {
+  const source =
+    Array.isArray(assignment?.portfolio) && assignment.portfolio.length
+      ? assignment.portfolio
+      : Array.isArray(fallbackAssignment?.portfolio)
+      ? fallbackAssignment.portfolio
+      : [];
+
+  return [...source].sort((a, b) => new Date(a.updatedAt || 0) - new Date(b.updatedAt || 0));
+}
+
+function upsertPortfolioEntry(state, assignmentId, key, stage, title, detail) {
+  const { assignment } = findAssignment(state, assignmentId);
+  if (!assignment) return state;
+  const normalizedDetail = String(detail || "").trim();
+  if (!normalizedDetail) return state;
+
+  assignment.portfolio = Array.isArray(assignment.portfolio) ? assignment.portfolio : [];
+  const nextEntry = {
+    key,
+    stage,
+    title,
+    detail: normalizedDetail,
+    updatedAt: new Date().toISOString(),
+  };
+  const entryIndex = assignment.portfolio.findIndex((entry) => entry.key === key);
+
+  if (entryIndex >= 0) {
+    assignment.portfolio[entryIndex] = {
+      ...assignment.portfolio[entryIndex],
+      ...nextEntry,
+    };
+  } else {
+    assignment.portfolio.push(nextEntry);
+  }
+
+  return state;
+}
+
+function getReviewRecord(assignment, studentId) {
+  const reviewNotes = assignment?.reviewNotes && typeof assignment.reviewNotes === "object" ? assignment.reviewNotes : {};
+  return createDefaultReviewRecord(reviewNotes[studentId]);
+}
+
+function updateReviewRecord(state, assignmentId, studentId, updater) {
+  const { assignment } = findAssignment(state, assignmentId);
+  if (!assignment || !studentId) return state;
+  assignment.reviewNotes = assignment.reviewNotes && typeof assignment.reviewNotes === "object" ? assignment.reviewNotes : {};
+  const nextRecord = createDefaultReviewRecord(assignment.reviewNotes[studentId]);
+  updater(nextRecord);
+  assignment.reviewNotes[studentId] = nextRecord;
+  return state;
+}
+
+function buildSubmissionPortfolioDetail(assignment) {
+  const responses = normalizeResponses(assignment?.responses);
+  const parts = [
+    `Provenance: ${responses.provenance || "Not declared"}.`,
+    responses.verification.checks ? `Self-checks: ${compactText(responses.verification.checks, 120)}` : "",
+    responses.verification.uncertainty ? `Still uncertain about: ${compactText(responses.verification.uncertainty, 120)}` : "",
+  ];
+
+  if (hasAiDeclared(responses.provenance) && responses.verification.tools) {
+    parts.splice(1, 0, `Tools used: ${compactText(responses.verification.tools, 120)}`);
+  }
+
+  if (isDataScienceAssignment(assignment)) {
+    if (responses.dataReasoning.dataset) parts.push(`Dataset choice: ${compactText(responses.dataReasoning.dataset, 120)}`);
+    if (responses.dataReasoning.assumptions) parts.push(`Assumptions: ${compactText(responses.dataReasoning.assumptions, 120)}`);
+    if (responses.dataReasoning.interpretation) parts.push(`Interpretation: ${compactText(responses.dataReasoning.interpretation, 120)}`);
+  }
+
+  return parts.filter(Boolean).join(" ");
+}
+
+function syncPortfolioForStage(state, assignmentId, stage) {
+  const { assignment } = findAssignment(state, assignmentId);
+  if (!assignment) return state;
+  const responses = normalizeResponses(assignment.responses);
+
+  if (stage === "submission") {
+    return upsertPortfolioEntry(
+      state,
+      assignmentId,
+      "submission-baseline",
+      "submission",
+      "Submission baseline",
+      buildSubmissionPortfolioDetail(assignment)
+    );
+  }
+
+  if (stage === "hotspot") {
+    const detail = summarizeText(
+      responses.hotspot.q1 || responses.hotspot.q2 || responses.hotspot.q3,
+      ""
+    );
+    return upsertPortfolioEntry(state, assignmentId, "hotspot-defense", "hotspot", "Hotspot defense", detail);
+  }
+
+  if (stage === "trace") {
+    const detail = summarizeText(
+      responses.trace.q2 || responses.trace.q1 || responses.trace.q3,
+      ""
+    );
+    return upsertPortfolioEntry(state, assignmentId, "trace-prediction", "trace", "Trace prediction", detail);
+  }
+
+  if (stage === "mutation") {
+    const detail = [
+      responses.mutation.plan ? summarizeText(responses.mutation.plan, "") : "",
+      responses.mutation.hintLevel ? `Hints opened: ${responses.mutation.hintLevel}.` : "",
+    ]
+      .filter(Boolean)
+      .join(" ");
+    return upsertPortfolioEntry(state, assignmentId, "mutation-plan", "mutation", "Mutation plan", detail);
+  }
+
+  if (stage === "repair") {
+    const detail = [
+      responses.repair.plan ? summarizeText(responses.repair.plan, "") : "",
+      responses.repair.hintLevel ? `Hints opened: ${responses.repair.hintLevel}.` : "",
+    ]
+      .filter(Boolean)
+      .join(" ");
+    return upsertPortfolioEntry(state, assignmentId, "repair-plan", "repair", "Repair rationale", detail);
+  }
+
+  return state;
+}
+
+function renderPortfolioList(container, entries, emptyCopy) {
+  if (!container) return;
+  if (!entries.length) {
+    container.innerHTML = `<div class="rounded-xl border border-dashed border-outline-variant/20 bg-surface-container-low p-4 text-sm text-on-surface-variant">${escapeHtml(emptyCopy)}</div>`;
+    return;
+  }
+
+  container.innerHTML = entries
+    .map(
+      (entry) => `
+        <div class="rounded-xl border border-outline-variant/10 bg-surface-container-low p-4">
+          <div class="flex items-center justify-between gap-3 mb-2">
+            <p class="font-mono text-[10px] uppercase tracking-[0.16em] text-tertiary">${escapeHtml(entry.title)}</p>
+            <span class="text-[11px] text-on-surface-variant">${escapeHtml(formatTimestampLabel(entry.updatedAt))}</span>
+          </div>
+          <p class="text-sm text-on-surface-variant leading-relaxed">${escapeHtml(entry.detail)}</p>
+        </div>
+      `
+    )
+    .join("");
+}
+
+function getHintLadder(assignment, stage) {
+  if (stage === "mutation") {
+    return isDataScienceAssignment(assignment)
+      ? [
+          "Restate what changed in the data contract before editing the code.",
+          "Add the smallest guard or NA-safe step that preserves the original detector logic.",
+          "Place the change at the first line that assumes every window element can be averaged safely.",
+        ]
+      : [
+          "Restate the changed input contract before editing the algorithm.",
+          "Add the smallest guard that isolates the failing case and preserves the original invariant.",
+          "Place the guard before the first operation that assumes a valid input or full window.",
+        ];
+  }
+
+  return isDataScienceAssignment(assignment)
+    ? [
+        "Compare the broken slice against the original rolling-window rule.",
+        "Repair the lower or upper bound only; avoid rewriting the whole loop.",
+        "Explain how the corrected slice restores the intended segment before the mean is computed.",
+      ]
+    : [
+        "Compare the broken branch against the original movement rule.",
+        "Repair the smallest pointer update that stopped the loop from converging.",
+        "Explain why the corrected branch restores progress and preserves the invariant.",
+      ];
+}
+
+function renderHintLadder(options) {
+  const { assignment, stage, statusId, listId, buttonId } = options;
+  const status = document.getElementById(statusId);
+  const list = document.getElementById(listId);
+  const button = document.getElementById(buttonId);
+  if (!status || !list || !button) return;
+
+  const responses = normalizeResponses(assignment.responses);
+  const hintLevel = Number(responses[stage]?.hintLevel || 0);
+  const hints = getHintLadder(assignment, stage);
+
+  status.textContent =
+    hintLevel === 0
+      ? "No hints opened yet"
+      : `${hintLevel} of ${hints.length} hints opened`;
+
+  list.innerHTML = hints
+    .map((hint, index) => {
+      const revealed = index < hintLevel;
+      return `
+        <div class="rounded-lg border ${revealed ? "border-outline-variant/10 bg-surface-container-low" : "border-dashed border-outline-variant/20 bg-white/70"} p-3">
+          <p class="font-mono text-[10px] uppercase tracking-[0.16em] ${revealed ? "text-tertiary" : "text-slate-400"} mb-1">Hint ${index + 1}</p>
+          <p class="text-sm leading-relaxed ${revealed ? "text-on-surface-variant" : "text-slate-400"}">${escapeHtml(revealed ? hint : "Reveal this hint if you need another nudge.")}</p>
+        </div>
+      `;
+    })
+    .join("");
+
+  button.disabled = hintLevel >= hints.length;
+  button.className = `w-full inline-flex items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-semibold transition-colors ${
+    hintLevel >= hints.length
+      ? "bg-slate-200 text-slate-400 cursor-not-allowed"
+      : "bg-surface-container-high text-on-surface hover:bg-surface-container-highest"
+  }`;
+}
+
+function buildVivaPrompts(assignment, rubric, responses) {
+  const prompts = [
+    `Which exact line in ${assignment.sourceFile} carries the main invariant, and what breaks first if that line stops behaving correctly?`,
+    weakestMetricKey({ metrics: createDefaultMetrics({ ...assignment, responses }).metrics }) === "trace"
+      ? `Walk me through one concrete trace from ${assignment.traceScenario} and narrate each state change in order.`
+      : `Explain one state transition from ${assignment.traceScenario} without jumping straight to the final answer.`,
+    isDataScienceAssignment(assignment)
+      ? `What assumption about the data or window statistics did you verify yourself, and where could that assumption fail on a new dataset?`
+      : hasAiDeclared(responses.provenance)
+      ? `You reported outside support. Which part did you verify yourself, and how did you confirm the code still matched your own reasoning?`
+      : `If you had to re-derive this solution on a blank page, which step would you reconstruct first and why?`,
+  ];
+
+  if (rubric?.gapSummary && prompts[2]) {
+    prompts[2] = `${prompts[2]} Follow-up risk: ${compactText(rubric.gapSummary, 110)}`;
+  }
+
+  return prompts;
 }
 
 function createStudentBadgeId(name, assignmentId) {
@@ -604,6 +933,16 @@ function metricStatus(value) {
 
 function getCheckpointResponseCounts(responses) {
   return {
+    verification: countAnswered([
+      responses.verification?.tools,
+      responses.verification?.checks,
+      responses.verification?.uncertainty,
+    ]),
+    dataReasoning: countAnswered([
+      responses.dataReasoning?.dataset,
+      responses.dataReasoning?.assumptions,
+      responses.dataReasoning?.interpretation,
+    ]),
     hotspot: countAnswered(Object.values(responses.hotspot)),
     trace: countAnswered(Object.values(responses.trace)),
     mutation: countAnswered([responses.mutation.plan]),
@@ -615,9 +954,17 @@ function createSyntheticResponses(assignment, studentSeed) {
   const bandScore = scoreFromSeed(`${studentSeed}-band`, 0, 99);
   const band = bandScore >= 72 ? "strong" : bandScore >= 42 ? "developing" : "fragile";
   const responsePlan = {
-    strong: { hotspot: 3, trace: 3, mutation: 1, repair: 1 },
-    developing: { hotspot: 2, trace: 2, mutation: 1, repair: 1 },
-    fragile: { hotspot: 1, trace: 1, mutation: scoreFromSeed(`${studentSeed}-mutation`, 0, 1), repair: 0 },
+    strong: { hotspot: 3, trace: 3, mutation: 1, repair: 1, verification: 3, data: 3, hintLevel: 0 },
+    developing: { hotspot: 2, trace: 2, mutation: 1, repair: 1, verification: 2, data: 2, hintLevel: 1 },
+    fragile: {
+      hotspot: 1,
+      trace: 1,
+      mutation: scoreFromSeed(`${studentSeed}-mutation`, 0, 1),
+      repair: 0,
+      verification: scoreFromSeed(`${studentSeed}-verification`, 1, 2),
+      data: scoreFromSeed(`${studentSeed}-data`, 1, 2),
+      hintLevel: scoreFromSeed(`${studentSeed}-hint-level`, 1, 2),
+    },
   }[band];
 
   const hotspotPool = [
@@ -642,9 +989,37 @@ function createSyntheticResponses(assignment, studentSeed) {
     `For repair, I would name the branch that stopped converging, then explain why the corrected update restores progress and keeps the state valid on the next iteration.`,
   ];
 
+  const verificationPool = [
+    {
+      tools: "I used ChatGPT for a first draft, then replayed the state changes myself before keeping the final version.",
+      checks: "I checked one concrete input by hand and verified that each pointer or index move still matched the invariant.",
+      uncertainty: "I still want to double-check the edge case where the contract changes or the input is empty.",
+    },
+    {
+      tools: "",
+      checks: "I walked through the code line by line and compared each state update against the rule the algorithm is supposed to maintain.",
+      uncertainty: "I am least certain when the same value appears again after the boundary has already moved once.",
+    },
+  ];
+
+  const dataReasoningPool = [
+    {
+      dataset: "I would use one stable numeric sequence and one with a late spike so the detector sees both calm and drift behavior.",
+      assumptions: "The window size must fit inside the vector, and each rolling mean should be computed on the intended slice only.",
+      interpretation: "A drift alert means the rolling mean changed meaningfully, but I would still inspect whether the threshold matches the data scale.",
+    },
+    {
+      dataset: "A short vector with one obvious change point is enough to check whether the rolling detector fires when it should.",
+      assumptions: "NA values or missing observations should be handled before interpreting the mean, otherwise the detector can fail for the wrong reason.",
+      interpretation: "I would describe the output as evidence of change in the local average, not as proof of the cause of that change.",
+    },
+  ];
+
   const responses = createDefaultResponses({
     provenance: DEMO_PROVENANCE[scoreFromSeed(`${studentSeed}-provenance`, 0, DEMO_PROVENANCE.length - 1)],
   });
+  const verificationChoice = verificationPool[scoreFromSeed(`${studentSeed}-verification-copy`, 0, verificationPool.length - 1)];
+  const dataChoice = dataReasoningPool[scoreFromSeed(`${studentSeed}-data-copy`, 0, dataReasoningPool.length - 1)];
 
   [responses.hotspot.q1, responses.hotspot.q2, responses.hotspot.q3] = hotspotPool.map((text, index) =>
     index < responsePlan.hotspot ? text : ""
@@ -652,8 +1027,19 @@ function createSyntheticResponses(assignment, studentSeed) {
   [responses.trace.q1, responses.trace.q2, responses.trace.q3] = tracePool.map((text, index) =>
     index < responsePlan.trace ? text : ""
   );
+  responses.verification.tools =
+    responsePlan.verification >= 3 || hasAiDeclared(responses.provenance) ? verificationChoice.tools : "";
+  responses.verification.checks = responsePlan.verification >= 1 ? verificationChoice.checks : "";
+  responses.verification.uncertainty = responsePlan.verification >= 2 ? verificationChoice.uncertainty : "";
+  if (isDataScienceAssignment(assignment)) {
+    responses.dataReasoning.dataset = responsePlan.data >= 1 ? dataChoice.dataset : "";
+    responses.dataReasoning.assumptions = responsePlan.data >= 2 ? dataChoice.assumptions : "";
+    responses.dataReasoning.interpretation = responsePlan.data >= 3 ? dataChoice.interpretation : "";
+  }
   responses.mutation.plan = responsePlan.mutation ? mutationPool[scoreFromSeed(`${studentSeed}-mutation-copy`, 0, mutationPool.length - 1)] : "";
   responses.repair.plan = responsePlan.repair ? repairPool[scoreFromSeed(`${studentSeed}-repair-copy`, 0, repairPool.length - 1)] : "";
+  responses.mutation.hintLevel = responsePlan.mutation ? responsePlan.hintLevel : 0;
+  responses.repair.hintLevel = responsePlan.repair ? Math.max(0, responsePlan.hintLevel - 1) : 0;
 
   return { responses, band };
 }
@@ -674,6 +1060,29 @@ function createSyntheticLearnerEntry(course, assignment, assignmentIndex, learne
     },
     assignment.id
   );
+  attempt.portfolio = [
+    {
+      key: "submission-baseline",
+      stage: "submission",
+      title: "Submission baseline",
+      detail: buildSubmissionPortfolioDetail(attempt),
+      updatedAt: new Date().toISOString(),
+    },
+    {
+      key: "hotspot-defense",
+      stage: "hotspot",
+      title: "Hotspot defense",
+      detail: summarizeText(responses.hotspot.q1 || responses.hotspot.q2 || responses.hotspot.q3, ""),
+      updatedAt: new Date().toISOString(),
+    },
+    {
+      key: "trace-prediction",
+      stage: "trace",
+      title: "Trace prediction",
+      detail: summarizeText(responses.trace.q2 || responses.trace.q1 || responses.trace.q3, ""),
+      updatedAt: new Date().toISOString(),
+    },
+  ].filter((entry) => entry.detail);
   const result = createDefaultMetrics(attempt);
   const coverage = getResponseCoverage(attempt);
 
@@ -691,6 +1100,7 @@ function createSyntheticLearnerEntry(course, assignment, assignmentIndex, learne
     coverage,
     responses,
     draftCode: attempt.draftCode,
+    portfolio: attempt.portfolio,
     riskReason: riskReasonFromResult(result, coverage, responses.provenance),
   };
 }
@@ -700,6 +1110,10 @@ function riskReasonFromResult(result, coverage = { answered: 0, total: 0 }, prov
 
   if (coverage.total && coverage.answered === 0) {
     return "No reasoning evidence saved beyond the code draft";
+  }
+
+  if (hasAiDeclared(provenance) && coverage.total && coverage.answered / coverage.total < 0.45) {
+    return "Declared outside support, but verification evidence is still too thin";
   }
 
   if (result.level === "HIGH") {
@@ -731,6 +1145,15 @@ function createRubricDimension(label, score, status, explanation) {
 function createRubricFeedback(assignment, result) {
   const responses = normalizeResponses(assignment.responses);
   const counts = getCheckpointResponseCounts(responses);
+  const submissionEvidence = getSubmissionEvidenceCounts(assignment);
+  const verificationScore = submissionEvidence.verificationTotal
+    ? Math.round((submissionEvidence.verificationAnswered / submissionEvidence.verificationTotal) * 100)
+    : 100;
+  const dataReasoningScore = submissionEvidence.dataTotal
+    ? Math.round((submissionEvidence.dataAnswered / submissionEvidence.dataTotal) * 100)
+    : null;
+  const portfolioEntries = getPortfolioEntries(assignment);
+  const hintUsage = Number(responses.mutation.hintLevel || 0) + Number(responses.repair.hintLevel || 0);
 
   const assessmentMetrics = Object.entries(result.metrics)
     .filter(([key, value]) => key !== "correctness" && typeof value === "number")
@@ -738,7 +1161,13 @@ function createRubricFeedback(assignment, result) {
 
   const strongest = assessmentMetrics[0];
   const weakest = assessmentMetrics[assessmentMetrics.length - 1];
-  const answeredSteps = counts.hotspot + counts.trace + counts.mutation + counts.repair;
+  const answeredSteps =
+    counts.verification +
+    counts.dataReasoning +
+    counts.hotspot +
+    counts.trace +
+    counts.mutation +
+    counts.repair;
 
   let strengthSummary = "The saved evidence is still light, so the strongest pattern is not clear yet.";
   if (strongest) {
@@ -753,7 +1182,11 @@ function createRubricFeedback(assignment, result) {
   }
 
   let gapSummary = "No major risk is visible yet because there is not enough saved evidence.";
-  if (weakest) {
+  if (verificationScore < 60) {
+    gapSummary = "The clearest gap is still verification. The submission needs a stronger account of what was checked personally, what support was used, and what remains uncertain.";
+  } else if (dataReasoningScore !== null && dataReasoningScore < 60) {
+    gapSummary = "The code is present, but the dataset context, assumptions, or interpretation still feel too implicit for a reliable data-science defense.";
+  } else if (weakest) {
     const [key, value] = weakest;
     if (value < 60) {
       gapSummary = `${metricLabel(key)} is the main gap right now. The response is either missing or too thin to show a reliable mental model of the algorithm at that stage.`;
@@ -765,7 +1198,11 @@ function createRubricFeedback(assignment, result) {
   }
 
   let nextStep = `Add fuller written reasoning to the weakest checkpoint so the result reflects how you think, not just the final code.`;
-  if (weakest?.[0] === "hotspot") {
+  if (verificationScore < 80) {
+    nextStep = `Complete the verification note by naming what you checked yourself, what support you used, and where uncertainty still remains before the next review.`;
+  } else if (dataReasoningScore !== null && dataReasoningScore < 80) {
+    nextStep = `Strengthen the data reasoning by naming the dataset context, one assumption behind the detector, and how you would interpret the output on real data.`;
+  } else if (weakest?.[0] === "hotspot") {
     nextStep = `Return to the hotspot step and name the exact line that preserves the invariant. Then explain what would break first if that line behaved incorrectly.`;
   } else if (weakest?.[0] === "trace") {
     nextStep = `Redo the trace with one concrete input and record each state transition in order. Focus on pointer movement or map updates, not just the final return value.`;
@@ -779,7 +1216,7 @@ function createRubricFeedback(assignment, result) {
 
   const caption =
     result.level === "HIGH"
-      ? "Your saved explanations and adaptation steps largely support the same mental model as the submitted code."
+      ? "Your saved explanations, verification notes, and adaptation steps largely support the same mental model as the submitted code."
       : result.level === "MEDIUM"
       ? "The overall model is partially there, but at least one checkpoint still reads as incomplete or mechanical."
       : "The final code and the saved reasoning still feel separated. The next win is to make your thinking visible step by step.";
@@ -804,6 +1241,30 @@ function createRubricFeedback(assignment, result) {
         ? "The code is directionally correct, but there are still signs the final implementation may be brittle."
         : "The final code still needs correction before the reasoning checkpoints can fully support it."
     ),
+    createRubricDimension(
+      "AI Use & Verification",
+      verificationScore,
+      metricStatus(verificationScore),
+      verificationScore >= 80
+        ? "The learner documented what they verified themselves and where uncertainty still remains."
+        : verificationScore >= 60
+        ? "A verification note exists, but it still leaves open questions about how the code was checked."
+        : "The submission still needs a clearer record of tools used, self-checks completed, and remaining uncertainty."
+    ),
+    ...(dataReasoningScore !== null
+      ? [
+          createRubricDimension(
+            "Data & Statistical Reasoning",
+            dataReasoningScore,
+            metricStatus(dataReasoningScore),
+            dataReasoningScore >= 80
+              ? "The learner connected code choices to dataset context, assumptions, and interpretation."
+              : dataReasoningScore >= 60
+              ? "Some data reasoning is present, but one of dataset choice, assumptions, or interpretation is still underexplained."
+              : "The code exists, but the statistical or data-science reasoning behind it is still too implicit."
+          ),
+        ]
+      : []),
     ...(typeof result.metrics.hotspot === "number"
       ? [
           createRubricDimension(
@@ -873,11 +1334,11 @@ function createRubricFeedback(assignment, result) {
   const evidenceSummary =
     answeredSteps === 0
       ? "No checkpoint writing has been saved yet, so this report is mostly reading the code draft and the enabled module configuration."
-      : `You saved ${answeredSteps} checkpoint response${answeredSteps === 1 ? "" : "s"} across ${formatModuleList(assignment.modules) || "the active modules"}. The report weighs both the final code and the written reasoning.`;
+      : `You saved ${answeredSteps} checkpoint response${answeredSteps === 1 ? "" : "s"} across ${formatModuleList(assignment.modules) || "the active modules"}. The report weighs the final code, the written reasoning, verification notes, and ${portfolioEntries.length} process snapshot${portfolioEntries.length === 1 ? "" : "s"}.`;
 
   const breakdownLine = strongest && weakest
-    ? `${metricLabel(strongest[0])} is currently strongest, while ${metricLabel(weakest[0])} is the next place to deepen. Correctness sits at ${result.metrics.correctness}%, and the rest of the feedback asks whether your reasoning keeps pace with that final answer.`
-    : `Correctness is ${result.metrics.correctness}%, but there is not enough enabled checkpoint data yet to compare reasoning strength across modules.`;
+    ? `${metricLabel(strongest[0])} is currently strongest, while ${metricLabel(weakest[0])} is the next place to deepen. Correctness sits at ${result.metrics.correctness}%, verification sits at ${verificationScore}%, and the rest of the feedback asks whether your reasoning keeps pace with that final answer.`
+    : `Correctness is ${result.metrics.correctness}%, verification is ${verificationScore}%, and there is not enough enabled checkpoint data yet to compare the rest of the reasoning strength across modules.`;
 
   return {
     strengthSummary,
@@ -888,6 +1349,10 @@ function createRubricFeedback(assignment, result) {
     evidenceSummary,
     breakdownLine,
     dimensionSummaries,
+    verificationScore,
+    dataReasoningScore,
+    hintUsage,
+    portfolioEntries,
   };
 }
 
@@ -920,11 +1385,16 @@ function createSyntheticDashboardResult(assignment, index) {
 
 function getResponseCoverage(assignment) {
   const responses = normalizeResponses(assignment.responses);
+  const submissionEvidence = getSubmissionEvidenceCounts(assignment);
   const answered =
+    submissionEvidence.verificationAnswered +
+    submissionEvidence.dataAnswered +
     countAnswered(Object.values(responses.hotspot)) +
     countAnswered(Object.values(responses.trace)) +
     countAnswered([responses.mutation.plan, responses.repair.plan]);
   const total =
+    submissionEvidence.verificationTotal +
+    submissionEvidence.dataTotal +
     (assignment.modules.hotspot ? 3 : 0) +
     (assignment.modules.trace ? 3 : 0) +
     (assignment.modules.mutation ? 1 : 0) +
@@ -936,7 +1406,7 @@ function getAssignmentProgressState(assignment) {
   const responses = normalizeResponses(assignment.responses);
   const flow = getEnabledFlow(assignment);
   const checks = {
-    submission: hasCommittedSubmission(assignment),
+    submission: isSubmissionCheckpointComplete(assignment),
     hotspot: !assignment.modules.hotspot || countAnswered(Object.values(responses.hotspot)) > 0,
     trace: !assignment.modules.trace || countAnswered(Object.values(responses.trace)) > 0,
     mutation: !assignment.modules.mutation || Boolean(responses.mutation.plan.trim()),
@@ -1002,6 +1472,7 @@ function buildReviewQueue(state) {
           coverage: actualCoverage,
           responses: actualResponses,
           draftCode: assignment.draftCode,
+          portfolio: getPortfolioEntries(assignment),
           riskReason: riskReasonFromResult(actualResult, actualCoverage, actualResponses.provenance),
         });
       }
@@ -1075,6 +1546,7 @@ function renderReviewQueue(queue) {
             coverage: entry.coverage,
             responses: entry.responses,
             draftCode: entry.draftCode,
+            portfolio: entry.portfolio,
           }
         : null;
       saveState(nextState);
@@ -1084,6 +1556,18 @@ function renderReviewQueue(queue) {
 
 function createDefaultMetrics(assignment) {
   const responses = normalizeResponses(assignment.responses);
+  const verificationQuality = average([
+    hasAiDeclared(responses.provenance) ? evaluateTextResponse(responses.verification.tools) : 80,
+    evaluateTextResponse(responses.verification.checks),
+    evaluateTextResponse(responses.verification.uncertainty),
+  ]);
+  const dataQuality = isDataScienceAssignment(assignment)
+    ? average([
+        evaluateTextResponse(responses.dataReasoning.dataset),
+        evaluateTextResponse(responses.dataReasoning.assumptions),
+        evaluateTextResponse(responses.dataReasoning.interpretation),
+      ])
+    : null;
   const hotspotQuality = average([
     evaluateTextResponse(responses.hotspot.q1),
     evaluateTextResponse(responses.hotspot.q2),
@@ -1134,7 +1618,11 @@ function createDefaultMetrics(assignment) {
       : null,
   };
 
-  const gradedValues = Object.values(metrics).filter((value) => typeof value === "number");
+  const gradedValues = [
+    ...Object.values(metrics).filter((value) => typeof value === "number"),
+    verificationQuality,
+    ...(typeof dataQuality === "number" ? [dataQuality] : []),
+  ];
   const consistency = Math.round(
     gradedValues.reduce((sum, value) => sum + value, 0) / gradedValues.length
   );
@@ -1698,6 +2186,8 @@ function renderProfessorStudentDetail() {
   const traceResponse = document.getElementById("professor-trace-response");
   const mutationResponse = document.getElementById("professor-mutation-response");
   const repairResponse = document.getElementById("professor-repair-response");
+  const aiVerification = document.getElementById("professor-ai-verification");
+  const dataReasoning = document.getElementById("professor-data-reasoning");
   const consistencyLevel = document.getElementById("professor-consistency-level");
   const diagnosticMessage = document.getElementById("professor-diagnostic-message");
   const reviewCard = document.getElementById("professor-review-card");
@@ -1711,6 +2201,14 @@ function renderProfessorStudentDetail() {
   const provenanceMeta = document.getElementById("professor-provenance-meta");
   const rubricEvidence = document.getElementById("professor-rubric-evidence");
   const rubricDimensions = document.getElementById("professor-rubric-dimensions");
+  const portfolioList = document.getElementById("professor-portfolio-list");
+  const vivaPromptOne = document.getElementById("professor-viva-prompt-1");
+  const vivaPromptTwo = document.getElementById("professor-viva-prompt-2");
+  const vivaPromptThree = document.getElementById("professor-viva-prompt-3");
+  const vivaNoteOne = document.getElementById("professor-viva-note-1");
+  const vivaNoteTwo = document.getElementById("professor-viva-note-2");
+  const vivaNoteThree = document.getElementById("professor-viva-note-3");
+  const instructorSummary = document.getElementById("professor-instructor-summary");
 
   const state = loadState();
   const { course, assignment } = findAssignment(state, state.activeAssignmentId);
@@ -1727,10 +2225,18 @@ function renderProfessorStudentDetail() {
   const result = reviewContext?.result || createDefaultMetrics(assignmentForReview);
   const rubric = createRubricFeedback(assignmentForReview, result);
   const coverage = reviewContext?.coverage || getResponseCoverage(assignmentForReview);
+  const displayStudentId = reviewContext?.studentId || createStudentBadgeId(reviewContext?.studentName || "Alex Chen", assignment.id);
+  const reviewRecord = getReviewRecord(assignment, displayStudentId);
+  const vivaPrompts = buildVivaPrompts(assignmentForReview, rubric, responses);
+  const portfolioEntries = getPortfolioEntries(
+    { portfolio: reviewContext?.portfolio || [] },
+    assignmentForReview
+  );
+  const displayProvenance = reviewContext?.provenance || responses.provenance;
 
   const displayStudentName = reviewContext?.studentName || "Alex Chen";
   studentName.textContent = displayStudentName;
-  if (studentId) studentId.textContent = `ID: ${reviewContext?.studentId || createStudentBadgeId(displayStudentName, assignment.id)}`;
+  if (studentId) studentId.textContent = `ID: ${displayStudentId}`;
   if (courseSummary) courseSummary.textContent = `${course.title} | ${assignment.title}`;
   if (sourceFile) sourceFile.textContent = assignment.sourceFile;
   if (sourceCode) sourceCode.textContent = reviewContext?.draftCode || assignment.draftCode || assignment.sourceCode;
@@ -1760,6 +2266,28 @@ function renderProfessorStudentDetail() {
       "No repair reasoning saved."
     );
   }
+  if (aiVerification) {
+    const parts = [
+      hasAiDeclared(displayProvenance) && responses.verification.tools
+        ? `Tools: ${compactText(responses.verification.tools, 120)}`
+        : "",
+      responses.verification.checks ? `Self-checks: ${compactText(responses.verification.checks, 120)}` : "",
+      responses.verification.uncertainty ? `Uncertainty: ${compactText(responses.verification.uncertainty, 120)}` : "",
+    ].filter(Boolean);
+    aiVerification.textContent = parts.length ? parts.join(" ") : "No verification note saved.";
+  }
+  if (dataReasoning) {
+    if (isDataScienceAssignment(assignmentForReview)) {
+      const parts = [
+        responses.dataReasoning.dataset ? `Dataset: ${compactText(responses.dataReasoning.dataset, 110)}` : "",
+        responses.dataReasoning.assumptions ? `Assumptions: ${compactText(responses.dataReasoning.assumptions, 110)}` : "",
+        responses.dataReasoning.interpretation ? `Interpretation: ${compactText(responses.dataReasoning.interpretation, 110)}` : "",
+      ].filter(Boolean);
+      dataReasoning.textContent = parts.length ? parts.join(" ") : "No data reasoning note saved.";
+    } else {
+      dataReasoning.textContent = "Not required for this assignment.";
+    }
+  }
   if (consistencyLevel) {
     consistencyLevel.textContent = result.level;
     consistencyLevel.className =
@@ -1778,8 +2306,19 @@ function renderProfessorStudentDetail() {
   if (consistencyScore) consistencyScore.textContent = `${result.consistency}%`;
   if (responseCoverage) responseCoverage.textContent = `${coverage.answered} / ${coverage.total || 0}`;
   if (provenanceMeta) provenanceMeta.textContent = reviewContext?.provenance || responses.provenance;
+  renderPortfolioList(
+    portfolioList,
+    portfolioEntries,
+    "Checkpoint snapshots will appear here after the learner saves written evidence."
+  );
+  if (vivaPromptOne) vivaPromptOne.textContent = vivaPrompts[0] || "No viva prompt generated.";
+  if (vivaPromptTwo) vivaPromptTwo.textContent = vivaPrompts[1] || "No viva prompt generated.";
+  if (vivaPromptThree) vivaPromptThree.textContent = vivaPrompts[2] || "No viva prompt generated.";
+  if (vivaNoteOne) vivaNoteOne.value = reviewRecord.vivaNotes.q1;
+  if (vivaNoteTwo) vivaNoteTwo.value = reviewRecord.vivaNotes.q2;
+  if (vivaNoteThree) vivaNoteThree.value = reviewRecord.vivaNotes.q3;
+  if (instructorSummary) instructorSummary.value = reviewRecord.instructorSummary;
 
-  const displayProvenance = reviewContext?.provenance || responses.provenance;
   const provenanceIsAi = /AI|external/i.test(displayProvenance);
   if (provenanceBadge) {
     provenanceBadge.innerHTML = `<span class="w-2 h-2 rounded-full bg-tertiary"></span>${escapeHtml(displayProvenance)}`;
@@ -1821,6 +2360,44 @@ function renderProfessorStudentDetail() {
       reviewNote.textContent = `The current evidence suggests the final code is stronger than the saved reasoning. ${reviewContext?.riskReason || "A short oral defense or targeted walkthrough is recommended."}`;
       reviewNote.className = "text-xs text-on-error-container opacity-80 leading-snug";
     }
+  }
+
+  if (vivaNoteOne) {
+    vivaNoteOne.oninput = () => {
+      const nextState = loadState();
+      updateReviewRecord(nextState, nextState.activeAssignmentId, displayStudentId, (record) => {
+        record.vivaNotes.q1 = vivaNoteOne.value;
+      });
+      saveState(nextState);
+    };
+  }
+  if (vivaNoteTwo) {
+    vivaNoteTwo.oninput = () => {
+      const nextState = loadState();
+      updateReviewRecord(nextState, nextState.activeAssignmentId, displayStudentId, (record) => {
+        record.vivaNotes.q2 = vivaNoteTwo.value;
+      });
+      saveState(nextState);
+    };
+  }
+  if (vivaNoteThree) {
+    vivaNoteThree.oninput = () => {
+      const nextState = loadState();
+      updateReviewRecord(nextState, nextState.activeAssignmentId, displayStudentId, (record) => {
+        record.vivaNotes.q3 = vivaNoteThree.value;
+      });
+      saveState(nextState);
+    };
+  }
+  if (instructorSummary) {
+    instructorSummary.oninput = () => {
+      const nextState = loadState();
+      updateReviewRecord(nextState, nextState.activeAssignmentId, displayStudentId, (record) => {
+        record.instructorSummary = instructorSummary.value;
+        record.status = result.level === "HIGH" ? "reviewed" : result.level === "MEDIUM" ? "follow-up" : "oral-defense";
+      });
+      saveState(nextState);
+    };
   }
 }
 
@@ -1968,6 +2545,14 @@ function renderStudentSubmission() {
   const sourceFile = document.getElementById("submission-source-file");
   const nextLink = document.getElementById("submission-next-link");
   const nextCopy = document.getElementById("submission-next-copy");
+  const aiTools = document.getElementById("submission-ai-tools");
+  const selfChecks = document.getElementById("submission-self-checks");
+  const uncertainty = document.getElementById("submission-uncertainty");
+  const verificationStatus = document.getElementById("submission-verification-status");
+  const dataCard = document.getElementById("submission-data-card");
+  const dataDataset = document.getElementById("submission-data-dataset");
+  const dataAssumptions = document.getElementById("submission-data-assumptions");
+  const dataInterpretation = document.getElementById("submission-data-interpretation");
 
   const state = loadState();
   const { course, assignment } = findAssignment(state, state.activeAssignmentId);
@@ -1986,52 +2571,106 @@ function renderStudentSubmission() {
     moduleSummary.textContent = `Language: ${assignment.runtimeLabel || getLanguageConfig(assignment.language).label} | Assessment modules: ${formatModuleList(assignment.modules) || "None configured"}`;
   }
   if (sourceFile) sourceFile.textContent = assignment.sourceFile;
+  if (verificationStatus) {
+    verificationStatus.textContent = isSubmissionCheckpointComplete(assignment)
+      ? "Verification ready"
+      : "Verification incomplete";
+  }
+  if (dataCard) {
+    dataCard.classList.toggle("hidden", !isDataScienceAssignment(assignment));
+  }
 
-    if (codeInput) {
-      codeInput.value = getAssignmentDraft(assignment);
-      codeInput.addEventListener("input", () => {
-        const nextState = loadState();
-        updateAssignmentDraft(nextState, nextState.activeAssignmentId, codeInput.value);
-        markSubmissionConfirmed(nextState, nextState.activeAssignmentId);
-        saveState(nextState);
-      });
-    }
-
-    bindRadioGroup("provenance", responses.provenance, (value) => {
+  if (codeInput) {
+    codeInput.value = getAssignmentDraft(assignment);
+    codeInput.addEventListener("input", () => {
       const nextState = loadState();
-      updateAssignmentResponse(nextState, nextState.activeAssignmentId, "provenance", null, value);
+      updateAssignmentDraft(nextState, nextState.activeAssignmentId, codeInput.value);
       markSubmissionConfirmed(nextState, nextState.activeAssignmentId);
+      syncPortfolioForStage(nextState, nextState.activeAssignmentId, "submission");
       saveState(nextState);
     });
+  }
 
-    if (nextCopy) {
-      nextCopy.textContent = submissionReady
-        ? "Your baseline is saved. Continue into explanation of the algorithm's pressure points whenever you're ready."
-        : "Starter code is preloaded for orientation. Moving forward confirms that this is the version you want to defend in the next checkpoints.";
-      const duplicateCopy = nextCopy.previousElementSibling;
-      if (duplicateCopy?.tagName === "P" && !duplicateCopy.id) {
-        duplicateCopy.style.display = "none";
-      }
+  bindRadioGroup("provenance", responses.provenance, (value) => {
+    const nextState = loadState();
+    updateAssignmentResponse(nextState, nextState.activeAssignmentId, "provenance", null, value);
+    markSubmissionConfirmed(nextState, nextState.activeAssignmentId);
+    syncPortfolioForStage(nextState, nextState.activeAssignmentId, "submission");
+    saveState(nextState);
+  });
+
+  bindStoredValue(aiTools, responses.verification.tools, (value) => {
+    const nextState = loadState();
+    updateAssignmentResponse(nextState, nextState.activeAssignmentId, "verification", "tools", value);
+    markSubmissionConfirmed(nextState, nextState.activeAssignmentId);
+    syncPortfolioForStage(nextState, nextState.activeAssignmentId, "submission");
+    saveState(nextState);
+  });
+  bindStoredValue(selfChecks, responses.verification.checks, (value) => {
+    const nextState = loadState();
+    updateAssignmentResponse(nextState, nextState.activeAssignmentId, "verification", "checks", value);
+    markSubmissionConfirmed(nextState, nextState.activeAssignmentId);
+    syncPortfolioForStage(nextState, nextState.activeAssignmentId, "submission");
+    saveState(nextState);
+  });
+  bindStoredValue(uncertainty, responses.verification.uncertainty, (value) => {
+    const nextState = loadState();
+    updateAssignmentResponse(nextState, nextState.activeAssignmentId, "verification", "uncertainty", value);
+    markSubmissionConfirmed(nextState, nextState.activeAssignmentId);
+    syncPortfolioForStage(nextState, nextState.activeAssignmentId, "submission");
+    saveState(nextState);
+  });
+  bindStoredValue(dataDataset, responses.dataReasoning.dataset, (value) => {
+    const nextState = loadState();
+    updateAssignmentResponse(nextState, nextState.activeAssignmentId, "dataReasoning", "dataset", value);
+    markSubmissionConfirmed(nextState, nextState.activeAssignmentId);
+    syncPortfolioForStage(nextState, nextState.activeAssignmentId, "submission");
+    saveState(nextState);
+  });
+  bindStoredValue(dataAssumptions, responses.dataReasoning.assumptions, (value) => {
+    const nextState = loadState();
+    updateAssignmentResponse(nextState, nextState.activeAssignmentId, "dataReasoning", "assumptions", value);
+    markSubmissionConfirmed(nextState, nextState.activeAssignmentId);
+    syncPortfolioForStage(nextState, nextState.activeAssignmentId, "submission");
+    saveState(nextState);
+  });
+  bindStoredValue(dataInterpretation, responses.dataReasoning.interpretation, (value) => {
+    const nextState = loadState();
+    updateAssignmentResponse(nextState, nextState.activeAssignmentId, "dataReasoning", "interpretation", value);
+    markSubmissionConfirmed(nextState, nextState.activeAssignmentId);
+    syncPortfolioForStage(nextState, nextState.activeAssignmentId, "submission");
+    saveState(nextState);
+  });
+
+  if (nextCopy) {
+    nextCopy.textContent = submissionReady
+      ? "Your baseline, verification note, and course context are saved. Continue into the hotspot checkpoint when you're ready."
+      : "Starter code is preloaded for orientation. Moving forward confirms that this is the version and verification record you want to defend in the next checkpoints.";
+    const duplicateCopy = nextCopy.previousElementSibling;
+    if (duplicateCopy?.tagName === "P" && !duplicateCopy.id) {
+      duplicateCopy.style.display = "none";
     }
+  }
 
-    if (nextLink) {
-      nextLink.addEventListener("click", () => {
-        const nextState = loadState();
-        markSubmissionConfirmed(nextState, nextState.activeAssignmentId);
-        saveState(nextState);
-      });
-    }
-
-    renderStepProgress({
-      assignment,
-      currentKey: "submission",
-      stepTextId: "submission-step-text",
-      percentTextId: "submission-progress-text",
-      barId: "submission-progress-bar",
+  if (nextLink) {
+    nextLink.addEventListener("click", () => {
+      const nextState = loadState();
+      markSubmissionConfirmed(nextState, nextState.activeAssignmentId);
+      syncPortfolioForStage(nextState, nextState.activeAssignmentId, "submission");
+      saveState(nextState);
     });
+  }
 
-    configureNextLink("submission-next-link", "submission-next-label", assignment, "submission", "Begin ");
-    applyModuleVisibility(assignment, ["submission-next-link"]);
+  renderStepProgress({
+    assignment,
+    currentKey: "submission",
+    stepTextId: "submission-step-text",
+    percentTextId: "submission-progress-text",
+    barId: "submission-progress-bar",
+  });
+
+  configureNextLink("submission-next-link", "submission-next-label", assignment, "submission", "Begin ");
+  applyModuleVisibility(assignment, ["submission-next-link"]);
 }
 
 function renderCreateAssignment() {
@@ -2202,16 +2841,19 @@ function renderHotspotQuestions() {
     bindStoredValue(answerOne, responses.hotspot.q1, (value) => {
       const nextState = loadState();
       updateAssignmentResponse(nextState, nextState.activeAssignmentId, "hotspot", "q1", value);
+      syncPortfolioForStage(nextState, nextState.activeAssignmentId, "hotspot");
       saveState(nextState);
     });
     bindStoredValue(answerTwo, responses.hotspot.q2, (value) => {
       const nextState = loadState();
       updateAssignmentResponse(nextState, nextState.activeAssignmentId, "hotspot", "q2", value);
+      syncPortfolioForStage(nextState, nextState.activeAssignmentId, "hotspot");
       saveState(nextState);
     });
     bindStoredValue(answerThree, responses.hotspot.q3, (value) => {
       const nextState = loadState();
       updateAssignmentResponse(nextState, nextState.activeAssignmentId, "hotspot", "q3", value);
+      syncPortfolioForStage(nextState, nextState.activeAssignmentId, "hotspot");
       saveState(nextState);
     });
     renderStepProgress({
@@ -2265,16 +2907,19 @@ function renderTraceMode() {
     bindStoredValue(answerOne, responses.trace.q1, (value) => {
       const nextState = loadState();
       updateAssignmentResponse(nextState, nextState.activeAssignmentId, "trace", "q1", value);
+      syncPortfolioForStage(nextState, nextState.activeAssignmentId, "trace");
       saveState(nextState);
     });
     bindStoredValue(answerTwo, responses.trace.q2, (value) => {
       const nextState = loadState();
       updateAssignmentResponse(nextState, nextState.activeAssignmentId, "trace", "q2", value);
+      syncPortfolioForStage(nextState, nextState.activeAssignmentId, "trace");
       saveState(nextState);
     });
     bindStoredValue(answerThree, responses.trace.q3, (value) => {
       const nextState = loadState();
       updateAssignmentResponse(nextState, nextState.activeAssignmentId, "trace", "q3", value);
+      syncPortfolioForStage(nextState, nextState.activeAssignmentId, "trace");
       saveState(nextState);
     });
     renderStepProgress({
@@ -2302,6 +2947,7 @@ function renderMutationTask() {
   const codeBlock = document.getElementById("mutation-code-block");
   const logOutput = document.querySelector(".text-error\\/80.leading-relaxed");
   const answer = document.getElementById("mutation-answer");
+  const hintButton = document.getElementById("mutation-hint-button");
 
   const state = loadState();
   const { course, assignment } = findAssignment(state, state.activeAssignmentId);
@@ -2324,8 +2970,37 @@ function renderMutationTask() {
     bindStoredValue(answer, responses.mutation.plan, (value) => {
       const nextState = loadState();
       updateAssignmentResponse(nextState, nextState.activeAssignmentId, "mutation", "plan", value);
+      syncPortfolioForStage(nextState, nextState.activeAssignmentId, "mutation");
       saveState(nextState);
     });
+    if (hintButton) {
+      renderHintLadder({
+        assignment,
+        stage: "mutation",
+        statusId: "mutation-hint-status",
+        listId: "mutation-hints",
+        buttonId: "mutation-hint-button",
+      });
+      hintButton.onclick = () => {
+        const nextState = loadState();
+        const currentAssignment = findAssignment(nextState, nextState.activeAssignmentId).assignment;
+        const nextLevel = clamp(
+          Number(normalizeResponses(currentAssignment.responses).mutation.hintLevel || 0) + 1,
+          0,
+          getHintLadder(currentAssignment, "mutation").length
+        );
+        updateAssignmentResponse(nextState, nextState.activeAssignmentId, "mutation", "hintLevel", nextLevel);
+        syncPortfolioForStage(nextState, nextState.activeAssignmentId, "mutation");
+        saveState(nextState);
+        renderHintLadder({
+          assignment: findAssignment(loadState(), nextState.activeAssignmentId).assignment,
+          stage: "mutation",
+          statusId: "mutation-hint-status",
+          listId: "mutation-hints",
+          buttonId: "mutation-hint-button",
+        });
+      };
+    }
     renderStepProgress({
       assignment,
       currentKey: "mutation",
@@ -2350,6 +3025,7 @@ function renderRepairMode() {
   const moduleState = document.getElementById("repair-module-state");
   const codeBlock = document.getElementById("repair-code-block");
   const answer = document.getElementById("repair-answer");
+  const hintButton = document.getElementById("repair-hint-button");
 
   const state = loadState();
   const { course, assignment } = findAssignment(state, state.activeAssignmentId);
@@ -2369,8 +3045,37 @@ function renderRepairMode() {
     bindStoredValue(answer, responses.repair.plan, (value) => {
       const nextState = loadState();
       updateAssignmentResponse(nextState, nextState.activeAssignmentId, "repair", "plan", value);
+      syncPortfolioForStage(nextState, nextState.activeAssignmentId, "repair");
       saveState(nextState);
     });
+    if (hintButton) {
+      renderHintLadder({
+        assignment,
+        stage: "repair",
+        statusId: "repair-hint-status",
+        listId: "repair-hints",
+        buttonId: "repair-hint-button",
+      });
+      hintButton.onclick = () => {
+        const nextState = loadState();
+        const currentAssignment = findAssignment(nextState, nextState.activeAssignmentId).assignment;
+        const nextLevel = clamp(
+          Number(normalizeResponses(currentAssignment.responses).repair.hintLevel || 0) + 1,
+          0,
+          getHintLadder(currentAssignment, "repair").length
+        );
+        updateAssignmentResponse(nextState, nextState.activeAssignmentId, "repair", "hintLevel", nextLevel);
+        syncPortfolioForStage(nextState, nextState.activeAssignmentId, "repair");
+        saveState(nextState);
+        renderHintLadder({
+          assignment: findAssignment(loadState(), nextState.activeAssignmentId).assignment,
+          stage: "repair",
+          statusId: "repair-hint-status",
+          listId: "repair-hints",
+          buttonId: "repair-hint-button",
+        });
+      };
+    }
     renderStepProgress({
       assignment,
       currentKey: "repair",
@@ -2396,6 +3101,8 @@ function renderStudentResult() {
   const consistencyLevel = document.getElementById("result-consistency-level");
   const metricsGrid = document.getElementById("result-metrics-grid");
   const provenance = document.getElementById("result-provenance");
+  const aiVerification = document.getElementById("result-ai-verification");
+  const dataReasoning = document.getElementById("result-data-reasoning");
   const hotspotResponse = document.getElementById("result-hotspot-response");
   const traceResponse = document.getElementById("result-trace-response");
   const mutationResponse = document.getElementById("result-mutation-response");
@@ -2405,6 +3112,8 @@ function renderStudentResult() {
   const gapSummary = document.getElementById("result-gap-summary");
   const nextStep = document.getElementById("result-next-step");
   const rubricDimensions = document.getElementById("result-rubric-dimensions");
+  const hintUsage = document.getElementById("result-hint-usage");
+  const portfolioList = document.getElementById("result-portfolio-list");
 
   const state = loadState();
   const { course, assignment } = findAssignment(state, state.activeAssignmentId);
@@ -2413,11 +3122,6 @@ function renderStudentResult() {
   const result = createDefaultMetrics(assignment);
   const rubric = createRubricFeedback(assignment, result);
   const responses = normalizeResponses(assignment.responses);
-  const hotspotAnswered = countAnswered(Object.values(responses.hotspot));
-  const traceAnswered = countAnswered(Object.values(responses.trace));
-  const mutationAnswered = countAnswered([responses.mutation.plan]);
-  const repairAnswered = countAnswered([responses.repair.plan]);
-
   reportTitle.textContent = `Analysis: ${assignment.title}`;
   if (summary) {
     summary.textContent = `${course.title} | ${assignment.runtimeLabel || getLanguageConfig(assignment.language).label} | ${assignment.due} | Modules: ${formatModuleList(assignment.modules) || "None configured"}`;
@@ -2448,6 +3152,36 @@ function renderStudentResult() {
     if (consistencyCaption) consistencyCaption.textContent = rubric.caption;
     renderMetricsGrid(metricsGrid, assignment);
     if (provenance) provenance.textContent = responses.provenance || "No provenance saved yet.";
+    if (aiVerification) {
+      const parts = [
+        hasAiDeclared(responses.provenance) && responses.verification.tools
+          ? `Tools used: ${compactText(responses.verification.tools, 140)}`
+          : "",
+        responses.verification.checks
+          ? `Self-checks: ${compactText(responses.verification.checks, 140)}`
+          : "",
+        responses.verification.uncertainty
+          ? `Uncertainty: ${compactText(responses.verification.uncertainty, 140)}`
+          : "",
+      ].filter(Boolean);
+      aiVerification.textContent = parts.length
+        ? parts.join(" ")
+        : "No verification note saved yet.";
+    }
+    if (dataReasoning) {
+      if (isDataScienceAssignment(assignment)) {
+        const parts = [
+          responses.dataReasoning.dataset ? `Dataset: ${compactText(responses.dataReasoning.dataset, 110)}` : "",
+          responses.dataReasoning.assumptions ? `Assumptions: ${compactText(responses.dataReasoning.assumptions, 110)}` : "",
+          responses.dataReasoning.interpretation ? `Interpretation: ${compactText(responses.dataReasoning.interpretation, 110)}` : "",
+        ].filter(Boolean);
+        dataReasoning.textContent = parts.length
+          ? parts.join(" ")
+          : "This assignment expects a data reasoning defense, but no note has been saved yet.";
+      } else {
+        dataReasoning.textContent = "Not required for this assignment.";
+      }
+    }
     if (hotspotResponse) {
       hotspotResponse.textContent = summarizeText(
         responses.hotspot.q1 || responses.hotspot.q2 || responses.hotspot.q3,
@@ -2475,7 +3209,18 @@ function renderStudentResult() {
     if (strengthSummary) strengthSummary.textContent = rubric.strengthSummary;
     if (gapSummary) gapSummary.textContent = rubric.gapSummary;
     if (nextStep) nextStep.textContent = rubric.nextStep;
+    if (hintUsage) {
+      hintUsage.textContent =
+        rubric.hintUsage > 0
+          ? `${rubric.hintUsage} hint ${rubric.hintUsage === 1 ? "was" : "s were"} opened across mutation and repair.`
+          : "No hints were opened in mutation or repair.";
+    }
     renderRubricDimensionCards(rubricDimensions, rubric.dimensionSummaries);
+    renderPortfolioList(
+      portfolioList,
+      rubric.portfolioEntries,
+      "As the learner writes in each checkpoint, short process snapshots will appear here."
+    );
 }
 
 renderProfessorDashboard();

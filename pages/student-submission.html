@@ -177,6 +177,43 @@
                   </label>
                 </form>
               </div>
+              <div class="bg-surface-container-lowest p-6 rounded-2xl shadow-sm border border-outline-variant/10">
+                <div class="flex items-center justify-between gap-3 mb-4 border-b border-outline-variant/10 pb-2">
+                  <h3 class="font-headline font-bold text-lg">AI Use & Verification</h3>
+                  <span id="submission-verification-status" class="font-mono text-[10px] uppercase tracking-[0.16em] text-slate-400">Verification incomplete</span>
+                </div>
+                <div class="space-y-4">
+                  <div>
+                    <label class="block text-sm text-on-surface-variant mb-2" for="submission-ai-tools">Which tools or external supports did you use?</label>
+                    <textarea id="submission-ai-tools" class="w-full min-h-[92px] bg-surface-container-low border-none focus:ring-0 p-3 text-sm rounded-sm resize-none" placeholder="Used ChatGPT for a first draft, then rewrote the pointer update myself..."></textarea>
+                  </div>
+                  <div>
+                    <label class="block text-sm text-on-surface-variant mb-2" for="submission-self-checks">What did you personally verify before submitting?</label>
+                    <textarea id="submission-self-checks" class="w-full min-h-[92px] bg-surface-container-low border-none focus:ring-0 p-3 text-sm rounded-sm resize-none" placeholder="I traced one example by hand and checked the window invariant on each duplicate..."></textarea>
+                  </div>
+                  <div>
+                    <label class="block text-sm text-on-surface-variant mb-2" for="submission-uncertainty">What part still feels uncertain?</label>
+                    <textarea id="submission-uncertainty" class="w-full min-h-[92px] bg-surface-container-low border-none focus:ring-0 p-3 text-sm rounded-sm resize-none" placeholder="I still want to confirm the empty-input edge case..."></textarea>
+                  </div>
+                </div>
+              </div>
+              <div id="submission-data-card" class="bg-surface-container-lowest p-6 rounded-2xl shadow-sm border border-outline-variant/10 hidden">
+                <h3 class="font-headline font-bold text-lg mb-4 border-b border-outline-variant/10 pb-2">Data & Statistical Reasoning</h3>
+                <div class="space-y-4">
+                  <div>
+                    <label class="block text-sm text-on-surface-variant mb-2" for="submission-data-dataset">What dataset pattern are you reasoning about?</label>
+                    <textarea id="submission-data-dataset" class="w-full min-h-[86px] bg-surface-container-low border-none focus:ring-0 p-3 text-sm rounded-sm resize-none" placeholder="A short numeric sequence with one clear drift point..."></textarea>
+                  </div>
+                  <div>
+                    <label class="block text-sm text-on-surface-variant mb-2" for="submission-data-assumptions">Which assumptions must hold for this solution to make sense?</label>
+                    <textarea id="submission-data-assumptions" class="w-full min-h-[86px] bg-surface-container-low border-none focus:ring-0 p-3 text-sm rounded-sm resize-none" placeholder="The window size fits inside the vector and each rolling mean uses the intended slice..."></textarea>
+                  </div>
+                  <div>
+                    <label class="block text-sm text-on-surface-variant mb-2" for="submission-data-interpretation">How would you interpret the output on real data?</label>
+                    <textarea id="submission-data-interpretation" class="w-full min-h-[86px] bg-surface-container-low border-none focus:ring-0 p-3 text-sm rounded-sm resize-none" placeholder="A positive drift alert suggests a meaningful change in the local average, not proof of the cause..."></textarea>
+                  </div>
+                </div>
+              </div>
               <div class="bg-surface-container-lowest p-5 rounded-2xl shadow-sm border border-outline-variant/10 space-y-4">
                 <p class="font-mono text-[10px] uppercase tracking-[0.18em] text-tertiary">Ready to continue</p>
                 <p class="text-sm text-on-surface-variant leading-relaxed">Once the baseline code and provenance are set, the flow advances into explanation of the algorithm’s pressure points.</p>

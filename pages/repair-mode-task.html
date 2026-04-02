@@ -122,6 +122,17 @@
               <label class="block text-sm text-on-surface-variant mb-3" for="repair-answer">Name the exact line or branch you would fix and explain the correction.</label>
               <textarea id="repair-answer" class="w-full min-h-[160px] bg-surface-container-low border-none focus:ring-0 p-3 text-sm rounded-sm resize-none" placeholder="The branch where nums[mid] is smaller than target should move left to mid + 1, otherwise the loop can stall..."></textarea>
             </div>
+            <div class="bg-surface-container-lowest border border-outline-variant/10 p-6 rounded-2xl shadow-sm">
+              <div class="flex items-center justify-between gap-3 mb-3">
+                <p class="font-mono text-[10px] uppercase tracking-[0.18em] text-tertiary">Hint ladder</p>
+                <span id="repair-hint-status" class="text-[11px] text-on-surface-variant">No hints opened yet</span>
+              </div>
+              <div id="repair-hints" class="space-y-3 mb-4"></div>
+              <button id="repair-hint-button" class="w-full inline-flex items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-semibold bg-surface-container-high text-on-surface hover:bg-surface-container-highest transition-colors">
+                <span class="material-symbols-outlined text-base">lightbulb</span>
+                Reveal Next Hint
+              </button>
+            </div>
           </div>
 
           <div class="lg:col-span-8 bg-surface-container-lowest rounded-2xl border border-outline-variant/10 shadow-sm overflow-hidden flex flex-col min-h-[500px]">

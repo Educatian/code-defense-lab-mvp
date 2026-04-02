@@ -138,6 +138,16 @@
                 <p id="professor-repair-response" class="text-sm text-on-surface-variant leading-relaxed">Saved repair reasoning appears here.</p>
               </div>
             </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div class="bg-surface-container-lowest p-6 rounded-xl border border-surface-container">
+                <h3 class="font-headline text-sm font-bold mb-4 flex items-center gap-2"><span class="material-symbols-outlined text-primary">verified</span>AI Verification</h3>
+                <p id="professor-ai-verification" class="text-sm text-on-surface-variant leading-relaxed">Verification note appears here.</p>
+              </div>
+              <div class="bg-surface-container-lowest p-6 rounded-xl border border-surface-container">
+                <h3 class="font-headline text-sm font-bold mb-4 flex items-center gap-2"><span class="material-symbols-outlined text-primary">monitoring</span>Data & Statistical Reasoning</h3>
+                <p id="professor-data-reasoning" class="text-sm text-on-surface-variant leading-relaxed">Data reasoning appears here when the assignment requires it.</p>
+              </div>
+            </div>
             <div class="bg-surface-container-lowest p-6 rounded-xl border border-outline-variant/10 shadow-sm">
               <div class="flex items-center justify-between gap-4 mb-5">
                 <div>
@@ -148,6 +158,33 @@
               </div>
               <p id="professor-rubric-evidence" class="text-sm text-on-surface-variant leading-relaxed mb-5">Rubric evidence summary appears here.</p>
               <div id="professor-rubric-dimensions" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+            </div>
+            <div class="bg-surface-container-lowest p-6 rounded-xl border border-outline-variant/10 shadow-sm">
+              <div class="flex items-center justify-between gap-4 mb-5">
+                <div>
+                  <p class="font-mono text-[10px] uppercase tracking-[0.18em] text-tertiary mb-2">Mini Viva</p>
+                  <h3 class="font-headline text-xl font-bold text-on-surface">Targeted follow-up prompts</h3>
+                </div>
+                <span class="text-xs text-on-surface-variant">Stored with the review record</span>
+              </div>
+              <div class="grid grid-cols-1 gap-4">
+                <div class="rounded-xl border border-outline-variant/10 bg-surface-container-low p-4">
+                  <p id="professor-viva-prompt-1" class="text-sm text-on-surface mb-3">Viva prompt 1 appears here.</p>
+                  <textarea id="professor-viva-note-1" class="w-full min-h-[100px] bg-white border-none rounded-lg p-3 text-sm resize-none" placeholder="Instructor notes for prompt 1..."></textarea>
+                </div>
+                <div class="rounded-xl border border-outline-variant/10 bg-surface-container-low p-4">
+                  <p id="professor-viva-prompt-2" class="text-sm text-on-surface mb-3">Viva prompt 2 appears here.</p>
+                  <textarea id="professor-viva-note-2" class="w-full min-h-[100px] bg-white border-none rounded-lg p-3 text-sm resize-none" placeholder="Instructor notes for prompt 2..."></textarea>
+                </div>
+                <div class="rounded-xl border border-outline-variant/10 bg-surface-container-low p-4">
+                  <p id="professor-viva-prompt-3" class="text-sm text-on-surface mb-3">Viva prompt 3 appears here.</p>
+                  <textarea id="professor-viva-note-3" class="w-full min-h-[100px] bg-white border-none rounded-lg p-3 text-sm resize-none" placeholder="Instructor notes for prompt 3..."></textarea>
+                </div>
+                <div class="rounded-xl border border-outline-variant/10 bg-surface-container-low p-4">
+                  <p class="font-mono text-[10px] uppercase tracking-[0.16em] text-slate-500 mb-2">Instructor Summary</p>
+                  <textarea id="professor-instructor-summary" class="w-full min-h-[120px] bg-white border-none rounded-lg p-3 text-sm resize-none" placeholder="Overall review summary and next action..."></textarea>
+                </div>
+              </div>
             </div>
           </div>
           <aside class="lg:col-span-4 space-y-6">
@@ -190,6 +227,10 @@
                 <div class="flex justify-between items-center text-xs"><span class="text-on-surface-variant">Response Coverage</span><span id="professor-response-coverage" class="font-mono font-bold">2 / 8</span></div>
                 <div class="flex justify-between items-center text-xs"><span class="text-on-surface-variant">Provenance</span><span id="professor-provenance-meta" class="font-mono font-bold text-error">AI Assisted</span></div>
               </div>
+            </div>
+            <div class="bg-surface-container-low p-6 rounded-xl border border-surface-container-high">
+              <p class="text-[10px] text-on-surface-variant font-bold uppercase tracking-widest mb-4">Process Portfolio</p>
+              <div id="professor-portfolio-list" class="space-y-3"></div>
             </div>
           </aside>
         </div>
