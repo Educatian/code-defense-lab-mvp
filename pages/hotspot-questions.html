@@ -79,7 +79,7 @@
         <div class="max-w-5xl mx-auto rounded-2xl bg-surface-container-lowest border border-outline-variant/10 p-5 shadow-sm mb-6">
           <div class="flex flex-col md:flex-row md:items-end justify-between gap-4">
             <div>
-              <p id="hotspot-course-label" class="text-tertiary font-mono text-xs uppercase tracking-[0.18em]">Advanced Algorithms / Homework 03</p>
+              <p id="hotspot-course-label" class="text-tertiary font-mono text-xs uppercase tracking-[0.18em]">Statistics and Data Science Education / Scatterplot Regression Defense</p>
               <p class="mt-2 text-sm text-on-surface-variant">Focus attention on the fragile lines first, then carry the same logic into later checkpoints.</p>
             </div>
             <div class="min-w-[220px]">
@@ -96,8 +96,8 @@
         <section class="max-w-5xl mx-auto bg-surface-container-lowest p-6 rounded-2xl border border-outline-variant/10 shadow-sm mb-6">
           <p class="font-mono text-[10px] uppercase tracking-[0.18em] text-tertiary mb-2">Checkpoint 2</p>
           <h1 class="text-3xl md:text-4xl font-headline font-bold text-on-surface tracking-tight">Hotspot Questions</h1>
-          <p id="hotspot-goal-text" class="mt-3 max-w-3xl text-sm text-on-surface-variant leading-relaxed">This step narrows attention to the few lines that control the algorithm. Students are not yet tracing execution; they are proving they know what each critical line is for.</p>
-          <p id="hotspot-module-summary" class="mt-4 text-xs text-slate-500">Enabled modules: Hotspot, Trace, Mutation, Repair</p>
+          <p id="hotspot-goal-text" class="mt-3 max-w-3xl text-sm text-on-surface-variant leading-relaxed">This step narrows attention to the few lines that control the modeling workflow. Students are not yet tracing execution; they are proving they know what each critical line is for.</p>
+          <p id="hotspot-module-summary" class="mt-4 text-xs text-slate-500">R 4.3 | Focus: Data Science & Statistics | Hotspot, Trace, Mutation, Repair</p>
         </section>
         <div class="max-w-5xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-6">
         <section class="lg:col-span-7 bg-surface-container-lowest rounded-2xl overflow-hidden flex flex-col shadow-sm border border-outline-variant/10">
@@ -132,24 +132,24 @@
                 <span class="w-6 h-6 rounded bg-tertiary text-white flex items-center justify-center text-[10px] font-bold font-mono">Q1</span>
                 <h3 class="font-headline font-bold text-sm text-slate-800">Operational Intent</h3>
               </div>
-              <p id="hotspot-question-1" class="text-sm text-on-surface-variant mb-4 leading-relaxed">What is the specific purpose of the <code class="bg-surface-container px-1 py-0.5 rounded font-mono text-tertiary">right</code> pointer in this loop?</p>
-              <textarea id="hotspot-answer-1" name="hotspot_answer_1" autocomplete="off" class="w-full h-24 bg-surface-container-low border-none focus:ring-0 p-3 text-sm rounded-sm" placeholder="Define the pointer's role in window expansion..."></textarea>
+              <p id="hotspot-question-1" class="text-sm text-on-surface-variant mb-4 leading-relaxed">Why is <code class="bg-surface-container px-1 py-0.5 rounded font-mono text-tertiary">lm(exam_score ~ hours_studied, ...)</code> the line that anchors the statistical claim?</p>
+              <textarea id="hotspot-answer-1" name="hotspot_answer_1" autocomplete="off" class="w-full h-24 bg-surface-container-low border-none focus:ring-0 p-3 text-sm rounded-sm" placeholder="Explain how the formula defines predictor, outcome, and the meaning of slope..."></textarea>
             </div>
             <div class="bg-surface-container-lowest p-6 shadow-sm rounded-2xl border border-outline-variant/10">
               <div class="flex items-center gap-2 mb-4">
                 <span class="w-6 h-6 rounded bg-secondary text-white flex items-center justify-center text-[10px] font-bold font-mono">Q2</span>
                 <h3 class="font-headline font-bold text-sm text-slate-800">Boundary Logic</h3>
               </div>
-              <p id="hotspot-question-2" class="text-sm text-on-surface-variant mb-4 leading-relaxed">Explain why the loop condition uses <code class="bg-surface-container px-1 py-0.5 rounded font-mono text-tertiary">len(s)</code> instead of <code class="bg-surface-container px-1 py-0.5 rounded font-mono text-tertiary">len(s)-1</code>.</p>
-              <textarea id="hotspot-answer-2" name="hotspot_answer_2" autocomplete="off" class="w-full h-24 bg-surface-container-low border-none focus:ring-0 p-3 text-sm rounded-sm" placeholder="Discuss array indexing and exclusive bounds..."></textarea>
+              <p id="hotspot-question-2" class="text-sm text-on-surface-variant mb-4 leading-relaxed">What role does <code class="bg-surface-container px-1 py-0.5 rounded font-mono text-tertiary">geom_smooth(method = "lm")</code> play in the scatterplot?</p>
+              <textarea id="hotspot-answer-2" name="hotspot_answer_2" autocomplete="off" class="w-full h-24 bg-surface-container-low border-none focus:ring-0 p-3 text-sm rounded-sm" placeholder="Explain how the visual layer supports interpretation of the fitted relationship..."></textarea>
             </div>
             <div class="bg-surface-container-lowest p-6 shadow-sm rounded-2xl border border-outline-variant/10">
               <div class="flex items-center gap-2 mb-4">
                 <span class="w-6 h-6 rounded bg-error text-white flex items-center justify-center text-[10px] font-bold font-mono">Q3</span>
                 <h3 class="font-headline font-bold text-sm text-slate-800">Edge Case Analysis</h3>
               </div>
-              <p id="hotspot-question-3" class="text-sm text-on-surface-variant mb-4 leading-relaxed">What would happen if the input string <code class="bg-surface-container px-1 py-0.5 rounded font-mono text-tertiary">s</code> is empty?</p>
-              <textarea id="hotspot-answer-3" name="hotspot_answer_3" autocomplete="off" class="w-full h-24 bg-surface-container-low border-none focus:ring-0 p-3 text-sm rounded-sm" placeholder="Predict system behavior for null/empty input..."></textarea>
+              <p id="hotspot-question-3" class="text-sm text-on-surface-variant mb-4 leading-relaxed">Why does this workflow remove incomplete rows before fitting the model or drawing the plot?</p>
+              <textarea id="hotspot-answer-3" name="hotspot_answer_3" autocomplete="off" class="w-full h-24 bg-surface-container-low border-none focus:ring-0 p-3 text-sm rounded-sm" placeholder="Discuss why missing rows can distort lm() or the scatterplot if left untreated..."></textarea>
             </div>
           </div>
           <div class="bg-surface-container-lowest p-5 border border-outline-variant/10 shadow-sm rounded-2xl">
