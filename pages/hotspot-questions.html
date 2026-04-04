@@ -57,7 +57,7 @@
         <a class="text-slate-500 hover:text-slate-900 transition-colors font-headline font-bold text-lg" href="./student-result.html">Results</a>
         <a class="text-slate-500 hover:text-slate-900 transition-colors font-headline font-bold text-lg" href="../index.html">Main Landing</a>
       </nav>
-      <button class="material-symbols-outlined text-slate-700 p-2 rounded-full hover:bg-slate-200/50 transition-colors">settings</button>
+      <button aria-label="Open settings" class="material-symbols-outlined text-slate-700 p-2 rounded-full hover:bg-slate-200/50 transition-colors" type="button">settings</button>
     </header>
 
     <div class="flex h-screen pt-[72px] overflow-hidden">
@@ -88,7 +88,7 @@
                 <span id="hotspot-progress-text">40% Complete</span>
               </div>
               <div class="h-1.5 bg-surface-container-highest rounded-full overflow-hidden">
-                <div id="hotspot-progress-bar" class="h-full bg-tertiary w-2/5 transition-all duration-500"></div>
+                <div id="hotspot-progress-bar" class="h-full bg-tertiary w-2/5 duration-500"></div>
               </div>
             </div>
           </div>
@@ -133,7 +133,7 @@
                 <h3 class="font-headline font-bold text-sm text-slate-800">Operational Intent</h3>
               </div>
               <p id="hotspot-question-1" class="text-sm text-on-surface-variant mb-4 leading-relaxed">What is the specific purpose of the <code class="bg-surface-container px-1 py-0.5 rounded font-mono text-tertiary">right</code> pointer in this loop?</p>
-              <textarea id="hotspot-answer-1" class="w-full h-24 bg-surface-container-low border-none focus:ring-0 p-3 text-sm rounded-sm" placeholder="Define the pointer's role in window expansion..."></textarea>
+              <textarea id="hotspot-answer-1" name="hotspot_answer_1" autocomplete="off" class="w-full h-24 bg-surface-container-low border-none focus:ring-0 p-3 text-sm rounded-sm" placeholder="Define the pointer's role in window expansion..."></textarea>
             </div>
             <div class="bg-surface-container-lowest p-6 shadow-sm rounded-2xl border border-outline-variant/10">
               <div class="flex items-center gap-2 mb-4">
@@ -141,7 +141,7 @@
                 <h3 class="font-headline font-bold text-sm text-slate-800">Boundary Logic</h3>
               </div>
               <p id="hotspot-question-2" class="text-sm text-on-surface-variant mb-4 leading-relaxed">Explain why the loop condition uses <code class="bg-surface-container px-1 py-0.5 rounded font-mono text-tertiary">len(s)</code> instead of <code class="bg-surface-container px-1 py-0.5 rounded font-mono text-tertiary">len(s)-1</code>.</p>
-              <textarea id="hotspot-answer-2" class="w-full h-24 bg-surface-container-low border-none focus:ring-0 p-3 text-sm rounded-sm" placeholder="Discuss array indexing and exclusive bounds..."></textarea>
+              <textarea id="hotspot-answer-2" name="hotspot_answer_2" autocomplete="off" class="w-full h-24 bg-surface-container-low border-none focus:ring-0 p-3 text-sm rounded-sm" placeholder="Discuss array indexing and exclusive bounds..."></textarea>
             </div>
             <div class="bg-surface-container-lowest p-6 shadow-sm rounded-2xl border border-outline-variant/10">
               <div class="flex items-center gap-2 mb-4">
@@ -149,13 +149,13 @@
                 <h3 class="font-headline font-bold text-sm text-slate-800">Edge Case Analysis</h3>
               </div>
               <p id="hotspot-question-3" class="text-sm text-on-surface-variant mb-4 leading-relaxed">What would happen if the input string <code class="bg-surface-container px-1 py-0.5 rounded font-mono text-tertiary">s</code> is empty?</p>
-              <textarea id="hotspot-answer-3" class="w-full h-24 bg-surface-container-low border-none focus:ring-0 p-3 text-sm rounded-sm" placeholder="Predict system behavior for null/empty input..."></textarea>
+              <textarea id="hotspot-answer-3" name="hotspot_answer_3" autocomplete="off" class="w-full h-24 bg-surface-container-low border-none focus:ring-0 p-3 text-sm rounded-sm" placeholder="Predict system behavior for null/empty input..."></textarea>
             </div>
           </div>
           <div class="bg-surface-container-lowest p-5 border border-outline-variant/10 shadow-sm rounded-2xl">
             <p id="hotspot-focus-card" class="text-[11px] text-on-surface-variant mb-2 leading-relaxed">If the explanation is solid here, the next step asks for mental execution of the same logic without running the code.</p>
             <p class="text-[10px] font-mono uppercase tracking-[0.18em] text-slate-400 mb-3">Responses save automatically</p>
-            <a id="hotspot-next-link" class="w-full flex items-center justify-center gap-3 bg-primary text-white py-3 rounded px-6 font-mono text-xs font-bold tracking-widest uppercase hover:bg-slate-700 transition-all no-underline" href="./trace-mode-task.html">
+            <a id="hotspot-next-link" class="w-full flex items-center justify-center gap-3 bg-primary text-white py-3 rounded px-6 font-mono text-xs font-bold tracking-widest uppercase hover:bg-slate-700 transition-colors no-underline" href="./trace-mode-task.html">
               <span id="hotspot-next-label">Next Task: Trace Mode</span>
               <span class="material-symbols-outlined text-sm">arrow_forward</span>
             </a>

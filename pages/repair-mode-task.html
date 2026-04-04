@@ -56,7 +56,7 @@
         <a class="text-slate-500 hover:text-slate-900 transition-colors font-headline font-bold text-lg" href="./student-result.html">Results</a>
         <a class="text-slate-500 hover:text-slate-900 transition-colors font-headline font-bold text-lg" href="../index.html">Main Landing</a>
       </nav>
-      <button class="material-symbols-outlined text-slate-700 p-2 rounded-full hover:bg-slate-200/50 transition-colors">settings</button>
+      <button aria-label="Open settings" class="material-symbols-outlined text-slate-700 p-2 rounded-full hover:bg-slate-200/50 transition-colors" type="button">settings</button>
     </header>
 
     <div class="flex flex-1 overflow-hidden">
@@ -120,12 +120,12 @@
               <p class="font-mono text-[10px] uppercase tracking-[0.18em] text-tertiary mb-2">Student Repair Note</p>
               <p class="text-[10px] font-mono uppercase tracking-[0.18em] text-slate-400 mb-3">Responses save automatically</p>
               <label class="block text-sm text-on-surface-variant mb-3" for="repair-answer">Name the exact line or branch you would fix and explain the correction.</label>
-              <textarea id="repair-answer" class="w-full min-h-[160px] bg-surface-container-low border-none focus:ring-0 p-3 text-sm rounded-sm resize-none" placeholder="The branch where nums[mid] is smaller than target should move left to mid + 1, otherwise the loop can stall..."></textarea>
+              <textarea id="repair-answer" name="repair_answer" autocomplete="off" class="w-full min-h-[160px] bg-surface-container-low border-none focus:ring-0 p-3 text-sm rounded-sm resize-none" placeholder="The branch where nums[mid] is smaller than target should move left to mid + 1, otherwise the loop can stall..."></textarea>
             </div>
             <div class="bg-surface-container-lowest border border-outline-variant/10 p-6 rounded-2xl shadow-sm">
               <div class="flex items-center justify-between gap-3 mb-3">
                 <p class="font-mono text-[10px] uppercase tracking-[0.18em] text-tertiary">Hint ladder</p>
-                <span id="repair-hint-status" class="text-[11px] text-on-surface-variant">No hints opened yet</span>
+                <span id="repair-hint-status" aria-live="polite" class="text-[11px] text-on-surface-variant">No hints opened yet</span>
               </div>
               <div id="repair-hints" class="space-y-3 mb-4"></div>
               <button id="repair-hint-button" class="w-full inline-flex items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-semibold bg-surface-container-high text-on-surface hover:bg-surface-container-highest transition-colors">
@@ -147,8 +147,8 @@
             <div class="p-4 bg-surface-container flex justify-between items-center gap-4">
               <div class="flex items-center gap-2"><div class="w-2 h-2 rounded-full bg-error animate-pulse"></div><span class="text-[10px] font-mono text-on-surface uppercase tracking-tighter">Infinite loop risk detected</span></div>
               <div class="flex gap-3">
-                <button class="bg-surface-container-high text-on-surface-variant font-headline font-bold text-xs px-6 py-2 rounded-lg hover:bg-surface-container-highest transition-colors flex items-center gap-2"><span class="material-symbols-outlined text-[16px]">refresh</span>Reset Draft</button>
-                <a id="repair-next-link" class="bg-primary text-white font-headline font-bold text-xs px-8 py-2 rounded-lg shadow-sm hover:opacity-90 transition-all flex items-center gap-2 no-underline" href="./student-result.html"><span class="material-symbols-outlined text-[16px]">published_with_changes</span><span id="repair-next-label">Verify Repair</span></a>
+                <button class="bg-surface-container-high text-on-surface-variant font-headline font-bold text-xs px-6 py-2 rounded-lg hover:bg-surface-container-highest transition-colors flex items-center gap-2" type="button"><span class="material-symbols-outlined text-[16px]">refresh</span>Reset Draft</button>
+                <a id="repair-next-link" class="bg-primary text-white font-headline font-bold text-xs px-8 py-2 rounded-lg shadow-sm hover:opacity-90 transition-opacity flex items-center gap-2 no-underline" href="./student-result.html"><span class="material-symbols-outlined text-[16px]">published_with_changes</span><span id="repair-next-label">Verify Repair</span></a>
               </div>
             </div>
           </div>

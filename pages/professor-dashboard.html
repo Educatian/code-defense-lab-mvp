@@ -100,22 +100,22 @@
             <div class="space-y-4">
               <label class="block">
                 <span class="text-xs font-semibold text-slate-500 uppercase tracking-[0.14em]">Course title</span>
-                <input id="course-title-input" class="mt-2 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3" value="Software Testing Foundations" />
+                <input id="course-title-input" name="course_title" autocomplete="off" class="mt-2 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3" value="Software Testing Foundations" />
               </label>
               <label class="block">
                 <span class="text-xs font-semibold text-slate-500 uppercase tracking-[0.14em]">Term and section</span>
-                <input id="course-term-input" class="mt-2 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3" value="Spring 2026 / Section C" />
+                <input id="course-term-input" name="course_term" autocomplete="off" class="mt-2 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3" value="Spring 2026 / Section C" />
               </label>
               <label class="block">
                 <span class="text-xs font-semibold text-slate-500 uppercase tracking-[0.14em]">Learner count</span>
-                <input id="course-count-input" class="mt-2 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3" type="number" value="28" />
+                <input id="course-count-input" name="course_count" autocomplete="off" class="mt-2 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3" type="number" value="28" />
               </label>
               <label class="block">
                 <span class="text-xs font-semibold text-slate-500 uppercase tracking-[0.14em]">Enrollment note</span>
-                <textarea id="course-note-input" class="mt-2 w-full min-h-[110px] rounded-xl border border-slate-200 bg-slate-50 px-4 py-3">Learners will use Code Defense Lab checkpoints after each programming assignment.</textarea>
+                <textarea id="course-note-input" name="course_note" autocomplete="off" class="mt-2 w-full min-h-[110px] rounded-xl border border-slate-200 bg-slate-50 px-4 py-3">Learners will use Code Defense Lab checkpoints after each programming assignment.</textarea>
               </label>
               <button id="register-course-btn" class="w-full rounded-xl bg-slate-700 text-white py-3 font-semibold">Register Course</button>
-              <p id="course-register-feedback" class="text-sm text-slate-500"></p>
+              <p id="course-register-feedback" aria-live="polite" class="text-sm text-slate-500"></p>
             </div>
           </section>
 
@@ -125,32 +125,32 @@
             <div class="space-y-4">
               <label class="block">
                 <span class="text-xs font-semibold text-slate-500 uppercase tracking-[0.14em]">Course</span>
-                <select id="assignment-course-select" class="mt-2 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3"></select>
+                <select id="assignment-course-select" name="assignment_course" autocomplete="off" class="mt-2 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3"></select>
               </label>
               <label class="block">
                 <span class="text-xs font-semibold text-slate-500 uppercase tracking-[0.14em]">Assignment title</span>
-                <input id="assignment-title-input" class="mt-2 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3" value="Trace-First Sliding Window Lab" />
+                <input id="assignment-title-input" name="assignment_title" autocomplete="off" class="mt-2 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3" value="Scatterplot Regression Defense" />
               </label>
               <label class="block">
                 <span class="text-xs font-semibold text-slate-500 uppercase tracking-[0.14em]">Primary language</span>
-                <select id="assignment-language-select" class="mt-2 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3">
-                  <option value="python" selected>Python</option>
-                  <option value="r">R</option>
+                <select id="assignment-language-select" name="assignment_language" autocomplete="off" class="mt-2 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3">
+                  <option value="python">Python</option>
+                  <option value="r" selected>R</option>
                 </select>
               </label>
               <label class="block">
                 <span class="text-xs font-semibold text-slate-500 uppercase tracking-[0.14em]">Due window</span>
-                <input id="assignment-due-input" class="mt-2 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3" value="Opens Apr 2 / Due Apr 9" />
+                <input id="assignment-due-input" name="assignment_due" autocomplete="off" class="mt-2 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3" value="Opens Apr 2 / Due Apr 9" />
               </label>
               <label class="block">
                 <span class="text-xs font-semibold text-slate-500 uppercase tracking-[0.14em]">Assignment prompt summary</span>
-                <textarea id="assignment-summary-input" class="mt-2 w-full min-h-[110px] rounded-xl border border-slate-200 bg-slate-50 px-4 py-3">Students submit code, then move through hotspot, trace, mutation, and repair for the same logic.</textarea>
+                <textarea id="assignment-summary-input" name="assignment_summary" autocomplete="off" class="mt-2 w-full min-h-[110px] rounded-xl border border-slate-200 bg-slate-50 px-4 py-3">Students submit R code, then defend scatterplot and regression logic through hotspot, trace, mutation, and repair.</textarea>
               </label>
               <button id="register-assignment-btn" class="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-sky-700 text-white py-3 font-semibold">
                 Add Assignment to Course
                 <span class="material-symbols-outlined text-base">arrow_forward</span>
               </button>
-              <p id="assignment-register-feedback" class="text-sm text-slate-500"></p>
+              <p id="assignment-register-feedback" aria-live="polite" class="text-sm text-slate-500"></p>
               <a class="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-slate-100 text-slate-700 py-3 font-semibold no-underline" href="./create-assignment.html">
                 Open Detailed Builder
                 <span class="material-symbols-outlined text-base">north_east</span>

@@ -57,7 +57,7 @@
         <a class="text-slate-500 hover:text-slate-900 transition-colors font-headline font-bold text-lg" href="./student-result.html">Results</a>
         <a class="text-slate-500 hover:text-slate-900 transition-colors font-headline font-bold text-lg" href="../index.html">Main Landing</a>
       </nav>
-        <button class="material-symbols-outlined text-slate-700 p-2 rounded-full hover:bg-slate-200/50 transition-colors">settings</button>
+        <button aria-label="Open settings" class="material-symbols-outlined text-slate-700 p-2 rounded-full hover:bg-slate-200/50 transition-colors" type="button">settings</button>
       </div>
     </header>
 
@@ -147,20 +147,20 @@
                   <div class="space-y-3">
                     <label class="block text-xs font-bold font-headline uppercase tracking-widest text-outline">Q1. State Delta</label>
                     <p id="trace-question-1" class="text-sm text-on-surface-variant">What is the value of <code class="font-mono text-tertiary">max_len</code> after the second iteration?</p>
-                    <input id="trace-answer-1" class="w-full bg-surface-container-lowest border-0 border-b-2 border-surface-container focus:border-tertiary focus:ring-0 font-mono text-sm py-3 transition-colors" placeholder="Integer value" type="text" />
+                    <input id="trace-answer-1" name="trace_answer_1" autocomplete="off" class="w-full bg-surface-container-lowest border-0 border-b-2 border-surface-container focus:border-tertiary focus:ring-0 font-mono text-sm py-3 transition-colors" placeholder="Integer value" type="text" />
                   </div>
                   <div class="space-y-3">
                     <label class="block text-xs font-bold font-headline uppercase tracking-widest text-outline">Q2. Memory Mapping</label>
                     <p id="trace-question-2" class="text-sm text-on-surface-variant">What is the current state of the <code class="font-mono text-tertiary">char_map</code> dictionary?</p>
-                    <textarea id="trace-answer-2" class="w-full bg-surface-container-lowest border-0 border-b-2 border-surface-container focus:border-tertiary focus:ring-0 font-mono text-sm py-3 transition-colors resize-none" rows="3"></textarea>
+                    <textarea id="trace-answer-2" name="trace_answer_2" autocomplete="off" class="w-full bg-surface-container-lowest border-0 border-b-2 border-surface-container focus:border-tertiary focus:ring-0 font-mono text-sm py-3 transition-colors resize-none" rows="3"></textarea>
                   </div>
                   <div class="space-y-3">
                     <label class="block text-xs font-bold font-headline uppercase tracking-widest text-outline">Q3. Exit Vector</label>
                     <p id="trace-question-3" class="text-sm text-on-surface-variant">Predict the output of the function for this input.</p>
-                    <input id="trace-answer-3" class="w-full bg-surface-container-lowest border-0 border-b-2 border-surface-container focus:border-tertiary focus:ring-0 font-mono text-sm py-3 transition-colors" placeholder="Return value" type="text" />
+                    <input id="trace-answer-3" name="trace_answer_3" autocomplete="off" class="w-full bg-surface-container-lowest border-0 border-b-2 border-surface-container focus:border-tertiary focus:ring-0 font-mono text-sm py-3 transition-colors" placeholder="Return value" type="text" />
                   </div>
                   <div class="pt-6">
-                    <a id="trace-next-link" class="w-full bg-primary text-white font-bold py-4 rounded-lg flex items-center justify-center gap-3 shadow-md hover:bg-slate-700 transition-all group no-underline" href="./mutation-task.html">
+                    <a id="trace-next-link" class="w-full bg-primary text-white font-bold py-4 rounded-lg flex items-center justify-center gap-3 shadow-md hover:bg-slate-700 transition-colors group no-underline" href="./mutation-task.html">
                       <span id="trace-next-label">Next Task: Mutation Task</span>
                       <span class="material-symbols-outlined text-lg">arrow_forward</span>
                     </a>

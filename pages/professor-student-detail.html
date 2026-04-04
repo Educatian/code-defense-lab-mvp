@@ -59,13 +59,16 @@
     </header>
     <div class="flex min-h-screen pt-[72px] pb-[80px] md:pb-0">
       <aside class="hidden lg:flex h-[calc(100vh-72px)] w-64 flex-col py-8 bg-slate-50 border-r border-slate-200 sticky top-[72px]">
-        <div class="px-6 mb-8"><h2 class="text-lg font-bold font-headline text-slate-900">Assessment Flow</h2></div>
+        <div class="px-6 mb-8">
+          <h2 class="text-lg font-bold font-headline text-slate-900">Review Workflow</h2>
+          <p class="mt-2 text-[10px] font-mono uppercase tracking-[0.18em] text-slate-400">Professor checkpoints</p>
+        </div>
         <nav class="flex flex-col gap-1 px-2">
-          <div class="bg-slate-200 text-slate-900 font-mono px-4 py-2 rounded-sm flex items-center gap-3 scale-98 transition-transform cursor-pointer"><span class="material-symbols-outlined text-sm">upload_file</span><span class="font-mono text-sm tracking-tighter">Submission</span></div>
-          <div class="text-slate-500 px-4 py-2 font-mono flex items-center gap-3 cursor-pointer transition-colors"><span class="material-symbols-outlined text-sm">biotech</span><span class="font-mono text-sm tracking-tighter">Hotspots</span></div>
-          <div class="text-slate-500 px-4 py-2 font-mono flex items-center gap-3 cursor-pointer transition-colors"><span class="material-symbols-outlined text-sm">account_tree</span><span class="font-mono text-sm tracking-tighter">Trace</span></div>
-          <div class="text-slate-500 px-4 py-2 font-mono flex items-center gap-3 cursor-pointer transition-colors"><span class="material-symbols-outlined text-sm">query_stats</span><span class="font-mono text-sm tracking-tighter">Mutation</span></div>
-          <div class="text-slate-500 px-4 py-2 font-mono flex items-center gap-3 cursor-pointer transition-colors"><span class="material-symbols-outlined text-sm">build</span><span class="font-mono text-sm tracking-tighter">Repair</span></div>
+          <a class="text-slate-500 hover:bg-slate-100 px-4 py-3 rounded-sm font-mono flex items-center gap-3 transition-colors" href="./professor-dashboard.html"><span class="material-symbols-outlined text-sm">playlist_add_check</span><span class="font-mono text-sm tracking-tighter">Review Queue</span></a>
+          <div class="bg-slate-200 text-slate-900 font-mono px-4 py-3 rounded-sm flex items-center gap-3"><span class="material-symbols-outlined text-sm">fact_check</span><span class="font-mono text-sm tracking-tighter">Evidence Summary</span></div>
+          <div class="text-slate-500 px-4 py-3 font-mono flex items-center gap-3 transition-colors"><span class="material-symbols-outlined text-sm">rule</span><span class="font-mono text-sm tracking-tighter">Checkpoint Rubric</span></div>
+          <div class="text-slate-500 px-4 py-3 font-mono flex items-center gap-3 transition-colors"><span class="material-symbols-outlined text-sm">question_answer</span><span class="font-mono text-sm tracking-tighter">Mini Viva</span></div>
+          <div class="text-slate-500 px-4 py-3 font-mono flex items-center gap-3 transition-colors"><span class="material-symbols-outlined text-sm">gavel</span><span class="font-mono text-sm tracking-tighter">Review Decision</span></div>
         </nav>
       </aside>
       <main class="flex-1 p-6 md:p-8 max-w-7xl mx-auto w-full">
@@ -87,7 +90,7 @@
             </div>
           </div>
           <div class="flex gap-3">
-            <button class="bg-surface-container-high text-on-surface px-4 py-2 text-sm font-semibold rounded hover:bg-surface-container-highest transition-colors">Contact Student</button>
+            <button class="bg-surface-container-high text-on-surface px-4 py-2 text-sm font-semibold rounded hover:bg-surface-container-highest transition-colors" type="button">Contact Student</button>
             <a class="bg-primary text-white px-4 py-2 text-sm font-semibold rounded shadow-sm hover:opacity-90 transition-opacity flex items-center gap-2 no-underline" href="./professor-dashboard.html"><span class="material-symbols-outlined text-sm">check_circle</span>Mark as Reviewed</a>
           </div>
         </section>
@@ -170,19 +173,19 @@
               <div class="grid grid-cols-1 gap-4">
                 <div class="rounded-xl border border-outline-variant/10 bg-surface-container-low p-4">
                   <p id="professor-viva-prompt-1" class="text-sm text-on-surface mb-3">Viva prompt 1 appears here.</p>
-                  <textarea id="professor-viva-note-1" class="w-full min-h-[100px] bg-white border-none rounded-lg p-3 text-sm resize-none" placeholder="Instructor notes for prompt 1..."></textarea>
+                  <textarea id="professor-viva-note-1" name="professor_viva_note_1" autocomplete="off" class="w-full min-h-[100px] bg-white border-none rounded-lg p-3 text-sm resize-none" placeholder="Instructor notes for prompt 1..."></textarea>
                 </div>
                 <div class="rounded-xl border border-outline-variant/10 bg-surface-container-low p-4">
                   <p id="professor-viva-prompt-2" class="text-sm text-on-surface mb-3">Viva prompt 2 appears here.</p>
-                  <textarea id="professor-viva-note-2" class="w-full min-h-[100px] bg-white border-none rounded-lg p-3 text-sm resize-none" placeholder="Instructor notes for prompt 2..."></textarea>
+                  <textarea id="professor-viva-note-2" name="professor_viva_note_2" autocomplete="off" class="w-full min-h-[100px] bg-white border-none rounded-lg p-3 text-sm resize-none" placeholder="Instructor notes for prompt 2..."></textarea>
                 </div>
                 <div class="rounded-xl border border-outline-variant/10 bg-surface-container-low p-4">
                   <p id="professor-viva-prompt-3" class="text-sm text-on-surface mb-3">Viva prompt 3 appears here.</p>
-                  <textarea id="professor-viva-note-3" class="w-full min-h-[100px] bg-white border-none rounded-lg p-3 text-sm resize-none" placeholder="Instructor notes for prompt 3..."></textarea>
+                  <textarea id="professor-viva-note-3" name="professor_viva_note_3" autocomplete="off" class="w-full min-h-[100px] bg-white border-none rounded-lg p-3 text-sm resize-none" placeholder="Instructor notes for prompt 3..."></textarea>
                 </div>
                 <div class="rounded-xl border border-outline-variant/10 bg-surface-container-low p-4">
                   <p class="font-mono text-[10px] uppercase tracking-[0.16em] text-slate-500 mb-2">Instructor Summary</p>
-                  <textarea id="professor-instructor-summary" class="w-full min-h-[120px] bg-white border-none rounded-lg p-3 text-sm resize-none" placeholder="Overall review summary and next action..."></textarea>
+                  <textarea id="professor-instructor-summary" name="professor_instructor_summary" autocomplete="off" class="w-full min-h-[120px] bg-white border-none rounded-lg p-3 text-sm resize-none" placeholder="Overall review summary and next action..."></textarea>
                 </div>
               </div>
             </div>

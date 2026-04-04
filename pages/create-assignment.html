@@ -52,30 +52,30 @@
   <body class="bg-surface text-on-surface flex min-h-screen">
     <aside class="hidden md:flex h-screen w-64 flex-col py-8 bg-slate-50 border-r border-slate-200 shrink-0 sticky top-0">
       <div class="px-6 mb-10">
-        <h2 class="text-lg font-bold font-headline text-slate-900">Code Defense Lab</h2>
-        <p class="text-xs font-mono text-slate-500 mt-1 uppercase tracking-tighter">Assessment Flow</p>
+        <h2 class="text-lg font-bold font-headline text-slate-900">Professor Builder</h2>
+        <p class="text-xs font-mono text-slate-500 mt-1 uppercase tracking-tighter">Course authoring workflow</p>
       </div>
       <nav class="flex flex-col space-y-1">
-        <a class="bg-slate-200 text-slate-900 font-mono px-4 py-2 rounded-sm flex items-center gap-3 scale-98 transition-transform mx-2" href="./student-submission.html">
-          <span class="material-symbols-outlined text-sm">upload_file</span>
-          <span class="text-sm tracking-tighter">Submission</span>
+        <a class="text-slate-500 px-4 py-3 font-mono flex items-center gap-3 hover:bg-slate-100 transition-colors mx-2 rounded-sm" href="./professor-dashboard.html">
+          <span class="material-symbols-outlined text-sm">library_books</span>
+          <span class="text-sm tracking-tighter">Course Registry</span>
         </a>
-        <a class="text-slate-500 px-4 py-2 font-mono flex items-center gap-3 hover:bg-slate-100 transition-colors mx-2" href="./hotspot-questions.html">
-          <span class="material-symbols-outlined text-sm">biotech</span>
-          <span class="text-sm tracking-tighter">Hotspots</span>
-        </a>
-        <a class="text-slate-500 px-4 py-2 font-mono flex items-center gap-3 hover:bg-slate-100 transition-colors mx-2" href="./trace-mode-task.html">
-          <span class="material-symbols-outlined text-sm">account_tree</span>
-          <span class="text-sm tracking-tighter">Trace</span>
-        </a>
-        <a class="text-slate-500 px-4 py-2 font-mono flex items-center gap-3 hover:bg-slate-100 transition-colors mx-2" href="./mutation-task.html">
-          <span class="material-symbols-outlined text-sm">query_stats</span>
-          <span class="text-sm tracking-tighter">Mutation</span>
-        </a>
-        <a class="text-slate-500 px-4 py-2 font-mono flex items-center gap-3 hover:bg-slate-100 transition-colors mx-2" href="./repair-mode-task.html">
-          <span class="material-symbols-outlined text-sm">build</span>
-          <span class="text-sm tracking-tighter">Repair</span>
-        </a>
+        <div class="bg-slate-200 text-slate-900 font-mono px-4 py-3 rounded-sm flex items-center gap-3 mx-2">
+          <span class="material-symbols-outlined text-sm">edit_note</span>
+          <span class="text-sm tracking-tighter">Assignment Builder</span>
+        </div>
+        <div class="text-slate-500 px-4 py-3 font-mono flex items-center gap-3 mx-2 rounded-sm">
+          <span class="material-symbols-outlined text-sm">rule_settings</span>
+          <span class="text-sm tracking-tighter">Rubric Setup</span>
+        </div>
+        <div class="text-slate-500 px-4 py-3 font-mono flex items-center gap-3 mx-2 rounded-sm">
+          <span class="material-symbols-outlined text-sm">science</span>
+          <span class="text-sm tracking-tighter">Hidden Tests</span>
+        </div>
+        <div class="text-slate-500 px-4 py-3 font-mono flex items-center gap-3 mx-2 rounded-sm">
+          <span class="material-symbols-outlined text-sm">publish</span>
+          <span class="text-sm tracking-tighter">Publish</span>
+        </div>
       </nav>
     </aside>
     <main class="flex-1 flex flex-col min-w-0 pb-20 md:pb-0">
@@ -84,11 +84,15 @@
           <div class="w-10 h-10 rounded-full bg-surface-container-high overflow-hidden flex items-center justify-center">
             <img alt="User Profile" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDbWQmf2LzrFduQzJH28wMQ0ExcLlHXdPoh-NLySPz5cMNZSLk2N_15l-7eaDqY_tPGe3A79pheVuanMsH7vWGVImCNq2pfem_8ge7KjbpzYs-_s0ubIwCAb9AjjWnhVAnVNuMyg59UAfXJuaWGIyJQArZ7Fj9ARHFpe9tYTE3Efclk7TKViFWhFPSTQqmrTU1j0U2L0dxJzNZFyfl7NzVuVEgM78trrobYVhAxOAI8EDzsyXNiyj-fk677j7MF0ZDWPyfNcqZTQJUN" />
           </div>
-        <h1 class="font-headline font-bold text-lg text-slate-700">Course & Assignment Builder</h1>
+        <div>
+          <h1 class="font-headline font-bold text-lg text-slate-700">Course & Assignment Builder</h1>
+          <p class="text-xs font-mono text-slate-500 uppercase tracking-[0.18em]">Professor workspace</p>
+        </div>
         </div>
         <div class="flex items-center gap-2">
+          <a class="text-sm font-medium text-slate-600 hover:text-slate-900" href="./professor-dashboard.html">Dashboard</a>
           <a class="text-sm font-medium text-slate-600 hover:text-slate-900" href="../index.html">Main Landing</a>
-          <button class="p-2 text-slate-500 hover:bg-slate-200/50 transition-colors rounded">
+          <button aria-label="Open settings" class="p-2 text-slate-500 hover:bg-slate-200/50 transition-colors rounded" type="button">
             <span class="material-symbols-outlined">settings</span>
           </button>
         </div>
@@ -104,22 +108,22 @@
               <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <label class="space-y-1">
                   <span class="text-[10px] font-bold uppercase tracking-widest text-secondary">Assignment Selector</span>
-                  <select id="builder-assignment-select" class="w-full bg-surface-container-low border-none p-3 transition-all text-sm rounded-sm"></select>
+                  <select id="builder-assignment-select" name="builder_assignment_select" autocomplete="off" class="w-full bg-surface-container-low border-none p-3 transition-colors text-sm rounded-sm"></select>
                 </label>
                 <label class="space-y-1">
                   <span class="text-[10px] font-bold uppercase tracking-widest text-secondary">Assignment Title</span>
-                  <input id="builder-assignment-title" class="w-full bg-surface-container-low border-none p-3 transition-all text-sm rounded-sm" type="text" value="Memory Safety Runtime Lab" />
+                  <input id="builder-assignment-title" name="builder_assignment_title" autocomplete="off" class="w-full bg-surface-container-low border-none p-3 transition-colors text-sm rounded-sm" type="text" value="Scatterplot Regression Defense" />
                 </label>
                 <label class="space-y-1">
                   <span class="text-[10px] font-bold uppercase tracking-widest text-secondary">Primary Language</span>
-                  <select id="builder-language-select" class="w-full bg-surface-container-low border-none p-3 transition-all text-sm rounded-sm">
-                    <option value="python" selected>Python</option>
-                    <option value="r">R</option>
+                  <select id="builder-language-select" name="builder_language" autocomplete="off" class="w-full bg-surface-container-low border-none p-3 transition-colors text-sm rounded-sm">
+                    <option value="python">Python</option>
+                    <option value="r" selected>R</option>
                   </select>
                 </label>
                 <label class="space-y-1 md:col-span-2">
                   <span class="text-[10px] font-bold uppercase tracking-widest text-secondary">Associated Course</span>
-                  <select id="builder-course-select" class="w-full bg-surface-container-low border-none p-3 transition-all text-sm rounded-sm">
+                  <select id="builder-course-select" name="builder_course" autocomplete="off" class="w-full bg-surface-container-low border-none p-3 transition-colors text-sm rounded-sm">
                     <option>Secure Software Engineering (SSE-401)</option>
                     <option>Defensive Programming (DP-102)</option>
                     <option>Vulnerability Analysis (VA-205)</option>
@@ -128,46 +132,46 @@
               </div>
               <label class="space-y-1 block">
                 <span class="text-[10px] font-bold uppercase tracking-widest text-secondary">Assignment Prompt</span>
-                <textarea id="builder-assignment-prompt" class="w-full bg-surface-container-low border-none p-3 transition-all text-sm rounded-sm resize-none" rows="6">Write a function in Python or R. Students may use AI assistance, but must defend the logic in hotspots, trace the execution on a hidden input, handle a what-if mutation, and repair a broken variant of the same algorithm.</textarea>
+                <textarea id="builder-assignment-prompt" name="builder_assignment_prompt" autocomplete="off" class="w-full bg-surface-container-low border-none p-3 transition-colors text-sm rounded-sm resize-none" rows="6">Write an R workflow that fits a simple linear regression, reports slope and R-squared, and prepares a scatterplot with a regression line. Students may use AI assistance, but must defend the same modeling logic through hotspot, trace, mutation, and repair.</textarea>
               </label>
               <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <label class="space-y-1">
                   <span class="text-[10px] font-bold uppercase tracking-widest text-secondary">Assignment Due Window</span>
-                  <input id="builder-assignment-due" class="w-full bg-surface-container-low border-none p-3 transition-all text-sm rounded-sm" type="text" value="Opens Apr 2 / Due Apr 9" />
+                  <input id="builder-assignment-due" name="builder_assignment_due" autocomplete="off" class="w-full bg-surface-container-low border-none p-3 transition-colors text-sm rounded-sm" type="text" value="Opens Apr 2 / Due Apr 9" />
                 </label>
                 <label class="space-y-1">
                   <span class="text-[10px] font-bold uppercase tracking-widest text-secondary">Assignment Summary</span>
-                  <input id="builder-assignment-summary" class="w-full bg-surface-container-low border-none p-3 transition-all text-sm rounded-sm" type="text" value="Includes hotspot, trace, mutation, and repair mode." />
+                  <input id="builder-assignment-summary" name="builder_assignment_summary" autocomplete="off" class="w-full bg-surface-container-low border-none p-3 transition-colors text-sm rounded-sm" type="text" value="R-based assessment on scatterplots, linear regression, residual interpretation, and model repair." />
                 </label>
               </div>
               <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <label class="space-y-1">
                   <span class="text-[10px] font-bold uppercase tracking-widest text-secondary">Course Term</span>
-                  <input id="builder-course-term" class="w-full bg-surface-container-low border-none p-3 transition-all text-sm rounded-sm" type="text" value="Spring 2026 / Section A" readonly />
+                  <input id="builder-course-term" name="builder_course_term" autocomplete="off" class="w-full bg-surface-container-low border-none p-3 transition-colors text-sm rounded-sm" type="text" value="Spring 2026 / Section A" readonly />
                 </label>
                 <label class="space-y-1">
                   <span class="text-[10px] font-bold uppercase tracking-widest text-secondary">Enrollment Summary</span>
-                  <input id="builder-course-enrollment" class="w-full bg-surface-container-low border-none p-3 transition-all text-sm rounded-sm" type="text" value="42 enrolled learners" readonly />
+                  <input id="builder-course-enrollment" name="builder_course_enrollment" autocomplete="off" class="w-full bg-surface-container-low border-none p-3 transition-colors text-sm rounded-sm" type="text" value="42 enrolled learners" readonly />
                 </label>
               </div>
               <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <label class="space-y-1">
                   <span class="text-[10px] font-bold uppercase tracking-widest text-secondary">Hotspot Focus</span>
-                  <textarea id="builder-hotspot-focus" class="w-full bg-surface-container-low border-none p-3 transition-all text-sm rounded-sm resize-none" rows="5">Explain which lines move the active window and why they preserve correctness.</textarea>
+                  <textarea id="builder-hotspot-focus" name="builder_hotspot_focus" autocomplete="off" class="w-full bg-surface-container-low border-none p-3 transition-colors text-sm rounded-sm resize-none" rows="5">Explain why the lm() formula and ggplot aesthetic mapping establish the intended predictor, outcome, and fitted line.</textarea>
                 </label>
                 <label class="space-y-1">
                   <span class="text-[10px] font-bold uppercase tracking-widest text-secondary">Trace Scenario</span>
-                  <textarea id="builder-trace-scenario" class="w-full bg-surface-container-low border-none p-3 transition-all text-sm rounded-sm resize-none" rows="5">Trace the function with input "pwwkew" and predict each state update before running the code.</textarea>
+                  <textarea id="builder-trace-scenario" name="builder_trace_scenario" autocomplete="off" class="w-full bg-surface-container-low border-none p-3 transition-colors text-sm rounded-sm resize-none" rows="5">Trace the workflow on a small data frame with hours_studied and exam_score. Predict the cleaned rows, fitted formula, and what appears on the scatterplot.</textarea>
                 </label>
               </div>
               <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <label class="space-y-1">
                   <span class="text-[10px] font-bold uppercase tracking-widest text-secondary">Mutation Prompt</span>
-                  <textarea id="builder-mutation-prompt" class="w-full bg-surface-container-low border-none p-3 transition-all text-sm rounded-sm resize-none" rows="5">Modify the submitted solution so it handles a changed input contract safely without breaking the original reasoning model.</textarea>
+                  <textarea id="builder-mutation-prompt" name="builder_mutation_prompt" autocomplete="off" class="w-full bg-surface-container-low border-none p-3 transition-colors text-sm rounded-sm resize-none" rows="5">Modify the submitted solution so it handles a changed input contract safely without breaking the original reasoning model.</textarea>
                 </label>
                 <label class="space-y-1">
                   <span class="text-[10px] font-bold uppercase tracking-widest text-secondary">Repair Prompt</span>
-                  <textarea id="builder-repair-prompt" class="w-full bg-surface-container-low border-none p-3 transition-all text-sm rounded-sm resize-none" rows="5">Repair a broken variant of the same algorithm by correcting the specific line that now violates the original logic.</textarea>
+                  <textarea id="builder-repair-prompt" name="builder_repair_prompt" autocomplete="off" class="w-full bg-surface-container-low border-none p-3 transition-colors text-sm rounded-sm resize-none" rows="5">Repair a broken variant of the same algorithm by correcting the specific line that now violates the original logic.</textarea>
                 </label>
               </div>
             </div>
@@ -184,18 +188,18 @@
               </div>
               <div class="bg-surface-container-highest rounded-lg p-1">
                 <div class="flex items-center justify-between px-4 py-2 border-b border-white/20">
-                  <span id="builder-hidden-tests-file" class="font-mono text-xs opacity-60">test_suite.py</span>
+                  <span id="builder-hidden-tests-file" class="font-mono text-xs opacity-60">assignment_tests.R</span>
                   <span class="flex gap-2">
                     <span class="w-2 h-2 rounded-full bg-error"></span>
                     <span class="w-2 h-2 rounded-full bg-secondary"></span>
                     <span class="w-2 h-2 rounded-full bg-tertiary"></span>
                   </span>
                 </div>
-                <textarea id="builder-hidden-tests" class="w-full bg-transparent border-none font-mono text-sm p-4 h-48 resize-none" spellcheck="false">assert length_of_longest_substring("") == 0
-assert length_of_longest_substring("abcabcbb") == 3
-assert length_of_longest_substring("bbbbb") == 1
-assert length_of_longest_substring("pwwkew") == 3
-assert length_of_longest_substring(None) == 0</textarea>
+                  <textarea id="builder-hidden-tests" name="builder_hidden_tests" autocomplete="off" class="w-full bg-transparent border-none font-mono text-sm p-4 h-48 resize-none" spellcheck="false">report <- build_regression_report(df)
+stopifnot(is.numeric(report$slope))
+stopifnot(report$slope > 0)
+stopifnot(report$r_squared >= 0)
+stopifnot("GeomSmooth" %in% report$plot_layers || "GeomPoint" %in% report$plot_layers)</textarea>
               </div>
             </div>
           </section>
@@ -208,17 +212,17 @@ assert length_of_longest_substring(None) == 0</textarea>
                   <label class="text-xs font-medium text-on-surface">Language</label>
                   <div class="flex items-center gap-3 p-3 bg-surface-container-lowest rounded-sm border-b-2 border-tertiary">
                     <span class="material-symbols-outlined text-tertiary text-lg">terminal</span>
-                    <span id="builder-runtime-label" class="font-mono text-sm font-bold">Python 3.11</span>
-                    <span id="builder-runtime-hint" class="text-xs text-slate-500">Python assignment environment</span>
+                    <span id="builder-runtime-label" class="font-mono text-sm font-bold">R 4.3</span>
+                    <span id="builder-runtime-hint" class="text-xs text-slate-500">R assignment environment</span>
                     <span class="ml-auto material-symbols-outlined text-sm text-tertiary">lock</span>
                   </div>
                 </div>
                 <div class="space-y-1">
                   <label class="text-xs font-medium text-on-surface">Complexity Rank</label>
                   <div class="grid grid-cols-3 gap-1">
-                    <button class="py-2 text-[10px] font-bold uppercase bg-surface-container-lowest text-slate-500 rounded-sm hover:bg-white transition-all">Junior</button>
-                    <button class="py-2 text-[10px] font-bold uppercase bg-primary text-white rounded-sm shadow-sm">Intermediate</button>
-                    <button class="py-2 text-[10px] font-bold uppercase bg-surface-container-lowest text-slate-500 rounded-sm hover:bg-white transition-all">Advanced</button>
+                    <button class="py-2 text-[10px] font-bold uppercase bg-surface-container-lowest text-slate-500 rounded-sm hover:bg-white transition-colors" type="button">Junior</button>
+                    <button class="py-2 text-[10px] font-bold uppercase bg-primary text-white rounded-sm shadow-sm" type="button">Intermediate</button>
+                    <button class="py-2 text-[10px] font-bold uppercase bg-surface-container-lowest text-slate-500 rounded-sm hover:bg-white transition-colors" type="button">Advanced</button>
                   </div>
                 </div>
               </div>
@@ -259,11 +263,11 @@ assert length_of_longest_substring(None) == 0</textarea>
 
             <div class="bg-primary p-6 rounded-lg shadow-sm">
               <p class="text-white/70 text-[10px] uppercase font-bold tracking-widest mb-4">Final Validation</p>
-              <button id="builder-publish-btn" class="w-full bg-white text-primary font-bold py-3 px-4 rounded flex items-center justify-center gap-2 hover:opacity-90 transition-all" type="button">
+              <button id="builder-publish-btn" class="w-full bg-white text-primary font-bold py-3 px-4 rounded flex items-center justify-center gap-2 hover:opacity-90 transition-opacity" type="button">
                 <span class="material-symbols-outlined">send</span>
                 Publish Assignment
               </button>
-              <p id="builder-save-feedback" class="text-[10px] text-white/70 font-mono mt-3 text-center">Publish to sync this assignment into the student flow.</p>
+              <p id="builder-save-feedback" aria-live="polite" class="text-[10px] text-white/70 font-mono mt-3 text-center">Publish to sync this assignment into the student flow.</p>
               <p class="text-[10px] text-white/50 font-mono mt-3 text-center">Version 4.2.1-stable | Lab Signature Required</p>
             </div>
           </aside>

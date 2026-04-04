@@ -56,7 +56,7 @@
         <a class="text-slate-500 hover:text-slate-900 transition-colors font-headline font-bold text-lg" href="./student-result.html">Results</a>
         <a class="text-slate-500 hover:text-slate-900 transition-colors font-headline font-bold text-lg" href="../index.html">Main Landing</a>
       </nav>
-      <button class="material-symbols-outlined text-slate-700 p-2 rounded-full hover:bg-slate-200/50 transition-colors">settings</button>
+      <button aria-label="Open settings" class="material-symbols-outlined text-slate-700 p-2 rounded-full hover:bg-slate-200/50 transition-colors" type="button">settings</button>
     </header>
 
     <div class="flex flex-1 overflow-hidden">
@@ -131,10 +131,10 @@
               <div id="mutation-code-block" class="pl-8"></div>
             </div>
             <div class="bg-surface-container-low p-4 flex justify-between items-center border-t border-outline-variant/10">
-              <button class="bg-surface-container-high text-on-surface px-4 py-2 rounded font-mono text-xs font-bold uppercase tracking-widest flex items-center gap-2 hover:bg-surface-container-highest transition-colors">
+                <button class="bg-surface-container-high text-on-surface px-4 py-2 rounded font-mono text-xs font-bold uppercase tracking-widest flex items-center gap-2 hover:bg-surface-container-highest transition-colors" type="button">
                 <span class="material-symbols-outlined text-sm">play_arrow</span>Run Tests
               </button>
-              <a id="mutation-next-link" class="bg-primary text-white px-6 py-2 rounded font-bold flex items-center gap-2 shadow-sm code-glow active:opacity-80 transition-all duration-150 no-underline" href="./repair-mode-task.html">
+              <a id="mutation-next-link" class="bg-primary text-white px-6 py-2 rounded font-bold flex items-center gap-2 shadow-sm code-glow active:opacity-80 transition-opacity duration-150 no-underline" href="./repair-mode-task.html">
                 <span id="mutation-next-label">Submit Mutation</span>
                 <span class="material-symbols-outlined text-sm">send</span>
               </a>
@@ -161,12 +161,12 @@
               <p class="font-mono text-[10px] uppercase tracking-[0.18em] text-tertiary mb-2">Student Response</p>
               <p class="text-[10px] font-mono uppercase tracking-[0.18em] text-slate-400 mb-3">Responses save automatically</p>
               <label class="block text-sm text-on-surface-variant mb-3" for="mutation-answer">Describe the exact defensive change you would make before moving on.</label>
-              <textarea id="mutation-answer" class="w-full min-h-[140px] bg-surface-container-low border-none focus:ring-0 p-3 text-sm rounded-sm resize-none" placeholder="I would add a guard clause before the loop so the function returns 0 when the input is None..."></textarea>
+              <textarea id="mutation-answer" name="mutation_answer" autocomplete="off" class="w-full min-h-[140px] bg-surface-container-low border-none focus:ring-0 p-3 text-sm rounded-sm resize-none" placeholder="I would add a guard clause before the loop so the function returns 0 when the input is None..."></textarea>
             </div>
             <div class="bg-surface-container-lowest border border-outline-variant/10 p-5 rounded-2xl shadow-sm">
               <div class="flex items-center justify-between gap-3 mb-3">
                 <p class="font-mono text-[10px] uppercase tracking-[0.18em] text-tertiary">Hint ladder</p>
-                <span id="mutation-hint-status" class="text-[11px] text-on-surface-variant">No hints opened yet</span>
+                <span id="mutation-hint-status" aria-live="polite" class="text-[11px] text-on-surface-variant">No hints opened yet</span>
               </div>
               <div id="mutation-hints" class="space-y-3 mb-4"></div>
               <button id="mutation-hint-button" class="w-full inline-flex items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-semibold bg-surface-container-high text-on-surface hover:bg-surface-container-highest transition-colors">

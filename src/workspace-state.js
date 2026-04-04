@@ -253,6 +253,56 @@ const rollingWindowRepair = [
   "}",
 ].join("\n");
 
+const regressionReportSource = [
+  'build_regression_report <- function(df) {',
+  '  clean_df <- df[complete.cases(df[c("hours_studied", "exam_score")]), ]',
+  '  fit <- lm(exam_score ~ hours_studied, data = clean_df)',
+  "",
+  '  plot <- ggplot(clean_df, aes(x = hours_studied, y = exam_score)) +',
+  '    geom_point() +',
+  '    geom_smooth(method = "lm", se = FALSE)',
+  "",
+  "  list(",
+  '    slope = unname(coef(fit)[["hours_studied"]]),',
+  '    r_squared = summary(fit)$r.squared,',
+  '    plot_layers = length(plot$layers)',
+  "  )",
+  "}",
+].join("\n");
+
+const regressionReportMutation = [
+  'build_regression_report <- function(df) {',
+  '  fit <- lm(exam_score ~ hours_studied, data = df)',
+  "",
+  '  plot <- ggplot(df, aes(x = hours_studied, y = exam_score)) +',
+  '    geom_point() +',
+  '    geom_smooth(method = "lm", se = FALSE)',
+  "",
+  "  list(",
+  '    slope = unname(coef(fit)[["hours_studied"]]),',
+  '    r_squared = summary(fit)$r.squared,',
+  '    plot_layers = length(plot$layers)',
+  "  )",
+  "}",
+].join("\n");
+
+const regressionReportRepair = [
+  'build_regression_report <- function(df) {',
+  '  clean_df <- df[complete.cases(df[c("hours_studied", "exam_score")]), ]',
+  '  fit <- lm(hours_studied ~ exam_score, data = clean_df)',
+  "",
+  '  plot <- ggplot(clean_df, aes(x = exam_score, y = hours_studied)) +',
+  '    geom_point() +',
+  '    geom_smooth(method = "lm", se = FALSE)',
+  "",
+  "  list(",
+  '    slope = unname(coef(fit)[["exam_score"]]),',
+  '    r_squared = summary(fit)$r.squared,',
+  '    plot_layers = length(plot$layers)',
+  "  )",
+  "}",
+].join("\n");
+
 const defaultDraft = longestSubstringSource;
 
 function normalizeLanguage(value) {
@@ -261,6 +311,72 @@ function normalizeLanguage(value) {
 
 function getLanguageConfig(language) {
   return LANGUAGE_CONFIG[normalizeLanguage(language)] || LANGUAGE_CONFIG.python;
+}
+
+function getAssignmentBlueprint(language, title = "") {
+  if (normalizeLanguage(language) === "r") {
+    return {
+      title: title || "Scatterplot Regression Defense",
+      summary: "R-based assessment on scatterplots, linear regression, residual interpretation, and model repair.",
+      prompt:
+        "Write an R function that fits a simple linear regression, reports slope and R-squared, and prepares a scatterplot with a regression line. Learners may use AI assistance, but must defend the same modeling logic through hotspot, trace, mutation, and repair.",
+      hotspotFocus:
+        'Focus on the line that fits lm(exam_score ~ hours_studied, ...) and the plot layer that adds geom_smooth(method = "lm"). Explain why those two lines support the final interpretation.',
+      traceScenario:
+        "Trace the function on a small data frame with hours_studied and exam_score. Predict the cleaned rows, fitted formula, and what will appear on the scatterplot.",
+      mutationPrompt:
+        "Adapt the function so it safely handles missing values by filtering incomplete rows before fitting lm() or drawing the scatterplot.",
+      repairPrompt:
+        "Repair the broken R variant where the regression formula or scatterplot mapping flips the predictor and outcome.",
+      hiddenTests: [
+        'df <- data.frame(hours_studied = c(2, 4, 6, 8), exam_score = c(65, 72, 78, 88))',
+        "report <- build_regression_report(df)",
+        'stopifnot(round(report$slope, 2) > 0)',
+        'stopifnot(round(report$r_squared, 2) >= 0.80)',
+        'stopifnot(report$plot_layers >= 2)',
+      ].join("\n"),
+      sourceCode: regressionReportSource,
+      starterCode: regressionReportSource,
+      mutationCode: regressionReportMutation,
+      mutationFailureOutput: 'Error in lm.fit(x, y, offset = offset, singular.ok = singular.ok, ...) : NA/NaN/Inf in "y"',
+      repairCode: regressionReportRepair,
+      repairDetectedIn: "Detected in: regression formula and scatterplot mapping",
+      testFile: "test_suite.R",
+      runtimeLabel: "R 4.3",
+      assessmentFocus: "data-science",
+    };
+  }
+
+  return {
+    title: title || "Longest Substring Without Repeating Characters",
+    summary: "Includes hotspot, trace, mutation, and repair mode.",
+    prompt:
+      "Write a Python function to find the longest substring without repeating characters. You may use AI assistance, but you must defend the same logic through hotspot, trace, mutation, and repair.",
+    hotspotFocus:
+      "Focus on the sliding-window lines that move left and right. Explain how each pointer keeps the substring valid.",
+    traceScenario:
+      'Trace the algorithm with input "pwwkew". Predict max_len, left, and char_map after each iteration.',
+    mutationPrompt:
+      "Modify your solution so it safely handles a None input by returning 0 before any window logic runs.",
+    repairPrompt:
+      "Fix the broken sliding-window variant where the left pointer fails to move past a repeated character.",
+    hiddenTests: [
+      'assert length_of_longest_substring("") == 0',
+      'assert length_of_longest_substring("abcabcbb") == 3',
+      'assert length_of_longest_substring("bbbbb") == 1',
+      'assert length_of_longest_substring("pwwkew") == 3',
+      'assert length_of_longest_substring("abba") == 2',
+    ].join("\n"),
+    sourceCode: longestSubstringSource,
+    starterCode: longestSubstringSource,
+    mutationCode: longestSubstringMutation,
+    mutationFailureOutput: "TypeError: object of type 'NoneType' has no len()",
+    repairCode: longestSubstringRepair,
+    repairDetectedIn: "Detected in: sliding-window duplicate handling",
+    testFile: "test_suite.py",
+    runtimeLabel: "Python 3.11",
+    assessmentFocus: "programming",
+  };
 }
 
 function buildFileName(title, language, suffix = "") {
@@ -313,55 +429,56 @@ function createDefaultResponses(overrides = {}) {
 }
 
 function createDefaultAssignment(overrides = {}) {
-  const starterCode = overrides.starterCode || overrides.sourceCode || defaultDraft;
   const language = normalizeLanguage(overrides.language);
   const languageConfig = getLanguageConfig(language);
-  const assessmentFocus = overrides.assessmentFocus || (language === "r" ? "data-science" : "programming");
+  const blueprint = getAssignmentBlueprint(language, overrides.title);
+  const starterCode = overrides.starterCode || overrides.sourceCode || blueprint.starterCode || defaultDraft;
+  const assessmentFocus = overrides.assessmentFocus || blueprint.assessmentFocus || (language === "r" ? "data-science" : "programming");
 
   return {
     id: overrides.id || "",
     language,
     assessmentFocus,
-    title: overrides.title || "Untitled Assignment",
+    title: overrides.title || blueprint.title || "Untitled Assignment",
     due: overrides.due || "Due date TBD",
-    summary: overrides.summary || "Understanding checks will be configured for this assignment.",
+    summary: overrides.summary || blueprint.summary || "Understanding checks will be configured for this assignment.",
     prompt:
       overrides.prompt ||
+      blueprint.prompt ||
       "Open this homework and submit the code you want to defend across the assessment pipeline.",
     hotspotFocus:
       overrides.hotspotFocus ||
+      blueprint.hotspotFocus ||
       "Explain the line that expands or contracts the active window and why it protects correctness.",
     traceScenario:
       overrides.traceScenario ||
+      blueprint.traceScenario ||
       'Trace the algorithm on the hidden input "pwwkew" and predict each state update before the code runs.',
     mutationPrompt:
       overrides.mutationPrompt ||
+      blueprint.mutationPrompt ||
       "Modify the submitted solution so it handles a changed input contract safely without breaking the original reasoning model.",
     repairPrompt:
       overrides.repairPrompt ||
+      blueprint.repairPrompt ||
       "Repair a broken variant of the same algorithm by correcting the specific line that now violates the original logic.",
     hiddenTests:
       overrides.hiddenTests ||
-      [
-        'assert length_of_longest_substring("") == 0',
-        'assert length_of_longest_substring("abcabcbb") == 3',
-        'assert length_of_longest_substring("bbbbb") == 1',
-        'assert length_of_longest_substring("pwwkew") == 3',
-      ].join("\n"),
+      blueprint.hiddenTests,
     sourceFile: overrides.sourceFile || buildFileName(overrides.title || "solution", language),
-    sourceCode: overrides.sourceCode || starterCode,
+    sourceCode: overrides.sourceCode || blueprint.sourceCode || starterCode,
     starterCode,
     draftCode: overrides.draftCode || starterCode,
     submissionConfirmed: Boolean(overrides.submissionConfirmed),
     mutationFile: overrides.mutationFile || buildFileName(overrides.title || "solution", language, "_mutation"),
-    mutationCode: overrides.mutationCode || starterCode,
+    mutationCode: overrides.mutationCode || blueprint.mutationCode || starterCode,
     mutationFailureOutput:
-      overrides.mutationFailureOutput || "TypeError: object of type 'NoneType' has no len()",
+      overrides.mutationFailureOutput || blueprint.mutationFailureOutput || "TypeError: object of type 'NoneType' has no len()",
     repairFile: overrides.repairFile || buildFileName(overrides.title || "solution", language, "_repair"),
-    repairCode: overrides.repairCode || starterCode,
-    repairDetectedIn: overrides.repairDetectedIn || "Detected in: algorithm repair checkpoint",
-    testFile: overrides.testFile || languageConfig.testFile,
-    runtimeLabel: overrides.runtimeLabel || languageConfig.label,
+    repairCode: overrides.repairCode || blueprint.repairCode || starterCode,
+    repairDetectedIn: overrides.repairDetectedIn || blueprint.repairDetectedIn || "Detected in: algorithm repair checkpoint",
+    testFile: overrides.testFile || blueprint.testFile || languageConfig.testFile,
+    runtimeLabel: overrides.runtimeLabel || blueprint.runtimeLabel || languageConfig.label,
     modules: createDefaultModules(overrides.modules),
     responses: createDefaultResponses(overrides.responses),
     portfolio: Array.isArray(overrides.portfolio) ? overrides.portfolio : [],
@@ -370,8 +487,8 @@ function createDefaultAssignment(overrides = {}) {
 }
 
 const defaultState = {
-  activeCourseId: "advanced-algorithms",
-  activeAssignmentId: "advanced-algorithms-longest-substring",
+  activeCourseId: "statistics-and-data-science-education",
+  activeAssignmentId: "statistics-and-data-science-regression-defense",
   draftCode: defaultDraft,
   reviewContext: null,
   courses: [
@@ -518,6 +635,123 @@ const defaultState = {
         }),
       ],
     },
+    {
+      id: "statistics-and-data-science-education",
+      title: "Statistics and Data Science Education",
+      term: "Spring 2026 / Section DS",
+      learners: 37,
+      note: "Current unit: scatterplots, linear regression, residual interpretation, and defensible R workflows.",
+      assignments: [
+        createDefaultAssignment({
+          id: "statistics-and-data-science-regression-defense",
+          language: "r",
+          title: "Scatterplot Regression Defense",
+          due: "Due Apr 22",
+          sourceFile: "scatterplot_regression_defense.R",
+          mutationFile: "scatterplot_regression_defense_mutation.R",
+          repairFile: "scatterplot_regression_defense_repair.R",
+        }),
+        createDefaultAssignment({
+          id: "statistics-and-data-science-residual-check",
+          language: "r",
+          title: "Residual Pattern Interpretation",
+          due: "Due Apr 25",
+          summary: "R assessment on model fit, residual structure, and plot interpretation.",
+          prompt:
+            "Write an R workflow that fits a simple linear regression, generates fitted values and residuals, and explains whether the residual pattern supports a linear model.",
+          hotspotFocus:
+            "Focus on the line that computes residuals from the fitted model and the line that visualizes fitted values against residuals. Explain why those lines matter for model checking.",
+          traceScenario:
+            "Trace the workflow on a small data frame and predict the fitted values, residual signs, and what a residual plot would show.",
+          mutationPrompt:
+            "Adapt the workflow so it safely drops incomplete rows before computing residuals or drawing the diagnostic plot.",
+          repairPrompt:
+            "Repair the R variant where residuals are computed against the wrong response variable or the residual plot swaps the axes.",
+          hiddenTests: [
+            'df <- data.frame(hours_studied = c(2, 4, 6, 8), exam_score = c(65, 72, 78, 88))',
+            "fit <- lm(exam_score ~ hours_studied, data = df)",
+            "residuals <- resid(fit)",
+            "stopifnot(length(residuals) == 4)",
+            "stopifnot(any(residuals != 0))",
+          ].join("\n"),
+          sourceFile: "residual_pattern_interpretation.R",
+          sourceCode: [
+            'check_residual_pattern <- function(df) {',
+            '  clean_df <- df[complete.cases(df[c("hours_studied", "exam_score")]), ]',
+            '  fit <- lm(exam_score ~ hours_studied, data = clean_df)',
+            '  residual_df <- data.frame(fitted = fitted(fit), residual = resid(fit))',
+            "",
+            '  plot <- ggplot(residual_df, aes(x = fitted, y = residual)) +',
+            '    geom_point() +',
+            '    geom_hline(yintercept = 0, linetype = "dashed")',
+            "",
+            "  list(",
+            "    residual_count = nrow(residual_df),",
+            '    mean_residual = mean(residual_df$residual),',
+            '    plot_layers = length(plot$layers)',
+            "  )",
+            "}",
+          ].join("\n"),
+          starterCode: [
+            'check_residual_pattern <- function(df) {',
+            '  clean_df <- df[complete.cases(df[c("hours_studied", "exam_score")]), ]',
+            '  fit <- lm(exam_score ~ hours_studied, data = clean_df)',
+            '  residual_df <- data.frame(fitted = fitted(fit), residual = resid(fit))',
+            "",
+            '  plot <- ggplot(residual_df, aes(x = fitted, y = residual)) +',
+            '    geom_point() +',
+            '    geom_hline(yintercept = 0, linetype = "dashed")',
+            "",
+            "  list(",
+            "    residual_count = nrow(residual_df),",
+            '    mean_residual = mean(residual_df$residual),',
+            '    plot_layers = length(plot$layers)',
+            "  )",
+            "}",
+          ].join("\n"),
+          mutationFile: "residual_pattern_interpretation_mutation.R",
+          mutationCode: [
+            'check_residual_pattern <- function(df) {',
+            '  fit <- lm(exam_score ~ hours_studied, data = df)',
+            '  residual_df <- data.frame(fitted = fitted(fit), residual = resid(fit))',
+            "",
+            '  plot <- ggplot(residual_df, aes(x = fitted, y = residual)) +',
+            '    geom_point() +',
+            '    geom_hline(yintercept = 0, linetype = "dashed")',
+            "",
+            "  list(",
+            "    residual_count = nrow(residual_df),",
+            '    mean_residual = mean(residual_df$residual),',
+            '    plot_layers = length(plot$layers)',
+            "  )",
+            "}",
+          ].join("\n"),
+          mutationFailureOutput: 'Error in lm.fit(x, y, offset = offset, singular.ok = singular.ok, ...) : NA/NaN/Inf in "x"',
+          repairFile: "residual_pattern_interpretation_repair.R",
+          repairCode: [
+            'check_residual_pattern <- function(df) {',
+            '  clean_df <- df[complete.cases(df[c("hours_studied", "exam_score")]), ]',
+            '  fit <- lm(exam_score ~ hours_studied, data = clean_df)',
+            '  residual_df <- data.frame(fitted = fitted(fit), residual = resid(fit))',
+            "",
+            '  plot <- ggplot(residual_df, aes(x = residual, y = fitted)) +',
+            '    geom_point() +',
+            '    geom_hline(yintercept = 0, linetype = "dashed")',
+            "",
+            "  list(",
+            "    residual_count = nrow(residual_df),",
+            '    mean_residual = mean(residual_df$residual),',
+            '    plot_layers = length(plot$layers)',
+            "  )",
+            "}",
+          ].join("\n"),
+          repairDetectedIn: "Detected in: residual plot axis mapping",
+          testFile: "test_suite.R",
+          runtimeLabel: "R 4.3",
+          assessmentFocus: "data-science",
+        }),
+      ],
+    },
   ],
 };
 
@@ -586,6 +820,14 @@ function countAnswered(values) {
 
 function isDataScienceAssignment(assignment) {
   return assignment?.assessmentFocus === "data-science";
+}
+
+function getDataScienceMode(assignment) {
+  const label = `${assignment?.id || ""} ${assignment?.title || ""}`.toLowerCase();
+  if (label.includes("residual")) return "residual";
+  if (label.includes("scatterplot") || label.includes("regression")) return "regression";
+  if (label.includes("drift") || label.includes("rolling")) return "drift";
+  return "general";
 }
 
 function hasAiDeclared(provenance) {
@@ -822,11 +1064,17 @@ function renderPortfolioList(container, entries, emptyCopy) {
 function getHintLadder(assignment, stage) {
   if (stage === "mutation") {
     return isDataScienceAssignment(assignment)
-      ? [
-          "Restate what changed in the data contract before editing the code.",
-          "Add the smallest guard or NA-safe step that preserves the original detector logic.",
-          "Place the change at the first line that assumes every window element can be averaged safely.",
-        ]
+      ? getDataScienceMode(assignment) === "residual"
+        ? [
+            "Restate what changed in the residual-analysis data contract before editing the workflow.",
+            "Add the smallest NA-safe preprocessing step that preserves the original residual logic.",
+            "Place the change at the first line that assumes complete rows before fitting or plotting.",
+          ]
+        : [
+            "Restate what changed in the regression data contract before editing the workflow.",
+            "Add the smallest preprocessing guard that preserves the original lm() and ggplot() logic.",
+            "Place the change at the first line that assumes complete predictor and outcome columns.",
+          ]
       : [
           "Restate the changed input contract before editing the algorithm.",
           "Add the smallest guard that isolates the failing case and preserves the original invariant.",
@@ -835,11 +1083,17 @@ function getHintLadder(assignment, stage) {
   }
 
   return isDataScienceAssignment(assignment)
-    ? [
-        "Compare the broken slice against the original rolling-window rule.",
-        "Repair the lower or upper bound only; avoid rewriting the whole loop.",
-        "Explain how the corrected slice restores the intended segment before the mean is computed.",
-      ]
+    ? getDataScienceMode(assignment) === "residual"
+      ? [
+          "Compare the broken residual formula or axis mapping against the intended diagnostic view.",
+          "Repair the smallest formula or plotting line only; avoid rebuilding the whole workflow.",
+          "Explain how the corrected mapping restores the intended model-checking evidence.",
+        ]
+      : [
+          "Compare the broken regression formula or scatterplot mapping against the intended model.",
+          "Repair the smallest lm() or aes() line only; avoid rebuilding the whole workflow.",
+          "Explain how the corrected mapping restores the intended predictor, outcome, and fitted line.",
+        ]
     : [
         "Compare the broken branch against the original movement rule.",
         "Repair the smallest pointer update that stopped the loop from converging.",
@@ -890,7 +1144,7 @@ function buildVivaPrompts(assignment, rubric, responses) {
       ? `Walk me through one concrete trace from ${assignment.traceScenario} and narrate each state change in order.`
       : `Explain one state transition from ${assignment.traceScenario} without jumping straight to the final answer.`,
     isDataScienceAssignment(assignment)
-      ? `What assumption about the data or window statistics did you verify yourself, and where could that assumption fail on a new dataset?`
+      ? `What assumption about the dataset, model, or diagnostic interpretation did you verify yourself, and where could that assumption fail on a new dataset?`
       : hasAiDeclared(responses.provenance)
       ? `You reported outside support. Which part did you verify yourself, and how did you confirm the code still matched your own reasoning?`
       : `If you had to re-derive this solution on a blank page, which step would you reconstruct first and why?`,
@@ -922,6 +1176,176 @@ function metricLabel(key) {
     repair: "Repair Logic",
     correctness: "Code Correctness",
   }[key];
+}
+
+function focusLabel(assignment) {
+  return isDataScienceAssignment(assignment) ? "Data Science & Statistics" : "Programming";
+}
+
+function formatAssignmentIdentity(assignment) {
+  return `Language: ${assignment.runtimeLabel || getLanguageConfig(assignment.language).label} | Focus: ${focusLabel(
+    assignment
+  )}`;
+}
+
+function formatAssignmentModules(assignment) {
+  return `Modules: ${formatModuleList(assignment.modules) || "None configured"}`;
+}
+
+function getSubmissionDataCopy(assignment) {
+  if (!isDataScienceAssignment(assignment)) {
+    return {
+      datasetLabel: "What dataset pattern are you reasoning about?",
+      datasetPlaceholder: "A short numeric sequence with one clear drift point...",
+      assumptionsLabel: "Which assumptions must hold for this solution to make sense?",
+      assumptionsPlaceholder: "The window size fits inside the vector and each rolling mean uses the intended slice...",
+      interpretationLabel: "How would you interpret the output on real data?",
+      interpretationPlaceholder: "A positive drift alert suggests a meaningful change in the local average, not proof of the cause...",
+    };
+  }
+
+  if (getDataScienceMode(assignment) === "residual") {
+    return {
+      datasetLabel: "What small data frame are you using to reason about residual structure?",
+      datasetPlaceholder: "A data frame with a mostly linear trend plus one point that creates a noticeable residual...",
+      assumptionsLabel: "Which assumptions make this residual check meaningful?",
+      assumptionsPlaceholder: "The fitted model uses the intended response, incomplete rows are removed first, and the residual plot keeps fitted values on the x-axis...",
+      interpretationLabel: "How would you interpret the residual plot on real data?",
+      interpretationPlaceholder: "Residuals scattered around zero support the linear model more than a curve or funnel shape would...",
+    };
+  }
+
+  return {
+    datasetLabel: "What dataset are you modeling with this regression workflow?",
+    datasetPlaceholder: "A data frame with hours_studied, exam_score, and at least one incomplete row to test cleaning before lm()...",
+    assumptionsLabel: "Which assumptions must hold for this regression summary to make sense?",
+    assumptionsPlaceholder: "Hours studied is the predictor, exam score is the outcome, the trend is roughly linear, and incomplete rows are filtered before fitting or plotting...",
+    interpretationLabel: "How would you interpret the plot and model output on real data?",
+    interpretationPlaceholder: "A positive slope means higher study hours tend to align with higher scores; R-squared describes fit, not causation...",
+  };
+}
+
+function getHotspotCopy(assignment) {
+  if (!isDataScienceAssignment(assignment)) {
+    return {
+      question1: `Which line best expresses this focus: ${assignment.hotspotFocus}`,
+      question2: `How does that line support the assignment prompt: ${assignment.prompt}`,
+      question3: `What failure would you expect first if that line behaved incorrectly while working on ${assignment.title}?`,
+      placeholder1: "Define the pointer's role in window expansion...",
+      placeholder2: "Discuss array indexing and exclusive bounds...",
+      placeholder3: "Predict system behavior for null/empty input...",
+    };
+  }
+
+  if (getDataScienceMode(assignment) === "residual") {
+    return {
+      question1: `Which line actually computes the residual evidence in ${assignment.title}, and why is it the main hotspot?`,
+      question2: `How does that line connect the fitted model to the residual visualization the assignment asks you to defend?`,
+      question3: `If that line or axis mapping were wrong, what misleading model-checking conclusion would appear first?`,
+      placeholder1: "Name the residual or plotting line and explain what evidence it creates...",
+      placeholder2: "Explain how the fitted values and residuals are linked into one diagnostic view...",
+      placeholder3: "Describe the first incorrect statistical conclusion a swapped residual plot could cause...",
+    };
+  }
+
+  return {
+    question1: `Which line most directly defines the regression relationship in ${assignment.title}, and why is it the main hotspot?`,
+    question2: `How does that line connect the regression formula to the scatterplot the learner must interpret?`,
+    question3: `If that formula or mapping were flipped, what misleading result would appear first in the model summary or plot?`,
+    placeholder1: "Name the lm() or ggplot line and explain what modeling role it plays...",
+    placeholder2: "Connect the fitted formula to the plotted regression line in plain language...",
+    placeholder3: "Predict the first incorrect modeling conclusion the learner would see...",
+  };
+}
+
+function getTraceCopy(assignment) {
+  if (!isDataScienceAssignment(assignment)) {
+    return {
+      intro: `Trace reasoning for ${assignment.title}. Start from the prompt, then walk through the state changes you expect to see.`,
+      question1: "After the first critical turn in this scenario, what state change should happen first?",
+      question2: `Record the map or memory structure you expect while tracing: ${assignment.traceScenario}`,
+      question3: `Based on this scenario, what final result should the function return for ${assignment.title}?`,
+      placeholder1: "Integer value",
+      placeholder2: "List the state you expect after the key update...",
+      placeholder3: "Return value",
+    };
+  }
+
+  if (getDataScienceMode(assignment) === "residual") {
+    return {
+      intro: `Trace the residual workflow for ${assignment.title}. Predict the cleaned rows, fitted model, and residual pattern before you run anything.`,
+      question1: "After cleaning the data, what should happen first before the residual plot is created?",
+      question2: `Record the fitted values or residual signs you expect while tracing: ${assignment.traceScenario}`,
+      question3: `Based on this scenario, what should the residual plot suggest about the model fit in ${assignment.title}?`,
+      placeholder1: "First model-preparation step",
+      placeholder2: "Expected fitted values, residual signs, or diagnostic structure...",
+      placeholder3: "Short interpretation of model fit",
+    };
+  }
+
+  return {
+    intro: `Trace the regression workflow for ${assignment.title}. Predict the cleaned rows, fitted model, and plot structure before the code runs.`,
+    question1: "After filtering incomplete rows, what model-building step should happen first?",
+    question2: `Record the formula, summary values, or plot layers you expect while tracing: ${assignment.traceScenario}`,
+    question3: `Based on this scenario, what should the learner conclude from the regression output for ${assignment.title}?`,
+    placeholder1: "First regression step",
+    placeholder2: "Expected formula, slope direction, R-squared, or ggplot layers...",
+    placeholder3: "Short model interpretation",
+  };
+}
+
+function getMutationCopy(assignment) {
+  if (!isDataScienceAssignment(assignment)) {
+    return {
+      intro: `This transfer step checks whether the learner can adapt ${assignment.title} after the constraints shift.`,
+      why: `Students who understand ${assignment.title} usually adapt quickly when the contract changes. This mutation uses: ${assignment.mutationPrompt}`,
+      responseLabel: "Describe the exact defensive change you would make before moving on.",
+      responsePlaceholder: "I would add a guard clause before the loop so the function returns 0 when the input is None...",
+    };
+  }
+
+  if (getDataScienceMode(assignment) === "residual") {
+    return {
+      intro: `This transfer step checks whether the learner can preserve the residual-analysis logic in ${assignment.title} when the data quality changes.`,
+      why: `A strong response keeps the same model-checking goal, but makes the workflow robust to incomplete rows and plotting edge cases. Mutation prompt: ${assignment.mutationPrompt}`,
+      responseLabel: "Describe the smallest workflow change you would make and why it protects the residual analysis.",
+      responsePlaceholder: "I would filter incomplete rows before fitting the model or building the residual plot so the same diagnostic logic still applies...",
+    };
+  }
+
+  return {
+    intro: `This transfer step checks whether the learner can preserve the regression logic in ${assignment.title} after the data contract changes.`,
+    why: `Students who understand the model can usually name the smallest safe preprocessing change before lm() and ggplot(). Mutation prompt: ${assignment.mutationPrompt}`,
+    responseLabel: "Describe the exact defensive change you would make to the regression workflow before moving on.",
+    responsePlaceholder: "I would remove incomplete rows before fitting lm() and drawing geom_smooth() so the original regression logic still holds...",
+  };
+}
+
+function getRepairCopy(assignment) {
+  if (!isDataScienceAssignment(assignment)) {
+    return {
+      intro: `Repair is the final authenticity check for ${assignment.title}. The learner must recognize the same logic in damaged form and correct it precisely.`,
+      responseLabel: "Name the exact line or branch you would fix and explain the correction.",
+      responsePlaceholder:
+        "The branch where nums[mid] is smaller than target should move left to mid + 1, otherwise the loop can stall...",
+    };
+  }
+
+  if (getDataScienceMode(assignment) === "residual") {
+    return {
+      intro: `Repair is the final authenticity check for ${assignment.title}. The learner must recognize a broken diagnostic workflow and restore the residual logic without rebuilding the whole analysis.`,
+      responseLabel: "Name the exact formula or plotting line you would fix and explain how it restores the residual interpretation.",
+      responsePlaceholder:
+        "I would restore fitted values to the x-axis and residuals to the y-axis so the diagnostic plot supports the intended model check again...",
+    };
+  }
+
+  return {
+    intro: `Repair is the final authenticity check for ${assignment.title}. The learner must restore the intended regression relationship and scatterplot mapping without rewriting the whole analysis.`,
+    responseLabel: "Name the exact formula or aesthetic mapping you would fix and explain the correction.",
+    responsePlaceholder:
+      "I would restore hours_studied as the predictor and exam_score as the outcome in both lm() and ggplot() so the model and plot agree again...",
+  };
 }
 
 function weakestMetricKey(result) {
@@ -973,27 +1397,71 @@ function createSyntheticResponses(assignment, studentSeed) {
     },
   }[band];
 
-  const hotspotPool = [
-    `The pressure point is the line that keeps the active invariant stable. In ${assignment.title}, I would point to the pointer update and explain that it prevents the window from including a repeated character twice.`,
-    `I would defend the hotspot by naming the exact line that expands or narrows the working region. If that line stops moving correctly, the algorithm still returns something, but the state no longer matches the rule the rest of the code assumes.`,
-    `The hotspot matters because it is where the algorithm chooses what stays in the valid window. My explanation would focus on why that line protects correctness before any later max-length update happens.`,
-  ];
+  const hotspotPool = isDataScienceAssignment(assignment)
+    ? getDataScienceMode(assignment) === "residual"
+      ? [
+          `The pressure point is the line that computes residual evidence for ${assignment.title}. I would point to the fitted-values or residual construction and explain why it determines whether the diagnostic plot means anything.`,
+          `I would defend the hotspot by naming the exact formula or plot-mapping line that connects the fitted model to the residual view. If that line is wrong, the workflow still runs, but the interpretation becomes misleading.`,
+          `The hotspot matters because it controls whether the residual plot reflects model fit or just a mislabeled graphic. My explanation would focus on why that line protects the statistical meaning of the output.`,
+        ]
+      : [
+          `The pressure point is the line that defines the regression relationship in ${assignment.title}. I would point to the lm() formula or ggplot mapping and explain why it determines the whole model interpretation.`,
+          `I would defend the hotspot by naming the exact formula or plotting line that connects predictor, outcome, and fitted line. If that line flips, the code may still run, but the statistical story changes.`,
+          `The hotspot matters because it controls whether the scatterplot and regression summary are describing the intended relationship. My explanation would focus on why that line protects the meaning of the model.`,
+        ]
+    : [
+        `The pressure point is the line that keeps the active invariant stable. In ${assignment.title}, I would point to the pointer update and explain that it prevents the window from including a repeated character twice.`,
+        `I would defend the hotspot by naming the exact line that expands or narrows the working region. If that line stops moving correctly, the algorithm still returns something, but the state no longer matches the rule the rest of the code assumes.`,
+        `The hotspot matters because it is where the algorithm chooses what stays in the valid window. My explanation would focus on why that line protects correctness before any later max-length update happens.`,
+      ];
 
-  const tracePool = [
-    `On the trace input I would log each pointer move in order. The important part is not the final answer but why the state changes when a duplicate or failed comparison appears.`,
-    `The trace should show one state transition at a time. I would record the current window, then explain exactly why left or right changes before the next iteration begins.`,
-    `My trace explanation would stay concrete: current character, stored index, pointer move, then resulting valid range. That keeps the reasoning tied to state instead of intuition.`,
-  ];
+  const tracePool = isDataScienceAssignment(assignment)
+    ? getDataScienceMode(assignment) === "residual"
+      ? [
+          `On the trace input I would log row cleaning, model fitting, then residual construction in order. The important part is not only the final plot, but why each diagnostic value appears.`,
+          `The trace should show one modeling transition at a time. I would record cleaned rows, fitted values, and residual signs before drawing any interpretation about model fit.`,
+          `My trace explanation would stay concrete: cleaned dataset, formula, fitted output, residual pattern, then resulting interpretation. That keeps the reasoning tied to evidence instead of intuition.`,
+        ]
+      : [
+          `On the trace input I would log row cleaning, model fitting, and plot construction in order. The important part is not just the final slope, but why the workflow reaches that summary.`,
+          `The trace should show one modeling transition at a time. I would record the cleaned dataset, fitted formula, and plot layers before making any interpretation about fit.`,
+          `My trace explanation would stay concrete: dataset columns, formula, slope direction, R-squared, then plotted regression line. That keeps the reasoning tied to evidence instead of intuition.`,
+        ]
+    : [
+        `On the trace input I would log each pointer move in order. The important part is not the final answer but why the state changes when a duplicate or failed comparison appears.`,
+        `The trace should show one state transition at a time. I would record the current window, then explain exactly why left or right changes before the next iteration begins.`,
+        `My trace explanation would stay concrete: current character, stored index, pointer move, then resulting valid range. That keeps the reasoning tied to state instead of intuition.`,
+      ];
 
-  const mutationPool = [
-    `I would restate the changed contract first, then add the smallest guard that keeps the original invariant intact. The goal is to adapt input handling without rewriting the whole algorithm.`,
-    `For mutation, I would defend the branch I add by showing which failure appears under the new contract and why the new guard isolates that case before the original logic resumes.`,
-  ];
+  const mutationPool = isDataScienceAssignment(assignment)
+    ? getDataScienceMode(assignment) === "residual"
+      ? [
+          `I would restate the changed data contract first, then add the smallest cleaning step that keeps the residual workflow intact. The goal is to adapt data quality handling without rewriting the analysis.`,
+          `For mutation, I would defend the preprocessing step I add by showing which model-fit or plotting failure appears under the new contract and why that guard fixes it before the original analysis resumes.`,
+        ]
+      : [
+          `I would restate the changed data contract first, then add the smallest cleaning step that keeps the regression workflow intact. The goal is to adapt missing-data handling without rewriting the analysis.`,
+          `For mutation, I would defend the preprocessing step I add by showing which lm() or plotting failure appears under the new contract and why that guard fixes it before the original workflow resumes.`,
+        ]
+    : [
+        `I would restate the changed contract first, then add the smallest guard that keeps the original invariant intact. The goal is to adapt input handling without rewriting the whole algorithm.`,
+        `For mutation, I would defend the branch I add by showing which failure appears under the new contract and why the new guard isolates that case before the original logic resumes.`,
+      ];
 
-  const repairPool = [
-    `I would compare the broken line against the known-good movement rule and repair only the branch that now violates it. The key is showing why the restored pointer movement matches the original invariant again.`,
-    `For repair, I would name the branch that stopped converging, then explain why the corrected update restores progress and keeps the state valid on the next iteration.`,
-  ];
+  const repairPool = isDataScienceAssignment(assignment)
+    ? getDataScienceMode(assignment) === "residual"
+      ? [
+          `I would compare the broken residual formula or axis mapping against the known-good diagnostic view and repair only the line that now misrepresents model fit.`,
+          `For repair, I would name the exact plotting or formula line that became misleading, then explain why the corrected residual view restores the intended statistical interpretation.`,
+        ]
+      : [
+          `I would compare the broken regression formula or scatterplot mapping against the known-good model and repair only the line that now flips predictor and outcome.`,
+          `For repair, I would name the exact lm() or aes() line that became misleading, then explain why the corrected mapping restores the intended fitted relationship.`,
+        ]
+    : [
+        `I would compare the broken line against the known-good movement rule and repair only the branch that now violates it. The key is showing why the restored pointer movement matches the original invariant again.`,
+        `For repair, I would name the branch that stopped converging, then explain why the corrected update restores progress and keeps the state valid on the next iteration.`,
+      ];
 
   const verificationPool = [
     {
@@ -1008,18 +1476,31 @@ function createSyntheticResponses(assignment, studentSeed) {
     },
   ];
 
-  const dataReasoningPool = [
-    {
-      dataset: "I would use one stable numeric sequence and one with a late spike so the detector sees both calm and drift behavior.",
-      assumptions: "The window size must fit inside the vector, and each rolling mean should be computed on the intended slice only.",
-      interpretation: "A drift alert means the rolling mean changed meaningfully, but I would still inspect whether the threshold matches the data scale.",
-    },
-    {
-      dataset: "A short vector with one obvious change point is enough to check whether the rolling detector fires when it should.",
-      assumptions: "NA values or missing observations should be handled before interpreting the mean, otherwise the detector can fail for the wrong reason.",
-      interpretation: "I would describe the output as evidence of change in the local average, not as proof of the cause of that change.",
-    },
-  ];
+  const dataReasoningPool = getDataScienceMode(assignment) === "residual"
+    ? [
+        {
+          dataset: "I would use a small data frame with one mostly linear trend and one point that produces a visible residual so the diagnostic plot has something real to explain.",
+          assumptions: "The same response variable is used in the fit and the residual calculation, incomplete rows are removed first, and the residual plot keeps fitted values on the x-axis.",
+          interpretation: "Residuals scattered around zero support the linear model more than a curved or funnel-shaped pattern would.",
+        },
+        {
+          dataset: "A compact teaching dataset with one mild outlier is enough to test whether the residual workflow reveals fit problems rather than hiding them.",
+          assumptions: "Residual meaning depends on fitting the intended model first; if the formula or axes flip, the plot can look busy but say the wrong thing.",
+          interpretation: "I would describe the residual plot as evidence about model fit, not as proof that the model is universally correct.",
+        },
+      ]
+    : [
+        {
+          dataset: "I would use a small data frame with hours_studied and exam_score, plus one incomplete row, so the workflow has to defend both cleaning and modeling choices.",
+          assumptions: "Hours studied is the predictor, exam score is the outcome, the trend is approximately linear, and incomplete rows are removed before fitting or plotting.",
+          interpretation: "A positive slope suggests study time and score move together, while R-squared describes how much variation the fitted line explains in this dataset.",
+        },
+        {
+          dataset: "A compact dataset with a visible upward trend is enough to test whether the regression line and scatterplot tell the same story.",
+          assumptions: "The plot and model must use the same predictor and outcome columns; if either mapping flips, the code may run but the inference changes.",
+          interpretation: "I would describe the output as evidence of association in this sample, not as proof of causation.",
+        },
+      ];
 
   const responses = createDefaultResponses({
     provenance: DEMO_PROVENANCE[scoreFromSeed(`${studentSeed}-provenance`, 0, DEMO_PROVENANCE.length - 1)],
@@ -1207,15 +1688,23 @@ function createRubricFeedback(assignment, result) {
   if (verificationScore < 80) {
     nextStep = `Complete the verification note by naming what you checked yourself, what support you used, and where uncertainty still remains before the next review.`;
   } else if (dataReasoningScore !== null && dataReasoningScore < 80) {
-    nextStep = `Strengthen the data reasoning by naming the dataset context, one assumption behind the detector, and how you would interpret the output on real data.`;
+    nextStep = `Strengthen the data reasoning by naming the dataset context, one modeling assumption, and how you would interpret the output on real data.`;
   } else if (weakest?.[0] === "hotspot") {
-    nextStep = `Return to the hotspot step and name the exact line that preserves the invariant. Then explain what would break first if that line behaved incorrectly.`;
+    nextStep = isDataScienceAssignment(assignment)
+      ? `Return to the hotspot step and name the exact modeling or plotting line that anchors the analysis. Then explain what would mislead the learner first if that line were wrong.`
+      : `Return to the hotspot step and name the exact line that preserves the invariant. Then explain what would break first if that line behaved incorrectly.`;
   } else if (weakest?.[0] === "trace") {
-    nextStep = `Redo the trace with one concrete input and record each state transition in order. Focus on pointer movement or map updates, not just the final return value.`;
+    nextStep = isDataScienceAssignment(assignment)
+      ? `Redo the trace with one concrete dataset and record each modeling transition in order. Focus on cleaned rows, fitted outputs, and interpretation, not just the final summary.`
+      : `Redo the trace with one concrete input and record each state transition in order. Focus on pointer movement or map updates, not just the final return value.`;
   } else if (weakest?.[0] === "mutation") {
-    nextStep = `Before editing code, restate the changed contract in one sentence. Then describe the guard or branch you would add and why it protects the original logic.`;
+    nextStep = isDataScienceAssignment(assignment)
+      ? `Before editing code, restate the changed data contract in one sentence. Then describe the smallest preprocessing or modeling change you would add and why it protects the original analysis.`
+      : `Before editing code, restate the changed contract in one sentence. Then describe the guard or branch you would add and why it protects the original logic.`;
   } else if (weakest?.[0] === "repair") {
-    nextStep = `Compare the working and broken variants line by line. Name the exact branch that fails, then explain why the corrected movement or fallback restores the original behavior.`;
+    nextStep = isDataScienceAssignment(assignment)
+      ? `Compare the working and broken variants line by line. Name the exact formula or plotting line that fails, then explain why the corrected mapping restores the intended interpretation.`
+      : `Compare the working and broken variants line by line. Name the exact branch that fails, then explain why the corrected movement or fallback restores the original behavior.`;
   } else if (result.consistency >= 80) {
     nextStep = `Your understanding looks stable. A good next step is to practice the same reasoning pattern on a new problem without copying the structure of this one.`;
   }
@@ -1651,25 +2140,75 @@ function normalizeAssignment(assignment, fallbackId) {
   });
 }
 
+function mergeAssignmentsWithDefaults(storedAssignments = [], defaultAssignments = [], courseId) {
+  const storedById = new Map(
+    (Array.isArray(storedAssignments) ? storedAssignments : []).map((assignment, index) => [
+      assignment.id || `${courseId}-assignment-${index + 1}`,
+      assignment,
+    ])
+  );
+  const mergedAssignments = [];
+
+  defaultAssignments.forEach((defaultAssignment, assignmentIndex) => {
+    const id = defaultAssignment.id || `${courseId}-assignment-${assignmentIndex + 1}`;
+    const stored = storedById.get(id);
+    mergedAssignments.push(
+      normalizeAssignment(
+        stored
+          ? {
+              ...defaultAssignment,
+              ...stored,
+              responses: {
+                ...defaultAssignment.responses,
+                ...stored.responses,
+              },
+              modules: {
+                ...defaultAssignment.modules,
+                ...stored.modules,
+              },
+              portfolio: Array.isArray(stored.portfolio) ? stored.portfolio : defaultAssignment.portfolio,
+              reviewNotes: stored.reviewNotes || defaultAssignment.reviewNotes,
+            }
+          : defaultAssignment,
+        id
+      )
+    );
+    storedById.delete(id);
+  });
+
+  storedById.forEach((assignment, id) => {
+    mergedAssignments.push(normalizeAssignment(assignment, id));
+  });
+
+  return mergedAssignments;
+}
+
 function normalizeState(raw) {
   const state = raw && typeof raw === "object" ? raw : {};
   const courses =
     Array.isArray(state.courses) && state.courses.length > 0 ? state.courses : defaultState.courses;
+  const defaultCourseMap = new Map(defaultState.courses.map((course) => [course.id, course]));
 
   const normalizedCourses = courses.map((course, courseIndex) => {
     const courseId = course.id || `course-${courseIndex + 1}`;
+    const defaultCourse = defaultCourseMap.get(courseId);
     return {
       id: courseId,
-      title: course.title || `Course ${courseIndex + 1}`,
-      term: course.term || "Unscheduled term",
-      learners: Number.isFinite(Number(course.learners)) ? Number(course.learners) : 0,
-      note: course.note || "No course note yet.",
-      assignments: Array.isArray(course.assignments)
-        ? course.assignments.map((assignment, assignmentIndex) =>
-            normalizeAssignment(assignment, `${courseId}-assignment-${assignmentIndex + 1}`)
-          )
-        : [],
+      title: course.title || defaultCourse?.title || `Course ${courseIndex + 1}`,
+      term: course.term || defaultCourse?.term || "Unscheduled term",
+      learners: Number.isFinite(Number(course.learners)) ? Number(course.learners) : Number(defaultCourse?.learners || 0),
+      note: course.note || defaultCourse?.note || "No course note yet.",
+      assignments: mergeAssignmentsWithDefaults(course.assignments, defaultCourse?.assignments || [], courseId),
     };
+  });
+
+  defaultState.courses.forEach((defaultCourse) => {
+    if (!normalizedCourses.some((course) => course.id === defaultCourse.id)) {
+      normalizedCourses.push({
+        ...defaultCourse,
+        assignments: mergeAssignmentsWithDefaults([], defaultCourse.assignments || [], defaultCourse.id),
+      });
+    }
   });
 
   const fallbackCourse = normalizedCourses[0];
@@ -1994,8 +2533,8 @@ function renderProfessorCourses(state) {
                     <h4 class="font-semibold">${assignment.title}</h4>
                     <p class="text-sm text-slate-500 mt-1">${assignment.summary}</p>
                     <p class="text-xs text-slate-400 mt-2">${assignment.due}</p>
-                    <p class="text-xs text-slate-400 mt-2">Language: ${assignment.runtimeLabel || getLanguageConfig(assignment.language).label}</p>
-                    <p class="text-xs text-slate-400 mt-2">Modules: ${formatModuleList(assignment.modules) || "None"}</p>
+                    <p class="text-xs text-slate-400 mt-2">${formatAssignmentIdentity(assignment)}</p>
+                    <p class="text-xs text-slate-400 mt-2">${formatAssignmentModules(assignment)}</p>
                   </div>
                   <a class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-700 text-white no-underline edit-assignment-link" data-course-id="${course.id}" data-assignment-id="${assignment.id}" href="./create-assignment.html">Edit <span class="material-symbols-outlined text-base">north_east</span></a>
                 </div>
@@ -2060,6 +2599,18 @@ function populateAssignmentSelect(select, course, selectedId) {
     .join("");
 }
 
+function applyAssignmentBlueprintToBuilderForm(language, fields, currentTitle = "") {
+  const blueprint = getAssignmentBlueprint(language, currentTitle);
+  if (fields.titleInput) fields.titleInput.value = blueprint.title;
+  if (fields.promptInput) fields.promptInput.value = blueprint.prompt;
+  if (fields.summaryInput) fields.summaryInput.value = blueprint.summary;
+  if (fields.hotspotInput) fields.hotspotInput.value = blueprint.hotspotFocus;
+  if (fields.traceInput) fields.traceInput.value = blueprint.traceScenario;
+  if (fields.mutationInput) fields.mutationInput.value = blueprint.mutationPrompt;
+  if (fields.repairInput) fields.repairInput.value = blueprint.repairPrompt;
+  if (fields.hiddenTestsInput) fields.hiddenTestsInput.value = blueprint.hiddenTests;
+}
+
 function renderProfessorDashboard() {
   const courseButton = document.getElementById("register-course-btn");
   const assignmentButton = document.getElementById("register-assignment-btn");
@@ -2085,6 +2636,12 @@ function renderProfessorDashboard() {
   const avgCaption = document.getElementById("stat-avg-caption");
   const reviewQueueStat = document.getElementById("stat-review-queue");
   const reviewCaption = document.getElementById("stat-review-caption");
+
+  assignmentLanguageSelect?.addEventListener("change", () => {
+    const blueprint = getAssignmentBlueprint(normalizeLanguage(assignmentLanguageSelect.value), assignmentTitleInput?.value.trim());
+    if (assignmentTitleInput) assignmentTitleInput.value = blueprint.title;
+    if (assignmentSummaryInput) assignmentSummaryInput.value = blueprint.summary;
+  });
 
   function refresh() {
     state = loadState();
@@ -2159,16 +2716,29 @@ function renderProfessorDashboard() {
     }
 
     const assignmentId = `${course.id}-${slugify(title)}-${Date.now()}`;
+    const blueprint = getAssignmentBlueprint(language, title);
     course.assignments.push(
       createDefaultAssignment({
         id: assignmentId,
         language,
-        title,
+        title: title || blueprint.title,
         due: due || "Due date TBD",
-        summary: summary || "Understanding checks will be configured for this assignment.",
-        prompt:
-          summary ||
-          "Open this homework and submit the code you want to defend across hotspot, trace, mutation, and repair.",
+        summary: summary || blueprint.summary,
+        prompt: blueprint.prompt,
+        hotspotFocus: blueprint.hotspotFocus,
+        traceScenario: blueprint.traceScenario,
+        mutationPrompt: blueprint.mutationPrompt,
+        repairPrompt: blueprint.repairPrompt,
+        hiddenTests: blueprint.hiddenTests,
+        sourceCode: blueprint.sourceCode,
+        starterCode: blueprint.starterCode,
+        mutationCode: blueprint.mutationCode,
+        mutationFailureOutput: blueprint.mutationFailureOutput,
+        repairCode: blueprint.repairCode,
+        repairDetectedIn: blueprint.repairDetectedIn,
+        testFile: blueprint.testFile,
+        runtimeLabel: blueprint.runtimeLabel,
+        assessmentFocus: blueprint.assessmentFocus,
       })
     );
     nextState.activeCourseId = course.id;
@@ -2249,7 +2819,11 @@ function renderProfessorStudentDetail() {
   const displayStudentName = reviewContext?.studentName || "Alex Chen";
   studentName.textContent = displayStudentName;
   if (studentId) studentId.textContent = `ID: ${displayStudentId}`;
-  if (courseSummary) courseSummary.textContent = `${course.title} | ${assignment.title}`;
+  if (courseSummary) {
+    courseSummary.textContent = `${course.title} | ${assignment.title} | ${formatAssignmentIdentity(
+      assignment
+    )} | ${assignment.due}`;
+  }
   if (sourceFile) sourceFile.textContent = assignment.sourceFile;
   if (sourceCode) sourceCode.textContent = reviewContext?.draftCode || assignment.draftCode || assignment.sourceCode;
   if (hotspotFocus) hotspotFocus.textContent = assignment.hotspotFocus;
@@ -2499,8 +3073,8 @@ function renderStudentPortal() {
                   <h4 class="font-headline text-lg font-bold">${assignment.title}</h4>
                   <p class="text-sm text-on-surface-variant mt-1">${assignment.summary}</p>
                   <p class="text-xs text-slate-400 mt-2">${assignment.due}</p>
-                  <p class="text-xs text-slate-400 mt-2">Language: ${assignment.runtimeLabel || getLanguageConfig(assignment.language).label}</p>
-                  <p class="text-xs text-slate-400 mt-2">Modules: ${formatModuleList(assignment.modules) || "None"}</p>
+                  <p class="text-xs text-slate-400 mt-2">${formatAssignmentIdentity(assignment)}</p>
+                  <p class="text-xs text-slate-400 mt-2">${formatAssignmentModules(assignment)}</p>
                   <p class="text-xs mt-2 ${assignment.id === state.activeAssignmentId ? "text-tertiary" : "text-slate-500"}">${(() => {
                     const progress = getAssignmentProgressState(assignment);
                     const coverage = getResponseCoverage(assignment);
@@ -2580,7 +3154,9 @@ function renderStudentSubmission() {
   }
   if (dueBadge) dueBadge.textContent = assignment.due;
   if (moduleSummary) {
-    moduleSummary.textContent = `Language: ${assignment.runtimeLabel || getLanguageConfig(assignment.language).label} | Assessment modules: ${formatModuleList(assignment.modules) || "None configured"}`;
+    moduleSummary.textContent = `${formatAssignmentIdentity(assignment)} | Assessment modules: ${
+      formatModuleList(assignment.modules) || "None configured"
+    }`;
   }
   if (sourceFile) sourceFile.textContent = assignment.sourceFile;
   if (verificationStatus) {
@@ -2591,6 +3167,16 @@ function renderStudentSubmission() {
   if (dataCard) {
     dataCard.classList.toggle("hidden", !isDataScienceAssignment(assignment));
   }
+  const dataCopy = getSubmissionDataCopy(assignment);
+  const dataDatasetLabel = document.querySelector('label[for="submission-data-dataset"]');
+  const dataAssumptionsLabel = document.querySelector('label[for="submission-data-assumptions"]');
+  const dataInterpretationLabel = document.querySelector('label[for="submission-data-interpretation"]');
+  if (dataDatasetLabel) dataDatasetLabel.textContent = dataCopy.datasetLabel;
+  if (dataAssumptionsLabel) dataAssumptionsLabel.textContent = dataCopy.assumptionsLabel;
+  if (dataInterpretationLabel) dataInterpretationLabel.textContent = dataCopy.interpretationLabel;
+  if (dataDataset) dataDataset.placeholder = dataCopy.datasetPlaceholder;
+  if (dataAssumptions) dataAssumptions.placeholder = dataCopy.assumptionsPlaceholder;
+  if (dataInterpretation) dataInterpretation.placeholder = dataCopy.interpretationPlaceholder;
 
   if (codeInput) {
     codeInput.value = getAssignmentDraft(assignment);
@@ -2766,6 +3352,16 @@ function renderCreateAssignment() {
 
   languageSelect?.addEventListener("change", () => {
     const config = getLanguageConfig(languageSelect.value);
+    applyAssignmentBlueprintToBuilderForm(languageSelect.value, {
+      titleInput,
+      promptInput,
+      summaryInput,
+      hotspotInput,
+      traceInput,
+      mutationInput,
+      repairInput,
+      hiddenTestsInput,
+    }, titleInput?.value.trim());
     if (runtimeLabel) runtimeLabel.textContent = config.label;
     if (runtimeHint) runtimeHint.textContent = `${config.shortLabel} assignment environment`;
     if (hiddenTestsFile) hiddenTestsFile.textContent = config.testFile;
@@ -2792,17 +3388,25 @@ function renderCreateAssignment() {
     assignment.hiddenTests = hiddenTestsInput?.value.trim() || assignment.hiddenTests;
     assignment.language = normalizeLanguage(languageSelect?.value);
     const languageConfig = getLanguageConfig(assignment.language);
+    const blueprint = getAssignmentBlueprint(assignment.language, assignment.title);
+    assignment.assessmentFocus = blueprint.assessmentFocus;
     assignment.modules = createDefaultModules({
       hotspot: moduleInputs.hotspot?.checked,
       trace: moduleInputs.trace?.checked,
       mutation: moduleInputs.mutation?.checked,
       repair: moduleInputs.repair?.checked,
     });
+    assignment.sourceCode = blueprint.sourceCode;
+    assignment.starterCode = blueprint.starterCode;
+    assignment.mutationCode = blueprint.mutationCode;
+    assignment.mutationFailureOutput = blueprint.mutationFailureOutput;
+    assignment.repairCode = blueprint.repairCode;
+    assignment.repairDetectedIn = blueprint.repairDetectedIn;
     assignment.sourceFile = buildFileName(assignment.title, assignment.language);
     assignment.mutationFile = buildFileName(assignment.title, assignment.language, "_mutation");
     assignment.repairFile = buildFileName(assignment.title, assignment.language, "_repair");
-    assignment.testFile = languageConfig.testFile;
-    assignment.runtimeLabel = languageConfig.label;
+    assignment.testFile = blueprint.testFile || languageConfig.testFile;
+    assignment.runtimeLabel = blueprint.runtimeLabel || languageConfig.label;
 
     saveState(nextState);
     refresh();
@@ -2842,13 +3446,17 @@ function renderHotspotQuestions() {
   if (sourceFile) sourceFile.textContent = assignment.sourceFile;
   if (focusCard) focusCard.textContent = assignment.hotspotFocus;
   if (modules) {
-    modules.textContent = `Language: ${assignment.runtimeLabel || getLanguageConfig(assignment.language).label} | Enabled modules: ${formatModuleList(assignment.modules) || "None configured"}`;
+    modules.textContent = `${formatAssignmentIdentity(assignment)} | ${formatAssignmentModules(assignment)}`;
   }
-  if (questionOne) questionOne.textContent = `Which line best expresses this focus: ${assignment.hotspotFocus}`;
-  if (questionTwo) questionTwo.textContent = `How does that line support the assignment prompt: ${assignment.prompt}`;
+  const hotspotCopy = getHotspotCopy(assignment);
+  if (questionOne) questionOne.textContent = hotspotCopy.question1;
+  if (questionTwo) questionTwo.textContent = hotspotCopy.question2;
   if (questionThree) {
-    questionThree.textContent = `What failure would you expect first if that line behaved incorrectly while working on ${assignment.title}?`;
-    }
+    questionThree.textContent = hotspotCopy.question3;
+  }
+  if (answerOne) answerOne.placeholder = hotspotCopy.placeholder1;
+  if (answerTwo) answerTwo.placeholder = hotspotCopy.placeholder2;
+  if (answerThree) answerThree.placeholder = hotspotCopy.placeholder3;
     renderInlineCode(codeBlock, assignment.sourceCode, "light");
     bindStoredValue(answerOne, responses.hotspot.q1, (value) => {
       const nextState = loadState();
@@ -2903,18 +3511,22 @@ function renderTraceMode() {
 
   assignmentTitle.textContent = `${assignment.title} Trace Mode`;
   if (courseLabel) courseLabel.textContent = `${course.title} / ${assignment.title}`;
+  const traceCopy = getTraceCopy(assignment);
   if (scenario) scenario.textContent = assignment.traceScenario;
   if (intro) {
-    intro.textContent = `Trace reasoning for ${assignment.title}. Start from the prompt, then walk through the state changes you expect to see.`;
+    intro.textContent = traceCopy.intro;
   }
   if (sourceFile) sourceFile.textContent = assignment.sourceFile;
-  if (questionOne) questionOne.textContent = "After the first critical turn in this scenario, what state change should happen first?";
+  if (questionOne) questionOne.textContent = traceCopy.question1;
   if (questionTwo) {
-    questionTwo.textContent = `Record the map or memory structure you expect while tracing: ${assignment.traceScenario}`;
+    questionTwo.textContent = traceCopy.question2;
   }
   if (questionThree) {
-    questionThree.textContent = `Based on this scenario, what final result should the function return for ${assignment.title}?`;
-    }
+    questionThree.textContent = traceCopy.question3;
+  }
+  if (answerOne) answerOne.placeholder = traceCopy.placeholder1;
+  if (answerTwo) answerTwo.placeholder = traceCopy.placeholder2;
+  if (answerThree) answerThree.placeholder = traceCopy.placeholder3;
     renderTracePre(codeBlock, assignment.sourceCode);
     bindStoredValue(answerOne, responses.trace.q1, (value) => {
       const nextState = loadState();
@@ -2968,17 +3580,21 @@ function renderMutationTask() {
 
   assignmentTitle.textContent = `${assignment.title} Mutation Task`;
   if (courseLabel) courseLabel.textContent = `${course.title} / ${assignment.title}`;
+  const mutationCopy = getMutationCopy(assignment);
   if (prompt) prompt.textContent = assignment.mutationPrompt;
   if (intro) {
-    intro.textContent = `This transfer step checks whether the learner can adapt ${assignment.title} after the constraints shift.`;
+    intro.textContent = mutationCopy.intro;
   }
   if (sourceFile) sourceFile.textContent = assignment.mutationFile;
   if (whyCard) {
-    whyCard.textContent = `Students who understand ${assignment.title} usually adapt quickly when the contract changes. This mutation uses: ${assignment.mutationPrompt}`;
+    whyCard.textContent = mutationCopy.why;
   }
-    if (moduleState) moduleState.textContent = `Language: ${assignment.runtimeLabel || getLanguageConfig(assignment.language).label} | Enabled modules: ${formatModuleList(assignment.modules) || "None configured"}`;
+    if (moduleState) moduleState.textContent = `${formatAssignmentIdentity(assignment)} | ${formatAssignmentModules(assignment)}`;
     if (logOutput) logOutput.textContent = assignment.mutationFailureOutput;
     renderMutationPanel(codeBlock, assignment.mutationCode);
+    const mutationLabel = document.querySelector('label[for="mutation-answer"]');
+    if (mutationLabel) mutationLabel.textContent = mutationCopy.responseLabel;
+    if (answer) answer.placeholder = mutationCopy.responsePlaceholder;
     bindStoredValue(answer, responses.mutation.plan, (value) => {
       const nextState = loadState();
       updateAssignmentResponse(nextState, nextState.activeAssignmentId, "mutation", "plan", value);
@@ -3046,14 +3662,18 @@ function renderRepairMode() {
 
   assignmentTitle.textContent = `${assignment.title} Repair Mode`;
   if (courseLabel) courseLabel.textContent = `${course.title} / ${assignment.title}`;
+  const repairCopy = getRepairCopy(assignment);
   if (prompt) prompt.textContent = assignment.repairPrompt;
   if (intro) {
-    intro.textContent = `Repair is the final authenticity check for ${assignment.title}. The learner must recognize the same logic in damaged form and correct it precisely.`;
+    intro.textContent = repairCopy.intro;
   }
   if (sourceFile) sourceFile.textContent = assignment.repairFile;
     if (issueLabel) issueLabel.textContent = assignment.repairDetectedIn;
-    if (moduleState) moduleState.textContent = `Language: ${assignment.runtimeLabel || getLanguageConfig(assignment.language).label} | Enabled modules: ${formatModuleList(assignment.modules) || "None configured"}`;
+    if (moduleState) moduleState.textContent = `${formatAssignmentIdentity(assignment)} | ${formatAssignmentModules(assignment)}`;
     renderInlineCode(codeBlock, assignment.repairCode, "dark");
+    const repairLabel = document.querySelector('label[for="repair-answer"]');
+    if (repairLabel) repairLabel.textContent = repairCopy.responseLabel;
+    if (answer) answer.placeholder = repairCopy.responsePlaceholder;
     bindStoredValue(answer, responses.repair.plan, (value) => {
       const nextState = loadState();
       updateAssignmentResponse(nextState, nextState.activeAssignmentId, "repair", "plan", value);
@@ -3136,7 +3756,9 @@ function renderStudentResult() {
   const responses = normalizeResponses(assignment.responses);
   reportTitle.textContent = `Analysis: ${assignment.title}`;
   if (summary) {
-    summary.textContent = `${course.title} | ${assignment.runtimeLabel || getLanguageConfig(assignment.language).label} | ${assignment.due} | Modules: ${formatModuleList(assignment.modules) || "None configured"}`;
+    summary.textContent = `${course.title} | ${formatAssignmentIdentity(assignment)} | ${assignment.due} | ${formatAssignmentModules(
+      assignment
+    )}`;
   }
     if (diagnostic) {
       diagnostic.textContent = rubric.evidenceSummary;

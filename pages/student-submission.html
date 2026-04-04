@@ -56,7 +56,7 @@
         <a class="text-slate-500 hover:text-slate-900 transition-colors font-headline font-bold text-lg" href="./student-result.html">Results</a>
         <a class="text-slate-500 hover:text-slate-900 transition-colors font-headline font-bold text-lg" href="../index.html">Main Landing</a>
       </nav>
-      <button class="material-symbols-outlined text-slate-700 p-2 rounded-full hover:bg-slate-200/50 transition-colors">settings</button>
+      <button aria-label="Open settings" class="material-symbols-outlined text-slate-700 p-2 rounded-full hover:bg-slate-200/50 transition-colors" type="button">settings</button>
     </header>
 
     <div class="flex flex-1 overflow-hidden">
@@ -129,7 +129,7 @@
               <div class="flex items-center justify-between bg-surface-container-high px-4 py-3 border-b border-outline-variant/10">
                 <div class="flex items-center gap-2">
                   <span class="material-symbols-outlined text-sm">terminal</span>
-                  <span id="submission-source-file" class="font-mono text-xs text-on-surface-variant">solution.py</span>
+                  <span id="submission-source-file" class="font-mono text-xs text-on-surface-variant">regression_defense.R</span>
                 </div>
                 <div class="flex gap-2">
                   <span class="w-3 h-3 rounded-full bg-error/20"></span>
@@ -138,20 +138,19 @@
                 </div>
               </div>
               <div class="bg-slate-900 p-4 min-h-[400px] shadow-inner overflow-x-auto">
-                <textarea id="submission-code-input" class="w-full min-h-[370px] bg-transparent border-0 text-slate-300 font-mono text-sm leading-relaxed resize-none focus:outline-none" spellcheck="false">def length_of_longest_substring(s: str) -> int:
-    # Use a sliding window approach
-    char_map = {}
-    left = 0
-    max_length = 0
+                <textarea id="submission-code-input" name="submission_code" autocomplete="off" class="w-full min-h-[370px] bg-transparent border-0 text-slate-300 font-mono text-sm leading-relaxed resize-none focus:outline-none" spellcheck="false">build_regression_report <- function(df) {
+  clean_df <- df[complete.cases(df[, c("hours_studied", "exam_score")]), ]
+  fit <- lm(exam_score ~ hours_studied, data = clean_df)
+  plot <- ggplot(clean_df, aes(x = hours_studied, y = exam_score)) +
+    geom_point() +
+    geom_smooth(method = "lm", se = FALSE)
 
-    for right in range(len(s)):
-        if s[right] in char_map:
-            left = max(left, char_map[s[right]] + 1)
-
-        char_map[s[right]] = right
-        max_length = max(max_length, right - left + 1)
-
-    return max_length</textarea>
+  list(
+    slope = unname(coef(fit)[["hours_studied"]]),
+    r_squared = summary(fit)$r.squared,
+    plot_layers = vapply(plot$layers, function(layer) class(layer$geom)[1], character(1))
+  )
+}</textarea>
               </div>
             </div>
 
@@ -180,20 +179,20 @@
               <div class="bg-surface-container-lowest p-6 rounded-2xl shadow-sm border border-outline-variant/10">
                 <div class="flex items-center justify-between gap-3 mb-4 border-b border-outline-variant/10 pb-2">
                   <h3 class="font-headline font-bold text-lg">AI Use & Verification</h3>
-                  <span id="submission-verification-status" class="font-mono text-[10px] uppercase tracking-[0.16em] text-slate-400">Verification incomplete</span>
+                  <span id="submission-verification-status" aria-live="polite" class="font-mono text-[10px] uppercase tracking-[0.16em] text-slate-400">Verification incomplete</span>
                 </div>
                 <div class="space-y-4">
                   <div>
                     <label class="block text-sm text-on-surface-variant mb-2" for="submission-ai-tools">Which tools or external supports did you use?</label>
-                    <textarea id="submission-ai-tools" class="w-full min-h-[92px] bg-surface-container-low border-none focus:ring-0 p-3 text-sm rounded-sm resize-none" placeholder="Used ChatGPT for a first draft, then rewrote the pointer update myself..."></textarea>
+                    <textarea id="submission-ai-tools" name="submission_ai_tools" autocomplete="off" class="w-full min-h-[92px] bg-surface-container-low border-none focus:ring-0 p-3 text-sm rounded-sm resize-none" placeholder="Used ChatGPT to sketch the lm() workflow, then rewrote the formula and plotting steps myself..."></textarea>
                   </div>
                   <div>
                     <label class="block text-sm text-on-surface-variant mb-2" for="submission-self-checks">What did you personally verify before submitting?</label>
-                    <textarea id="submission-self-checks" class="w-full min-h-[92px] bg-surface-container-low border-none focus:ring-0 p-3 text-sm rounded-sm resize-none" placeholder="I traced one example by hand and checked the window invariant on each duplicate..."></textarea>
+                    <textarea id="submission-self-checks" name="submission_self_checks" autocomplete="off" class="w-full min-h-[92px] bg-surface-container-low border-none focus:ring-0 p-3 text-sm rounded-sm resize-none" placeholder="I checked the cleaned rows, verified the lm() formula, and made sure the scatterplot uses the same predictor and outcome..."></textarea>
                   </div>
                   <div>
                     <label class="block text-sm text-on-surface-variant mb-2" for="submission-uncertainty">What part still feels uncertain?</label>
-                    <textarea id="submission-uncertainty" class="w-full min-h-[92px] bg-surface-container-low border-none focus:ring-0 p-3 text-sm rounded-sm resize-none" placeholder="I still want to confirm the empty-input edge case..."></textarea>
+                    <textarea id="submission-uncertainty" name="submission_uncertainty" autocomplete="off" class="w-full min-h-[92px] bg-surface-container-low border-none focus:ring-0 p-3 text-sm rounded-sm resize-none" placeholder="I still want to confirm how missing rows and unusual points affect the fitted line and interpretation..."></textarea>
                   </div>
                 </div>
               </div>
@@ -202,23 +201,23 @@
                 <div class="space-y-4">
                   <div>
                     <label class="block text-sm text-on-surface-variant mb-2" for="submission-data-dataset">What dataset pattern are you reasoning about?</label>
-                    <textarea id="submission-data-dataset" class="w-full min-h-[86px] bg-surface-container-low border-none focus:ring-0 p-3 text-sm rounded-sm resize-none" placeholder="A short numeric sequence with one clear drift point..."></textarea>
+                    <textarea id="submission-data-dataset" name="submission_data_dataset" autocomplete="off" class="w-full min-h-[86px] bg-surface-container-low border-none focus:ring-0 p-3 text-sm rounded-sm resize-none" placeholder="A data frame with hours_studied, exam_score, and at least one incomplete row to test cleaning before lm()..."></textarea>
                   </div>
                   <div>
                     <label class="block text-sm text-on-surface-variant mb-2" for="submission-data-assumptions">Which assumptions must hold for this solution to make sense?</label>
-                    <textarea id="submission-data-assumptions" class="w-full min-h-[86px] bg-surface-container-low border-none focus:ring-0 p-3 text-sm rounded-sm resize-none" placeholder="The window size fits inside the vector and each rolling mean uses the intended slice..."></textarea>
+                    <textarea id="submission-data-assumptions" name="submission_data_assumptions" autocomplete="off" class="w-full min-h-[86px] bg-surface-container-low border-none focus:ring-0 p-3 text-sm rounded-sm resize-none" placeholder="Hours studied is the predictor, exam score is the outcome, and incomplete rows are filtered before fitting or plotting..."></textarea>
                   </div>
                   <div>
                     <label class="block text-sm text-on-surface-variant mb-2" for="submission-data-interpretation">How would you interpret the output on real data?</label>
-                    <textarea id="submission-data-interpretation" class="w-full min-h-[86px] bg-surface-container-low border-none focus:ring-0 p-3 text-sm rounded-sm resize-none" placeholder="A positive drift alert suggests a meaningful change in the local average, not proof of the cause..."></textarea>
+                    <textarea id="submission-data-interpretation" name="submission_data_interpretation" autocomplete="off" class="w-full min-h-[86px] bg-surface-container-low border-none focus:ring-0 p-3 text-sm rounded-sm resize-none" placeholder="A positive slope suggests higher study time aligns with higher scores; R-squared describes fit, not causation..."></textarea>
                   </div>
                 </div>
               </div>
               <div class="bg-surface-container-lowest p-5 rounded-2xl shadow-sm border border-outline-variant/10 space-y-4">
                 <p class="font-mono text-[10px] uppercase tracking-[0.18em] text-tertiary">Ready to continue</p>
-                <p class="text-sm text-on-surface-variant leading-relaxed">Once the baseline code and provenance are set, the flow advances into explanation of the algorithm’s pressure points.</p>
+                <p class="text-sm text-on-surface-variant leading-relaxed">Once the baseline code and provenance are set, the flow advances into explanation of the assignment's pressure points.</p>
                 <p id="submission-next-copy" class="text-sm text-on-surface-variant leading-relaxed">Once the baseline code and provenance are set, the flow advances into explanation of the algorithm's pressure points.</p>
-                <a id="submission-next-link" class="w-full bg-primary text-white py-4 px-6 rounded-xl font-headline font-bold uppercase tracking-widest shadow-lg hover:opacity-95 transition-all active:scale-95 flex items-center justify-center gap-2 no-underline" href="./hotspot-questions.html">
+                <a id="submission-next-link" class="w-full bg-primary text-white py-4 px-6 rounded-xl font-headline font-bold uppercase tracking-widest shadow-lg hover:opacity-95 transition-opacity active:scale-95 flex items-center justify-center gap-2 no-underline" href="./hotspot-questions.html">
                   <span class="material-symbols-outlined">send</span>
                   <span id="submission-next-label">Submit for Assessment</span>
                 </a>
