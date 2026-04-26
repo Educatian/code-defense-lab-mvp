@@ -1,8 +1,146 @@
 /* Code Defense Lab — global styles
    Carbon Design System tokens (carbon.css) + product styles (cdl-styles.css).
-   Tailwind v4 is loaded for utility classes used in non-landing pages. */
+   Tailwind v4 is loaded for utility classes used in non-landing pages.
+   The @theme block exposes Carbon tokens to Tailwind utilities. */
 
 @import "tailwindcss";
 @import "./carbon.css";
 @import "./cdl-styles.css";
 @import "./app-portal.css";
+
+@theme {
+  /* ─── IBM Carbon palette (raw scales) ─── */
+  --color-blue-10: #edf5ff;
+  --color-blue-20: #d0e2ff;
+  --color-blue-30: #a6c8ff;
+  --color-blue-40: #78a9ff;
+  --color-blue-50: #4589ff;
+  --color-blue-60: #0f62fe;
+  --color-blue-70: #0043ce;
+  --color-blue-80: #002d9c;
+  --color-blue-90: #001d6c;
+  --color-blue-100: #001141;
+
+  --color-gray-10: #f4f4f4;
+  --color-gray-20: #e0e0e0;
+  --color-gray-30: #c6c6c6;
+  --color-gray-40: #a8a8a8;
+  --color-gray-50: #8d8d8d;
+  --color-gray-60: #6f6f6f;
+  --color-gray-70: #525252;
+  --color-gray-80: #393939;
+  --color-gray-90: #262626;
+  --color-gray-100: #161616;
+
+  --color-red-10: #fff1f1;
+  --color-red-20: #ffd7d9;
+  --color-red-40: #ff8389;
+  --color-red-50: #fa4d56;
+  --color-red-60: #da1e28;
+  --color-red-70: #a2191f;
+
+  --color-green-10: #defbe6;
+  --color-green-20: #a7f0ba;
+  --color-green-30: #6fdc8c;
+  --color-green-40: #42be65;
+  --color-green-50: #24a148;
+  --color-green-60: #198038;
+
+  --color-yellow-10: #fcf4d6;
+  --color-yellow-20: #fddc69;
+  --color-yellow-30: #f1c21b;
+  --color-yellow-40: #d2a106;
+
+  --color-orange-10: #fff2e8;
+  --color-orange-30: #ffb784;
+  --color-orange-40: #ff832b;
+
+  --color-magenta-40: #ff7eb6;
+  --color-cyan-30: #82cfff;
+  --color-cyan-50: #1192e8;
+
+  /* ─── Semantic aliases (light theme) ─── */
+  --color-primary: #0f62fe;
+  --color-primary-hover: #0043ce;
+  --color-primary-active: #002d9c;
+
+  --color-error: #da1e28;
+  --color-error-soft: #ffd7d9;
+  --color-success: #24a148;
+  --color-success-soft: #a7f0ba;
+  --color-warning: #f1c21b;
+  --color-warning-soft: #fcf4d6;
+  --color-info: #0043ce;
+
+  --color-text: #161616;
+  --color-text-secondary: #525252;
+  --color-text-muted: #6f6f6f;
+  --color-text-disabled: rgba(22, 22, 22, 0.25);
+  --color-text-inverse: #ffffff;
+
+  --color-bg: #ffffff;
+  --color-bg-inverse: #393939;
+  --color-surface: #f4f4f4;
+  --color-surface-hover: #e8e8e8;
+  --color-surface-strong: #e0e0e0;
+
+  --color-border: #e0e0e0;
+  --color-border-subtle: #c6c6c6;
+  --color-border-strong: #8d8d8d;
+  --color-border-interactive: #0f62fe;
+
+  --color-focus: #0f62fe;
+
+  /* ─── Typography (IBM Plex via next/font in layout.tsx) ─── */
+  --font-sans: "IBM Plex Sans", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono: "IBM Plex Mono", Menlo, "DejaVu Sans Mono", Courier, monospace;
+  --font-serif: "IBM Plex Serif", Georgia, Times, serif;
+
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-lg: 1.25rem;
+  --text-xl: 1.75rem;
+  --text-2xl: 2rem;
+  --text-3xl: 2.625rem;
+  --text-display: 3.375rem;
+
+  /* ─── Spacing (Carbon 8px base) ─── */
+  --spacing-1: 0.125rem; /*  2px */
+  --spacing-2: 0.25rem;  /*  4px */
+  --spacing-3: 0.5rem;   /*  8px */
+  --spacing-4: 0.75rem;  /* 12px */
+  --spacing-5: 1rem;     /* 16px */
+  --spacing-6: 1.5rem;   /* 24px */
+  --spacing-7: 2rem;     /* 32px */
+  --spacing-8: 2.5rem;   /* 40px */
+  --spacing-9: 3rem;     /* 48px */
+  --spacing-10: 4rem;    /* 64px */
+  --spacing-11: 5rem;    /* 80px */
+  --spacing-12: 6rem;    /* 96px */
+
+  /* ─── Radius ─── */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-2xl: 20px;
+  --radius-3xl: 24px;
+  --radius-full: 999px;
+
+  /* ─── Elevation ─── */
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.08);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.12);
+  --shadow-lg: 0 16px 50px rgba(0, 0, 0, 0.12);
+  --shadow-xl: 0 20px 60px rgba(0, 0, 0, 0.16);
+
+  /* ─── Motion ─── */
+  --duration-fast: 70ms;
+  --duration-base: 110ms;
+  --duration-moderate: 240ms;
+  --duration-slow: 400ms;
+
+  --ease-standard: cubic-bezier(0.2, 0, 0.38, 0.9);
+  --ease-entrance: cubic-bezier(0, 0, 0.38, 0.9);
+  --ease-exit: cubic-bezier(0.2, 0, 1, 0.9);
+}

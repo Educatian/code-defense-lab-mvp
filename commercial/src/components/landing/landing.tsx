@@ -221,7 +221,7 @@ const WALK_STEPS: WalkStep[] = [
     id: 6,
     label: "Review",
     title: "Professor sees a consistency map",
-    body: "Strong correctness paired with weak trace? That's flagged. The professor reviews evidence side by side, not just a single score.",
+    body: "Strong correctness paired with weak trace? That's a coaching cue. The professor reviews evidence side by side, not just a single score.",
     duration: 4400,
   },
 ];
@@ -494,7 +494,7 @@ function WalkScene({ step, progress }: { step: number; progress: number }) {
       <div className="ws ws-review">
         <div className="ws-review-header">
           <span className="ws-trace-eyebrow">CONSISTENCY MAP · CS 210 · HW-04</span>
-          <span className="ws-review-flag">2 inconsistencies flagged</span>
+          <span className="ws-review-flag">2 patterns to discuss</span>
         </div>
         <div className="ws-review-table">
           <div className="ws-review-cols">
