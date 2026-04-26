@@ -1,0 +1,8 @@
+/* Code Defense Lab — global styles
+   Carbon Design System tokens (carbon.css) + product styles (cdl-styles.css).
+   Tailwind v4 is loaded for utility classes used in non-landing pages. */
+
+@import "tailwindcss";
+@import "./carbon.css";
+@import "./cdl-styles.css";
+@import "./app-portal.css";
