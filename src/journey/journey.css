@@ -1,0 +1,268 @@
+/* Journey strip — student-facing "you are here" navigation.
+   Scoped under .cdl-journey + .cdl-sr-only utility. */
+
+.cdl-sr-only {
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.cdl-journey {
+  width: 100%;
+  background: #ffffff;
+  border-bottom: 1px solid rgba(15, 23, 42, 0.08);
+  font-family: "Inter", "IBM Plex Sans", system-ui, sans-serif;
+}
+
+.cdl-journey__list {
+  list-style: none;
+  margin: 0;
+  padding: 0.5rem 0.75rem;
+  display: flex;
+  gap: 0.25rem;
+  overflow-x: auto;
+  scrollbar-width: thin;
+}
+
+.cdl-journey__item {
+  flex: 1 1 0;
+  min-width: 9.5rem;
+}
+
+.cdl-journey__link {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.55rem 0.75rem;
+  border-radius: 0.55rem;
+  text-decoration: none;
+  color: #475569;
+  background: transparent;
+  border: 1px solid transparent;
+  transition: background 120ms ease, color 120ms ease, border-color 120ms ease;
+}
+
+.cdl-journey__link:hover {
+  background: #f1f5f9;
+  color: #0f172a;
+}
+
+.cdl-journey__link:focus-visible {
+  outline: 2px solid #00649a;
+  outline-offset: 2px;
+}
+
+.cdl-journey__num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 999px;
+  background: #e2e8f0;
+  color: #334155;
+  font: 600 0.72rem/1 "JetBrains Mono", ui-monospace, monospace;
+  flex: 0 0 auto;
+}
+
+.cdl-journey__label-wrap {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.2;
+  min-width: 0;
+}
+
+.cdl-journey__label {
+  font: 600 0.85rem/1.25 "Space Grotesk", "Inter", system-ui, sans-serif;
+  color: inherit;
+  letter-spacing: -0.005em;
+}
+
+.cdl-journey__hint {
+  font: 400 0.7rem/1.3 "Inter", system-ui, sans-serif;
+  color: #64748b;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 14rem;
+}
+
+.cdl-journey__item--done .cdl-journey__num {
+  background: #166534;
+  color: #ecfdf5;
+}
+.cdl-journey__item--done .cdl-journey__num::before {
+  content: "✓";
+  font-size: 0.85rem;
+}
+.cdl-journey__item--done .cdl-journey__num > * {
+  display: none;
+}
+
+.cdl-journey__item--active .cdl-journey__link {
+  background: #0f172a;
+  color: #f8fafc;
+  border-color: #0f172a;
+}
+
+.cdl-journey__item--active .cdl-journey__num {
+  background: #f8fafc;
+  color: #0f172a;
+}
+
+.cdl-journey__item--active .cdl-journey__hint {
+  color: #cbd5e1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cdl-journey__link { transition: none; }
+  .animate-pulse { animation: none !important; }
+}
+
+/* ---------------------------------------------------------------------------
+ * Code block with line numbers via CSS counters.
+ * Screen readers don't read the numbers (they're CSS pseudo-content + aria-hidden
+ * on the gutter span), so AT users hear code, not numerals.
+ * --------------------------------------------------------------------------- */
+
+.cdl-code {
+  margin: 0;
+  counter-reset: cdl-line;
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+  font-size: 0.82rem;
+  line-height: 1.55;
+  white-space: pre;
+  overflow-x: auto;
+}
+
+.cdl-code__row {
+  display: flex;
+  align-items: flex-start;
+}
+
+.cdl-code__row::before {
+  counter-increment: cdl-line;
+  content: counter(cdl-line);
+  flex: 0 0 2.5rem;
+  text-align: right;
+  padding-right: 0.85rem;
+  user-select: none;
+  color: rgba(100, 116, 139, 0.7); /* slate-500 @ 70% */
+}
+
+.cdl-code--dark .cdl-code__row::before {
+  color: rgba(148, 163, 184, 0.55); /* slate-400 @ 55% */
+}
+
+.cdl-code__line {
+  flex: 1 1 auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+  min-height: 1em;
+}
+
+.cdl-code--dark .cdl-code__line { color: #e2e8f0; }
+.cdl-code--light .cdl-code__line { color: #1f2937; }
+
+/* ---------------------------------------------------------------------------
+ * Step headings (Submission progressive-disclosure phases).
+ * Used by the 3 visible "Step X of 3" anchors on student-submission.html.
+ * --------------------------------------------------------------------------- */
+
+.cdl-step-heading {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  margin: 0.25rem 0 0.85rem 0;
+  font-family: "Space Grotesk", "Inter", system-ui, sans-serif;
+  color: #0f172a;
+}
+
+.cdl-step-heading > span:last-child {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.15;
+}
+
+.cdl-step-num {
+  flex: 0 0 auto;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 999px;
+  background: #0f172a;
+  color: #f8fafc;
+  font: 700 0.95rem/2rem "JetBrains Mono", ui-monospace, monospace;
+  text-align: center;
+}
+
+.cdl-step-eyebrow {
+  font: 600 0.68rem/1.2 "JetBrains Mono", ui-monospace, monospace;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #64748b;
+}
+
+.cdl-step-title {
+  font: 700 1.05rem/1.25 "Space Grotesk", "Inter", system-ui, sans-serif;
+  color: #0f172a;
+}
+
+/* ---------------------------------------------------------------------------
+ * Native <details> disclosure styled to match the rest of the surface.
+ * Used for the Submission Step 3 reflection block.
+ * --------------------------------------------------------------------------- */
+
+.cdl-disclosure {
+  background: #ffffff;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  border-radius: 1rem;
+  overflow: hidden;
+}
+
+.cdl-disclosure__summary {
+  list-style: none;
+  cursor: pointer;
+  padding: 0.85rem 1.1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  background: #f8fafc;
+  font: 600 0.9rem/1.3 "Space Grotesk", "Inter", system-ui, sans-serif;
+  color: #0f172a;
+}
+
+.cdl-disclosure__summary::-webkit-details-marker { display: none; }
+
+.cdl-disclosure__summary::after {
+  content: "▸";
+  margin-left: auto;
+  font-family: ui-monospace, monospace;
+  color: #64748b;
+  transition: transform 150ms ease;
+}
+
+.cdl-disclosure[open] > .cdl-disclosure__summary::after {
+  transform: rotate(90deg);
+}
+
+.cdl-disclosure__summary:focus-visible {
+  outline: 2px solid #00649a;
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cdl-disclosure__summary::after { transition: none; }
+}
+
+/* Compact density on small screens — show only number + label. */
+@media (max-width: 720px) {
+  .cdl-journey__hint { display: none; }
+  .cdl-journey__item { min-width: 7rem; }
+}

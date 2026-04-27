@@ -3,6 +3,46 @@ import {
   isSupabaseWorkspaceConfigured,
   queueSupabaseWorkspaceSave,
 } from "./supabase-state.js";
+import { attachRunner } from "./runtime/ui.js";
+import { mountJourneyStrip, JOURNEY } from "./journey/journey.js";
+
+function getCompletedJourneyKeys(assignment) {
+  if (!assignment) return [];
+  return JOURNEY
+    .filter((stop) => isCheckpointComplete(assignment, stop.key))
+    .map((stop) => stop.key);
+}
+
+function isCheckpointComplete(assignment, key) {
+  if (!assignment) return false;
+  const responses = normalizeResponses(assignment.responses);
+  switch (key) {
+    case "submission":
+      return Boolean(assignment.submissionConfirmed) || hasCommittedSubmission(assignment);
+    case "hotspot":
+      return Object.values(responses.hotspot || {}).some((v) => String(v || "").trim());
+    case "trace":
+      return Object.values(responses.trace || {}).some((v) => String(v || "").trim());
+    case "mutation":
+      return Boolean(String(responses.mutation?.plan || "").trim());
+    case "repair":
+      return Boolean(String(responses.repair?.plan || "").trim());
+    case "result":
+      return false;
+    default:
+      return false;
+  }
+}
+
+function mountJourneyForActive(activeKey) {
+  if (!document.getElementById("cdl-journey-mount")) return;
+  const state = loadState();
+  const { assignment } = findAssignment(state, state.activeAssignmentId);
+  mountJourneyStrip({
+    activeKey,
+    completedKeys: getCompletedJourneyKeys(assignment),
+  });
+}
 
 const STORAGE_KEY = "code-defense-lab-workspace-state-v1";
 
@@ -254,20 +294,49 @@ const rollingWindowRepair = [
 ].join("\n");
 
 const regressionReportSource = [
+  '# Defines the function under defense, then runs a self-contained demo so',
+  '# clicking Run shows real output (regression summary + scatterplot + bootstrap CI).',
+  '',
   'build_regression_report <- function(df) {',
-  '  clean_df <- df[complete.cases(df[c("hours_studied", "exam_score")]), ]',
+  '  clean_df <- df[complete.cases(df[, c("hours_studied", "exam_score")]), ]',
   '  fit <- lm(exam_score ~ hours_studied, data = clean_df)',
-  "",
-  '  plot <- ggplot(clean_df, aes(x = hours_studied, y = exam_score)) +',
-  '    geom_point() +',
-  '    geom_smooth(method = "lm", se = FALSE)',
-  "",
-  "  list(",
-  '    slope = unname(coef(fit)[["hours_studied"]]),',
+  '  list(',
+  '    slope     = unname(coef(fit)[["hours_studied"]]),',
   '    r_squared = summary(fit)$r.squared,',
-  '    plot_layers = length(plot$layers)',
-  "  )",
-  "}",
+  '    n         = nrow(clean_df)',
+  '  )',
+  '}',
+  '',
+  '# --- Demo run ----------------------------------------------------------',
+  'set.seed(2026)',
+  'df <- data.frame(',
+  '  hours_studied = c(1, 2, 2, 3, 4, 4, 5, 6, 7, 8, NA, 9),',
+  '  exam_score    = c(52, 55, 60, 65, 68, 70, 73, 78, 82, 88, 90, 91)',
+  ')',
+  '',
+  'report <- build_regression_report(df)',
+  'cat("slope     =", round(report$slope, 3), "\\n")',
+  'cat("r-squared =", round(report$r_squared, 3), "\\n")',
+  'cat("n (clean) =", report$n, "\\n")',
+  '',
+  '# Base-R plot so the demo never depends on ggplot2 install success.',
+  'clean <- df[complete.cases(df), ]',
+  'plot(clean$hours_studied, clean$exam_score,',
+  '     xlab = "Hours studied", ylab = "Exam score",',
+  '     main = "Exam score vs. hours studied",',
+  '     pch = 19, col = "#0f172a")',
+  'abline(lm(exam_score ~ hours_studied, data = clean),',
+  '       col = "#9f403d", lwd = 2)',
+  '',
+  '# Tiny bootstrap simulation: 95% CI for the slope.',
+  'boot_slopes <- replicate(1000, {',
+  '  idx <- sample(seq_len(nrow(clean)), replace = TRUE)',
+  '  coef(lm(exam_score ~ hours_studied, data = clean[idx, ]))[["hours_studied"]]',
+  '})',
+  'cat("bootstrap slope mean =", round(mean(boot_slopes), 3), "\\n")',
+  'cat("bootstrap 95% CI    = [",',
+  '    round(quantile(boot_slopes, 0.025), 3), ", ",',
+  '    round(quantile(boot_slopes, 0.975), 3), "]\\n", sep = "")',
 ].join("\n");
 
 const regressionReportMutation = [
@@ -497,6 +566,8 @@ const defaultState = {
       title: "Advanced Algorithms",
       term: "Spring 2026 / Section A",
       learners: 42,
+      instructorName: "Course Instructor",
+      instructorEmail: "",
       note: "Current unit: sliding windows, binary search, and proof-of-understanding checkpoints.",
       assignments: [
         createDefaultAssignment({
@@ -568,6 +639,8 @@ const defaultState = {
       title: "Secure Software Engineering",
       term: "Spring 2026 / Section B",
       learners: 31,
+      instructorName: "Course Instructor",
+      instructorEmail: "",
       note: "Current unit: memory safety, defensive mutation tasks, and repair explanations.",
       assignments: [
         createDefaultAssignment({
@@ -640,6 +713,8 @@ const defaultState = {
       title: "Statistics and Data Science Education",
       term: "Spring 2026 / Section DS",
       learners: 37,
+      instructorName: "Course Instructor",
+      instructorEmail: "",
       note: "Current unit: scatterplots, linear regression, residual interpretation, and defensible R workflows.",
       assignments: [
         createDefaultAssignment({
@@ -2197,6 +2272,15 @@ function normalizeState(raw) {
       title: course.title || defaultCourse?.title || `Course ${courseIndex + 1}`,
       term: course.term || defaultCourse?.term || "Unscheduled term",
       learners: Number.isFinite(Number(course.learners)) ? Number(course.learners) : Number(defaultCourse?.learners || 0),
+      // Preserve instructor contact info — student-facing oral-defense mailto
+      // depends on these. Without explicit pass-through, normalizeState would
+      // silently strip them on every saveState round-trip.
+      instructorName: typeof course.instructorName === "string"
+        ? course.instructorName
+        : (defaultCourse?.instructorName || ""),
+      instructorEmail: typeof course.instructorEmail === "string"
+        ? course.instructorEmail
+        : (defaultCourse?.instructorEmail || ""),
       note: course.note || defaultCourse?.note || "No course note yet.",
       assignments: mergeAssignmentsWithDefaults(course.assignments, defaultCourse?.assignments || [], courseId),
     };
@@ -2206,6 +2290,8 @@ function normalizeState(raw) {
     if (!normalizedCourses.some((course) => course.id === defaultCourse.id)) {
       normalizedCourses.push({
         ...defaultCourse,
+        instructorName: defaultCourse.instructorName || "",
+        instructorEmail: defaultCourse.instructorEmail || "",
         assignments: mergeAssignmentsWithDefaults([], defaultCourse.assignments || [], defaultCourse.id),
       });
     }
@@ -2297,6 +2383,77 @@ function updateAssignmentDraft(state, assignmentId, code) {
   if (assignment) assignment.draftCode = code;
   state.draftCode = code;
   return state;
+}
+
+function assignmentLanguageKey(assignment) {
+  return normalizeLanguage(assignment?.language);
+}
+
+function recordSubmissionRun(state, assignmentId, result) {
+  return recordStageRun(state, assignmentId, "submission", result);
+}
+
+function recordStageRun(state, assignmentId, stage, result) {
+  const { assignment } = findAssignment(state, assignmentId);
+  if (!assignment) return state;
+  assignment.runs = assignment.runs || {};
+  assignment.runs[stage] = {
+    at: new Date().toISOString(),
+    ok: Boolean(result?.ok),
+    error: result?.ok ? null : (result?.error || null),
+  };
+  return state;
+}
+
+function setStageScratchCode(state, assignmentId, stage, code) {
+  const { assignment } = findAssignment(state, assignmentId);
+  if (!assignment) return state;
+  assignment.scratchCode = assignment.scratchCode || {};
+  assignment.scratchCode[stage] = code;
+  return state;
+}
+
+function getStageScratchCode(assignment, stage, fallback) {
+  return assignment?.scratchCode?.[stage] || fallback || "";
+}
+
+function mountScratchRunner({ inputId, mountId, seedCode, assignment, stage, resetButtonId }) {
+  const inputEl = document.getElementById(inputId);
+  const mountEl = document.getElementById(mountId);
+  if (!inputEl || !mountEl) return;
+
+  const state = loadState();
+  inputEl.value = getStageScratchCode(assignment, stage, seedCode);
+
+  inputEl.addEventListener("input", () => {
+    const next = loadState();
+    setStageScratchCode(next, next.activeAssignmentId, stage, inputEl.value);
+    saveState(next);
+  });
+
+  if (resetButtonId) {
+    const resetBtn = document.getElementById(resetButtonId);
+    resetBtn?.addEventListener("click", () => {
+      inputEl.value = seedCode || "";
+      const next = loadState();
+      setStageScratchCode(next, next.activeAssignmentId, stage, inputEl.value);
+      saveState(next);
+    });
+  }
+
+  if (mountEl.dataset.cdlRunnerMounted) return;
+  mountEl.dataset.cdlRunnerMounted = "1";
+  attachRunner({
+    codeEl: inputEl,
+    mountEl,
+    getLanguage: () => assignmentLanguageKey(assignment),
+    onResult: (result) => {
+      const next = loadState();
+      recordStageRun(next, next.activeAssignmentId, stage, result);
+      saveState(next);
+    },
+  });
+  void state;
 }
 
 function markSubmissionConfirmed(state, assignmentId) {
@@ -2419,39 +2576,47 @@ function applyModuleVisibility(assignment, nextLinkIds = []) {
   });
 }
 
-function renderInlineCode(container, code, theme) {
+/**
+ * Render code with CSS-counter line numbers (no DOM numerals — AT users
+ * hear code, not "1 2 3 4..."). Uses createElement + textContent only.
+ * @param {HTMLElement} container
+ * @param {string} code
+ * @param {"dark"|"light"=} theme
+ * @param {string=} ariaLabel
+ */
+function renderCodeWithCounter(container, code, theme, ariaLabel) {
   if (!container) return;
-  const lines = code.split("\n");
-  const numberClass = theme === "dark" ? "text-slate-600" : "text-outline-variant";
-  const codeClass = theme === "dark" ? "text-slate-300" : "text-slate-700";
+  while (container.firstChild) container.removeChild(container.firstChild);
 
-  container.innerHTML = lines
-    .map((line, index) => {
-      const content = line.length > 0 ? escapeHtml(line) : "&nbsp;";
-      return `
-        <div class="flex">
-          <span class="w-10 shrink-0 text-right pr-4 select-none ${numberClass}">${index + 1}</span>
-          <span class="whitespace-pre-wrap ${codeClass}">${content}</span>
-        </div>
-      `;
-    })
-    .join("");
+  const pre = document.createElement("pre");
+  pre.className = `cdl-code cdl-code--${theme === "dark" ? "dark" : "light"}`;
+  if (ariaLabel) pre.setAttribute("aria-label", ariaLabel);
+  pre.setAttribute("role", "region");
+
+  const lines = String(code ?? "").split("\n");
+  lines.forEach((line) => {
+    const row = document.createElement("span");
+    row.className = "cdl-code__row";
+    const lineEl = document.createElement("span");
+    lineEl.className = "cdl-code__line";
+    lineEl.textContent = line.length > 0 ? line : " ";
+    row.appendChild(lineEl);
+    pre.appendChild(row);
+  });
+
+  container.appendChild(pre);
+}
+
+function renderInlineCode(container, code, theme) {
+  renderCodeWithCounter(container, code, theme, "Source code");
 }
 
 function renderTracePre(container, code) {
-  if (!container) return;
-  container.innerHTML = code
-    .split("\n")
-    .map(
-      (line, index) =>
-        `<span class="text-slate-400">${String(index + 1)}</span>  ${escapeHtml(line)}`
-    )
-    .join("\n");
+  renderCodeWithCounter(container, code, "light", "Code to trace");
 }
 
 function renderMutationPanel(container, code) {
-  if (!container) return;
-  container.innerHTML = `<pre class="whitespace-pre-wrap text-slate-300">${escapeHtml(code)}</pre>`;
+  renderCodeWithCounter(container, code, "dark", "Your submitted code (read-only reference)");
 }
 
 function renderRubricDimensionCards(container, dimensionSummaries) {
@@ -2622,7 +2787,14 @@ function renderProfessorDashboard() {
   const courseTermInput = document.getElementById("course-term-input");
   const courseCountInput = document.getElementById("course-count-input");
   const courseNoteInput = document.getElementById("course-note-input");
+  const courseInstructorNameInput = document.getElementById("course-instructor-name-input");
+  const courseInstructorEmailInput = document.getElementById("course-instructor-email-input");
   const courseFeedback = document.getElementById("course-register-feedback");
+
+  const contactCourseSelect = document.getElementById("contact-course-select");
+  const contactNameInput = document.getElementById("contact-instructor-name");
+  const contactEmailInput = document.getElementById("contact-instructor-email");
+  const contactFeedback = document.getElementById("contact-feedback");
 
   const assignmentCourseSelect = document.getElementById("assignment-course-select");
   const assignmentTitleInput = document.getElementById("assignment-title-input");
@@ -2652,6 +2824,8 @@ function renderProfessorDashboard() {
       : 0;
     const flaggedCount = queue.filter((entry) => entry.result.level !== "HIGH").length;
     populateCourseSelect(assignmentCourseSelect, state, state.activeCourseId);
+    populateCourseSelect(contactCourseSelect, state, state.activeCourseId);
+    syncContactInputsForCourse(state, contactCourseSelect?.value);
     renderReviewQueue(queue);
     if (activeCoursesStat) activeCoursesStat.textContent = String(state.courses.length).padStart(2, "0");
     if (openAssignmentsStat) openAssignmentsStat.textContent = String(totalAssignments(state.courses)).padStart(2, "0");
@@ -2666,6 +2840,40 @@ function renderProfessorDashboard() {
         : "No learners currently need follow-up";
     }
   }
+
+  function syncContactInputsForCourse(stateSnapshot, courseId) {
+    const course = stateSnapshot?.courses?.find((c) => c.id === courseId);
+    if (contactNameInput) contactNameInput.value = course?.instructorName || "";
+    if (contactEmailInput) contactEmailInput.value = course?.instructorEmail || "";
+    if (contactFeedback) {
+      contactFeedback.textContent = course?.instructorEmail
+        ? `Saved. Students of ${course.title} will email ${course.instructorEmail}.`
+        : course
+          ? `No email saved yet for ${course.title}. Students will see a generic mailto until you add one.`
+          : "";
+    }
+  }
+
+  function persistContactField(field, value) {
+    const courseId = contactCourseSelect?.value;
+    if (!courseId) return;
+    const nextState = loadState();
+    const course = nextState.courses.find((c) => c.id === courseId);
+    if (!course) return;
+    course[field] = value;
+    saveState(nextState);
+    syncContactInputsForCourse(nextState, courseId);
+  }
+
+  contactCourseSelect?.addEventListener("change", () => {
+    syncContactInputsForCourse(loadState(), contactCourseSelect.value);
+  });
+  contactNameInput?.addEventListener("input", () => {
+    persistContactField("instructorName", contactNameInput.value.trim());
+  });
+  contactEmailInput?.addEventListener("input", () => {
+    persistContactField("instructorEmail", contactEmailInput.value.trim());
+  });
 
   courseButton.addEventListener("click", () => {
     const title = courseTitleInput?.value.trim();
@@ -2685,6 +2893,8 @@ function renderProfessorDashboard() {
       title,
       term: term || "Term not set",
       learners: Number.isFinite(learners) ? learners : 0,
+      instructorName: courseInstructorNameInput?.value.trim() || "",
+      instructorEmail: courseInstructorEmailInput?.value.trim() || "",
       note: note || "No course note yet.",
       assignments: [],
     });
@@ -3161,8 +3371,8 @@ function renderStudentSubmission() {
   if (sourceFile) sourceFile.textContent = assignment.sourceFile;
   if (verificationStatus) {
     verificationStatus.textContent = isSubmissionCheckpointComplete(assignment)
-      ? "Verification ready"
-      : "Verification incomplete";
+      ? "Self-check saved"
+      : "Self-check not yet saved";
   }
   if (dataCard) {
     dataCard.classList.toggle("hidden", !isDataScienceAssignment(assignment));
@@ -3187,6 +3397,21 @@ function renderStudentSubmission() {
       syncPortfolioForStage(nextState, nextState.activeAssignmentId, "submission");
       saveState(nextState);
     });
+
+    const runnerMount = document.getElementById("submission-runner-mount");
+    if (runnerMount && !runnerMount.dataset.cdlRunnerMounted) {
+      runnerMount.dataset.cdlRunnerMounted = "1";
+      attachRunner({
+        codeEl: codeInput,
+        mountEl: runnerMount,
+        getLanguage: () => assignmentLanguageKey(assignment),
+        onResult: (result) => {
+          const next = loadState();
+          recordSubmissionRun(next, next.activeAssignmentId, result);
+          saveState(next);
+        },
+      });
+    }
   }
 
   bindRadioGroup("provenance", responses.provenance, (value) => {
@@ -3269,6 +3494,32 @@ function renderStudentSubmission() {
 
   configureNextLink("submission-next-link", "submission-next-label", assignment, "submission", "Begin ");
   applyModuleVisibility(assignment, ["submission-next-link"]);
+
+  // Step 3 (reflection) auto-disclosure policy:
+  //   - First visit / empty fields → collapsed (lower cognitive load on Submit)
+  //   - Any reflection field has saved content → expanded (so the learner can
+  //     see/edit what they wrote without having to re-open it)
+  //   - Data-science assignments with the data-card visible → expanded
+  //     (otherwise the data fields are easy to miss when collapsed)
+  syncStep3Disclosure(assignment, responses);
+}
+
+function syncStep3Disclosure(assignment, responses) {
+  const details = document.getElementById("submission-reflect-details");
+  if (!details) return;
+  const verification = responses?.verification || {};
+  const dataReasoning = responses?.dataReasoning || {};
+  const hasReflectionContent =
+    Boolean(String(verification.tools || "").trim()) ||
+    Boolean(String(verification.checks || "").trim()) ||
+    Boolean(String(verification.uncertainty || "").trim()) ||
+    Boolean(String(dataReasoning.dataset || "").trim()) ||
+    Boolean(String(dataReasoning.assumptions || "").trim()) ||
+    Boolean(String(dataReasoning.interpretation || "").trim());
+  // Data-science assignments make the data card visible; opening Step 3 by
+  // default in that case avoids "where did the data fields go?" confusion.
+  const isDataScience = isDataScienceAssignment(assignment);
+  details.open = hasReflectionContent || isDataScience;
 }
 
 function renderCreateAssignment() {
@@ -3591,7 +3842,10 @@ function renderMutationTask() {
   }
     if (moduleState) moduleState.textContent = `${formatAssignmentIdentity(assignment)} | ${formatAssignmentModules(assignment)}`;
     if (logOutput) logOutput.textContent = assignment.mutationFailureOutput;
-    renderMutationPanel(codeBlock, assignment.mutationCode);
+    // Show the LEARNER's own submitted code in the read-only reference block —
+    // they need to recognize their own work and adapt it. Falls back to the
+    // canned mutation example only if they haven't submitted yet.
+    renderMutationPanel(codeBlock, getAssignmentDraft(assignment) || assignment.mutationCode);
     const mutationLabel = document.querySelector('label[for="mutation-answer"]');
     if (mutationLabel) mutationLabel.textContent = mutationCopy.responseLabel;
     if (answer) answer.placeholder = mutationCopy.responsePlaceholder;
@@ -3600,6 +3854,18 @@ function renderMutationTask() {
       updateAssignmentResponse(nextState, nextState.activeAssignmentId, "mutation", "plan", value);
       syncPortfolioForStage(nextState, nextState.activeAssignmentId, "mutation");
       saveState(nextState);
+    });
+
+    // Adapt seeds with the LEARNER'S OWN submitted code, not the canned mutation
+    // template. Students should adapt their own work to the new constraint —
+    // that's the construct we want to assess. Fall back to the template only if
+    // they jumped here before submitting.
+    mountScratchRunner({
+      inputId: "mutation-code-input",
+      mountId: "mutation-runner-mount",
+      seedCode: getAssignmentDraft(assignment) || assignment.mutationCode,
+      assignment,
+      stage: "mutation",
     });
     if (hintButton) {
       renderHintLadder({
@@ -3679,6 +3945,18 @@ function renderRepairMode() {
       updateAssignmentResponse(nextState, nextState.activeAssignmentId, "repair", "plan", value);
       syncPortfolioForStage(nextState, nextState.activeAssignmentId, "repair");
       saveState(nextState);
+    });
+
+    // Fix keeps the deliberately broken template — that IS the assessment
+    // (diagnose this specific bug). Transparency card on the page makes the
+    // design choice clear so learners aren't confused that this isn't "their" code.
+    mountScratchRunner({
+      inputId: "repair-code-input",
+      mountId: "repair-runner-mount",
+      seedCode: assignment.repairCode,
+      assignment,
+      stage: "repair",
+      resetButtonId: "repair-reset-btn",
     });
     if (hintButton) {
       renderHintLadder({
@@ -3770,8 +4048,13 @@ function renderStudentResult() {
       breakdown.textContent = rubric.breakdownLine;
     }
   if (disparityLabel) {
+    // Plain-language status — avoids alarmist framing for first-time learners.
     disparityLabel.textContent =
-      result.level === "HIGH" ? "CONSISTENT" : result.level === "MEDIUM" ? "FOLLOW-UP ADVISED" : "CRITICAL DISPARITY";
+      result.level === "HIGH"
+        ? "CONSISTENT"
+        : result.level === "MEDIUM"
+          ? "FOLLOW-UP SUGGESTED"
+          : "FOLLOW-UP STRONGLY SUGGESTED";
   }
   if (consistencyScore) consistencyScore.textContent = `${result.consistency}%`;
     if (consistencyLevel) {
@@ -3855,6 +4138,219 @@ function renderStudentResult() {
       rubric.portfolioEntries,
       "As the learner writes in each checkpoint, short process snapshots will appear here."
     );
+
+    renderResultNextAction(assignment, result, course);
+    hideEmptyResultCards();
+}
+
+/**
+ * Build a single, prominent "what to do next" card at the top of the Result
+ * page. The card adapts to (a) which checkpoints are still pending and
+ * (b) the consistency level if the flow is complete. Single, actionable, plain.
+ *
+ * For MEDIUM / LOW results once the flow is complete, the card surfaces a
+ * mailto: button that prefills an oral-defense request with the assignment
+ * title, consistency level, and a short evidence summary. Falls back to a
+ * recipient-less mailto if course.instructorEmail is not configured — so the
+ * student can still open their mail client and add the address themselves.
+ */
+function renderResultNextAction(assignment, result, course) {
+  const mount = document.getElementById("result-next-action-mount");
+  if (!mount) return;
+  while (mount.firstChild) mount.removeChild(mount.firstChild);
+
+  const completed = getCompletedJourneyKeys(assignment);
+  const pending = JOURNEY.filter((s) => s.key !== "result" && !completed.includes(s.key));
+  const isComplete = pending.length === 0;
+  const needsDefense = isComplete && (result?.level === "MEDIUM" || result?.level === "LOW");
+
+  const card = document.createElement("div");
+  card.className =
+    "rounded-2xl p-5 shadow-sm border flex items-start gap-4 " +
+    (!isComplete
+      ? "bg-amber-50 border-amber-200"
+      : result?.level === "HIGH"
+        ? "bg-emerald-50 border-emerald-200"
+        : "bg-surface-container-lowest border-outline-variant/10");
+
+  const icon = document.createElement("div");
+  icon.className = "mt-0.5 flex-shrink-0 w-9 h-9 rounded-full flex items-center justify-center " +
+    (!isComplete
+      ? "bg-amber-200 text-amber-900"
+      : result?.level === "HIGH"
+        ? "bg-emerald-200 text-emerald-900"
+        : "bg-surface-container-high text-on-surface");
+  icon.setAttribute("aria-hidden", "true");
+  const iconGlyph = document.createElement("span");
+  iconGlyph.className = "material-symbols-outlined";
+  iconGlyph.textContent = !isComplete ? "play_circle" : result?.level === "HIGH" ? "check_circle" : "forum";
+  icon.appendChild(iconGlyph);
+
+  const body = document.createElement("div");
+  body.className = "flex-1";
+
+  const eyebrow = document.createElement("p");
+  eyebrow.className = "font-mono text-[10px] uppercase tracking-[0.18em] text-on-surface mb-1";
+  eyebrow.textContent = !isComplete ? "Next" : result?.level === "HIGH" ? "Done" : "Suggested next step";
+  body.appendChild(eyebrow);
+
+  const title = document.createElement("h2");
+  title.className = "font-headline text-xl md:text-2xl font-bold text-on-surface mb-2";
+  if (!isComplete) {
+    title.textContent = `Continue with ${pending[0].plain} (${pending.length} step${pending.length === 1 ? "" : "s"} remaining).`;
+  } else if (result?.level === "HIGH") {
+    title.textContent = "Strong, consistent evidence across all checkpoints.";
+  } else if (result?.level === "MEDIUM") {
+    title.textContent = "Some gaps surfaced — a short oral defense is the cleanest way to confirm understanding.";
+  } else {
+    title.textContent = "Your explanation and demonstration didn't fully line up. A short oral defense is recommended.";
+  }
+  body.appendChild(title);
+
+  const helper = document.createElement("p");
+  helper.className = "text-sm text-on-surface leading-relaxed";
+  if (!isComplete) {
+    helper.textContent = `Pick up where you left off: ${pending.map((p) => p.plain).join(" → ")}.`;
+  } else if (result?.level === "HIGH") {
+    helper.textContent = "Nothing flagged. Save this report or share it with your instructor for the record.";
+  } else {
+    helper.textContent = "An oral defense is 5–10 minutes — long enough to talk through your reasoning at the weakest checkpoint, short enough to fit office hours. The button below opens a pre-written email request.";
+  }
+  body.appendChild(helper);
+
+  // Action row — primary action depends on phase.
+  const actionRow = document.createElement("div");
+  actionRow.className = "flex flex-wrap items-center gap-2 mt-3";
+
+  if (!isComplete) {
+    const link = document.createElement("a");
+    link.href = pending[0].pagePath;
+    link.className = "inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-slate-900 text-white font-semibold text-sm no-underline hover:bg-slate-800 transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-400";
+    link.textContent = `Go to ${pending[0].plain}`;
+    actionRow.appendChild(link);
+  }
+
+  if (needsDefense) {
+    const mailtoBtn = buildOralDefenseMailto(assignment, result, course);
+    actionRow.appendChild(mailtoBtn);
+
+    if (!course?.instructorEmail) {
+      const note = document.createElement("p");
+      note.className = "w-full text-xs text-on-surface mt-1";
+      note.textContent = "Tip: this opens your mail client. Add your instructor's address in the To field if it isn't already filled in.";
+      actionRow.appendChild(note);
+    }
+  }
+
+  if (actionRow.children.length > 0) body.appendChild(actionRow);
+
+  card.append(icon, body);
+  mount.appendChild(card);
+}
+
+/**
+ * Build the oral-defense mailto link as a styled <a>. Body is plain text
+ * (not HTML) so any mail client renders it cleanly.
+ */
+function buildOralDefenseMailto(assignment, result, course) {
+  const a = document.createElement("a");
+  a.className =
+    "inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-slate-900 text-white font-semibold text-sm no-underline hover:bg-slate-800 transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-400";
+
+  const recipient = course?.instructorEmail || "";
+  const subject = `Oral defense request — ${assignment?.title || "assignment"}`;
+  const greeting = course?.instructorName ? `Hi ${course.instructorName},` : "Hi,";
+  const lines = [
+    greeting,
+    "",
+    `I just finished the Code Defense Lab checkpoints for ${assignment?.title || "an assignment"}${course?.title ? ` (${course.title})` : ""}.`,
+    `My consistency level came back ${result?.level || "MEDIUM"}, so the system suggested an oral defense.`,
+    "",
+    "Could we book a 5–10 minute slot in your office hours so I can walk through my reasoning?",
+    "",
+    "Thanks!",
+  ];
+  const body = lines.join("\n");
+
+  a.href = `mailto:${encodeURIComponent(recipient)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+  a.setAttribute("aria-label", "Open your email app with a pre-written oral defense request");
+
+  const glyph = document.createElement("span");
+  glyph.className = "material-symbols-outlined text-[18px]";
+  glyph.setAttribute("aria-hidden", "true");
+  glyph.textContent = "mail";
+  a.appendChild(glyph);
+
+  const label = document.createElement("span");
+  label.textContent = "Email instructor for an oral defense";
+  a.appendChild(label);
+
+  return a;
+}
+
+const RESULT_PLACEHOLDER_PATTERNS = [
+  "will appear here",
+  "no hints opened",
+  "not required for this assignment",
+  "no provenance saved yet",
+  "no verification note saved yet",
+  "no hotspot response saved yet",
+  "no trace response saved yet",
+  "no mutation response saved yet",
+  "no repair response saved yet",
+];
+
+function isResultPlaceholder(text) {
+  const t = String(text || "").toLowerCase().trim();
+  if (!t) return true;
+  return RESULT_PLACEHOLDER_PATTERNS.some((p) => t.includes(p));
+}
+
+function hideEmptyResultCards() {
+  // Per-card hide-if-empty.
+  document.querySelectorAll('[data-result-card]').forEach((card) => {
+    const textNodes = card.querySelectorAll("p");
+    const allEmpty = Array.from(textNodes)
+      .filter((p) => !p.classList.contains("font-mono")) // skip eyebrow labels
+      .every((p) => isResultPlaceholder(p.textContent));
+    if (allEmpty) card.style.display = "none";
+    else card.style.display = "";
+  });
+
+  // Hide the rubric section if the dimensions container ended up empty.
+  const rubricSection = document.getElementById("result-rubric-section");
+  const rubricGrid = document.getElementById("result-rubric-dimensions");
+  if (rubricSection && rubricGrid) {
+    rubricSection.style.display = rubricGrid.children.length === 0 ? "none" : "";
+  }
+
+  // Hide the portfolio row if both its cards are hidden.
+  const portfolioRow = document.getElementById("result-portfolio-row");
+  if (portfolioRow) {
+    const visibleChildren = Array.from(portfolioRow.children).filter((c) => c.style.display !== "none");
+    portfolioRow.style.display = visibleChildren.length === 0 ? "none" : "";
+  }
+
+  // Hide the strength/gap/next-step row if all three are hidden.
+  const summaryRow = document.getElementById("result-summary-row");
+  if (summaryRow) {
+    const visibleChildren = Array.from(summaryRow.children).filter((c) => c.style.display !== "none");
+    summaryRow.style.display = visibleChildren.length === 0 ? "none" : "";
+  }
+}
+
+function mountJourneyForActivePage() {
+  const path = (window.location.pathname || "").toLowerCase();
+  const matchers = [
+    { needle: "student-submission", key: "submission" },
+    { needle: "hotspot-questions",  key: "hotspot" },
+    { needle: "trace-mode-task",    key: "trace" },
+    { needle: "mutation-task",      key: "mutation" },
+    { needle: "repair-mode-task",   key: "repair" },
+    { needle: "student-result",     key: "result" },
+  ];
+  const match = matchers.find((m) => path.includes(m.needle));
+  if (match) mountJourneyForActive(match.key);
 }
 
 function renderAllPages() {
@@ -3868,6 +4364,7 @@ function renderAllPages() {
   renderMutationTask();
   renderRepairMode();
   renderStudentResult();
+  mountJourneyForActivePage();
 }
 
 renderAllPages();

@@ -7,6 +7,8 @@
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+    <link href="/src/runtime/runner.css" rel="stylesheet" />
+    <link href="/src/journey/journey.css" rel="stylesheet" />
     <script>
       tailwind.config = {
         darkMode: "class",
@@ -43,6 +45,8 @@
     </style>
   </head>
   <body class="bg-surface text-on-surface min-h-screen flex flex-col">
+    <a href="#cdl-main" class="cdl-sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-[100] focus:bg-slate-900 focus:text-white focus:px-3 focus:py-2 focus:rounded">Skip to main content</a>
+    <div id="cdl-journey-mount"></div>
     <header class="bg-slate-50 border-b border-slate-200/80 flex justify-between items-center w-full px-6 py-4 max-w-full sticky top-0 z-50">
       <div class="flex items-center gap-4">
         <div class="w-10 h-10 rounded-full overflow-hidden bg-surface-container-highest">
@@ -124,39 +128,50 @@
             </div>
           </section>
 
+          <h2 class="cdl-step-heading"><span class="cdl-step-num" aria-hidden="true">1</span><span><span class="cdl-step-eyebrow">Step 1 of 3</span><span class="cdl-step-title">Write &amp; run your code</span></span></h2>
           <div class="grid grid-cols-1 xl:grid-cols-3 gap-6 items-start">
             <div class="xl:col-span-2 bg-surface-container-lowest rounded-2xl border border-outline-variant/10 shadow-sm overflow-hidden">
               <div class="flex items-center justify-between bg-surface-container-high px-4 py-3 border-b border-outline-variant/10">
                 <div class="flex items-center gap-2">
-                  <span class="material-symbols-outlined text-sm">terminal</span>
+                  <span class="material-symbols-outlined text-sm" aria-hidden="true">terminal</span>
                   <span id="submission-source-file" class="font-mono text-xs text-on-surface-variant">regression_defense.R</span>
                 </div>
-                <div class="flex gap-2">
+                <div class="flex gap-2" aria-hidden="true">
                   <span class="w-3 h-3 rounded-full bg-error/20"></span>
                   <span class="w-3 h-3 rounded-full bg-secondary/20"></span>
                   <span class="w-3 h-3 rounded-full bg-tertiary/20"></span>
                 </div>
               </div>
               <div class="bg-slate-900 p-4 min-h-[400px] shadow-inner overflow-x-auto">
-                <textarea id="submission-code-input" name="submission_code" autocomplete="off" class="w-full min-h-[370px] bg-transparent border-0 text-slate-300 font-mono text-sm leading-relaxed resize-none focus:outline-none" spellcheck="false">build_regression_report <- function(df) {
-  clean_df <- df[complete.cases(df[, c("hours_studied", "exam_score")]), ]
-  fit <- lm(exam_score ~ hours_studied, data = clean_df)
-  plot <- ggplot(clean_df, aes(x = hours_studied, y = exam_score)) +
-    geom_point() +
-    geom_smooth(method = "lm", se = FALSE)
+                <textarea id="submission-code-input" name="submission_code" autocomplete="off" class="w-full min-h-[370px] bg-transparent border-0 text-slate-300 font-mono text-sm leading-relaxed resize-none focus:outline-none" spellcheck="false"># Run this with the Run button (or Ctrl+Enter).
+# It uses the built-in `cars` dataset to demo regression + plot.
+fit <- lm(dist ~ speed, data = cars)
+summary(fit)
 
-  list(
-    slope = unname(coef(fit)[["hours_studied"]]),
-    r_squared = summary(fit)$r.squared,
-    plot_layers = vapply(plot$layers, function(layer) class(layer$geom)[1], character(1))
-  )
-}</textarea>
+plot(cars$speed, cars$dist,
+     xlab = "Speed (mph)", ylab = "Stopping distance (ft)",
+     main = "Stopping distance vs. speed (cars dataset)",
+     pch = 19, col = "#0f172a")
+abline(fit, col = "#9f403d", lwd = 2)
+
+# Tiny simulation: bootstrap the slope to get a 95% CI.
+set.seed(42)
+boot_slopes <- replicate(1000, {
+  idx <- sample(seq_len(nrow(cars)), replace = TRUE)
+  coef(lm(dist ~ speed, data = cars[idx, ]))[["speed"]]
+})
+cat("Bootstrap slope mean: ", mean(boot_slopes), "\n", sep = "")
+cat("Bootstrap 95% CI:    [", quantile(boot_slopes, 0.025), ", ",
+    quantile(boot_slopes, 0.975), "]\n", sep = "")</textarea>
               </div>
+              <div id="submission-runner-mount" class="px-4 pb-4"></div>
             </div>
 
             <div class="space-y-4">
+              <h2 class="cdl-step-heading"><span class="cdl-step-num" aria-hidden="true">2</span><span><span class="cdl-step-eyebrow">Step 2 of 3</span><span class="cdl-step-title">Where did this code come from?</span></span></h2>
               <div class="bg-surface-container-lowest p-6 rounded-2xl shadow-sm border border-outline-variant/10">
-                <h3 class="font-headline font-bold text-lg mb-6 border-b border-outline-variant/10 pb-2">Provenance Check</h3>
+                <h3 class="font-headline font-bold text-lg mb-2">Provenance</h3>
+                <p class="text-sm text-on-surface mb-4">Pick the option that best describes how you produced the code above. This is disclosure, not judgement — being honest helps your instructor read the rest of the report fairly.</p>
                 <form id="submission-provenance-form" class="space-y-4">
                   <label class="flex items-center gap-3 cursor-pointer group">
                     <input checked class="w-4 h-4 text-tertiary focus:ring-tertiary border-outline-variant bg-surface-container-low" name="provenance" type="radio" value="Written mostly by myself" />
@@ -176,43 +191,45 @@
                   </label>
                 </form>
               </div>
-              <div class="bg-surface-container-lowest p-6 rounded-2xl shadow-sm border border-outline-variant/10">
-                <div class="flex items-center justify-between gap-3 mb-4 border-b border-outline-variant/10 pb-2">
-                  <h3 class="font-headline font-bold text-lg">AI Use & Verification</h3>
-                  <span id="submission-verification-status" aria-live="polite" class="font-mono text-[10px] uppercase tracking-[0.16em] text-slate-400">Verification incomplete</span>
+              <h2 class="cdl-step-heading"><span class="cdl-step-num" aria-hidden="true">3</span><span><span class="cdl-step-eyebrow">Step 3 of 3 · short reflection</span><span class="cdl-step-title">How did you build it?</span></span></h2>
+              <details id="submission-reflect-details" class="cdl-disclosure" open>
+                <summary class="cdl-disclosure__summary">
+                  <span>Self-check &amp; reflection (recommended)</span>
+                  <span id="submission-verification-status" aria-live="polite" class="font-mono text-[10px] uppercase tracking-[0.16em] text-slate-600">Self-check not yet saved</span>
+                </summary>
+                <div class="bg-surface-container-lowest p-6 rounded-b-2xl border border-t-0 border-outline-variant/10">
+                  <p class="text-sm text-on-surface mb-4">A short reflection helps your instructor read the rest of the report fairly. None of these fields is graded — they're context for the conversation.</p>
+                  <div class="space-y-4">
+                    <div>
+                      <label class="block text-sm text-on-surface mb-2" for="submission-ai-tools">Which tools or external supports did you use?</label>
+                      <textarea id="submission-ai-tools" name="submission_ai_tools" autocomplete="off" class="w-full min-h-[92px] bg-surface-container-low border-none focus:ring-0 p-3 text-sm rounded-sm resize-none" placeholder="Used ChatGPT to sketch the lm() workflow, then rewrote the formula and plotting steps myself..."></textarea>
+                    </div>
+                    <div>
+                      <label class="block text-sm text-on-surface mb-2" for="submission-self-checks">What did you personally verify before submitting?</label>
+                      <textarea id="submission-self-checks" name="submission_self_checks" autocomplete="off" class="w-full min-h-[92px] bg-surface-container-low border-none focus:ring-0 p-3 text-sm rounded-sm resize-none" placeholder="I checked the cleaned rows, verified the lm() formula, and made sure the scatterplot uses the same predictor and outcome..."></textarea>
+                    </div>
+                    <div>
+                      <label class="block text-sm text-on-surface mb-2" for="submission-uncertainty">What part still feels uncertain?</label>
+                      <textarea id="submission-uncertainty" name="submission_uncertainty" autocomplete="off" class="w-full min-h-[92px] bg-surface-container-low border-none focus:ring-0 p-3 text-sm rounded-sm resize-none" placeholder="I still want to confirm how missing rows and unusual points affect the fitted line and interpretation..."></textarea>
+                    </div>
+                    <div id="submission-data-card" class="hidden border-t border-outline-variant/10 pt-4 mt-2 space-y-4">
+                      <h3 class="font-headline font-bold text-base">Data &amp; statistical reasoning (this assignment)</h3>
+                      <div>
+                        <label class="block text-sm text-on-surface mb-2" for="submission-data-dataset">What dataset pattern are you reasoning about?</label>
+                        <textarea id="submission-data-dataset" name="submission_data_dataset" autocomplete="off" class="w-full min-h-[86px] bg-surface-container-low border-none focus:ring-0 p-3 text-sm rounded-sm resize-none" placeholder="A data frame with hours_studied, exam_score, and at least one incomplete row to test cleaning before lm()..."></textarea>
+                      </div>
+                      <div>
+                        <label class="block text-sm text-on-surface mb-2" for="submission-data-assumptions">Which assumptions must hold for this solution to make sense?</label>
+                        <textarea id="submission-data-assumptions" name="submission_data_assumptions" autocomplete="off" class="w-full min-h-[86px] bg-surface-container-low border-none focus:ring-0 p-3 text-sm rounded-sm resize-none" placeholder="Hours studied is the predictor, exam score is the outcome, and incomplete rows are filtered before fitting or plotting..."></textarea>
+                      </div>
+                      <div>
+                        <label class="block text-sm text-on-surface mb-2" for="submission-data-interpretation">How would you interpret the output on real data?</label>
+                        <textarea id="submission-data-interpretation" name="submission_data_interpretation" autocomplete="off" class="w-full min-h-[86px] bg-surface-container-low border-none focus:ring-0 p-3 text-sm rounded-sm resize-none" placeholder="A positive slope suggests higher study time aligns with higher scores; R-squared describes fit, not causation..."></textarea>
+                      </div>
+                    </div>
+                  </div>
                 </div>
-                <div class="space-y-4">
-                  <div>
-                    <label class="block text-sm text-on-surface-variant mb-2" for="submission-ai-tools">Which tools or external supports did you use?</label>
-                    <textarea id="submission-ai-tools" name="submission_ai_tools" autocomplete="off" class="w-full min-h-[92px] bg-surface-container-low border-none focus:ring-0 p-3 text-sm rounded-sm resize-none" placeholder="Used ChatGPT to sketch the lm() workflow, then rewrote the formula and plotting steps myself..."></textarea>
-                  </div>
-                  <div>
-                    <label class="block text-sm text-on-surface-variant mb-2" for="submission-self-checks">What did you personally verify before submitting?</label>
-                    <textarea id="submission-self-checks" name="submission_self_checks" autocomplete="off" class="w-full min-h-[92px] bg-surface-container-low border-none focus:ring-0 p-3 text-sm rounded-sm resize-none" placeholder="I checked the cleaned rows, verified the lm() formula, and made sure the scatterplot uses the same predictor and outcome..."></textarea>
-                  </div>
-                  <div>
-                    <label class="block text-sm text-on-surface-variant mb-2" for="submission-uncertainty">What part still feels uncertain?</label>
-                    <textarea id="submission-uncertainty" name="submission_uncertainty" autocomplete="off" class="w-full min-h-[92px] bg-surface-container-low border-none focus:ring-0 p-3 text-sm rounded-sm resize-none" placeholder="I still want to confirm how missing rows and unusual points affect the fitted line and interpretation..."></textarea>
-                  </div>
-                </div>
-              </div>
-              <div id="submission-data-card" class="bg-surface-container-lowest p-6 rounded-2xl shadow-sm border border-outline-variant/10 hidden">
-                <h3 class="font-headline font-bold text-lg mb-4 border-b border-outline-variant/10 pb-2">Data & Statistical Reasoning</h3>
-                <div class="space-y-4">
-                  <div>
-                    <label class="block text-sm text-on-surface-variant mb-2" for="submission-data-dataset">What dataset pattern are you reasoning about?</label>
-                    <textarea id="submission-data-dataset" name="submission_data_dataset" autocomplete="off" class="w-full min-h-[86px] bg-surface-container-low border-none focus:ring-0 p-3 text-sm rounded-sm resize-none" placeholder="A data frame with hours_studied, exam_score, and at least one incomplete row to test cleaning before lm()..."></textarea>
-                  </div>
-                  <div>
-                    <label class="block text-sm text-on-surface-variant mb-2" for="submission-data-assumptions">Which assumptions must hold for this solution to make sense?</label>
-                    <textarea id="submission-data-assumptions" name="submission_data_assumptions" autocomplete="off" class="w-full min-h-[86px] bg-surface-container-low border-none focus:ring-0 p-3 text-sm rounded-sm resize-none" placeholder="Hours studied is the predictor, exam score is the outcome, and incomplete rows are filtered before fitting or plotting..."></textarea>
-                  </div>
-                  <div>
-                    <label class="block text-sm text-on-surface-variant mb-2" for="submission-data-interpretation">How would you interpret the output on real data?</label>
-                    <textarea id="submission-data-interpretation" name="submission_data_interpretation" autocomplete="off" class="w-full min-h-[86px] bg-surface-container-low border-none focus:ring-0 p-3 text-sm rounded-sm resize-none" placeholder="A positive slope suggests higher study time aligns with higher scores; R-squared describes fit, not causation..."></textarea>
-                  </div>
-                </div>
-              </div>
+              </details>
               <div class="bg-surface-container-lowest p-5 rounded-2xl shadow-sm border border-outline-variant/10 space-y-4">
                 <p class="font-mono text-[10px] uppercase tracking-[0.18em] text-tertiary">Ready to continue</p>
                 <p class="text-sm text-on-surface-variant leading-relaxed">Once the baseline code and provenance are set, the flow advances into explanation of the assignment's pressure points.</p>

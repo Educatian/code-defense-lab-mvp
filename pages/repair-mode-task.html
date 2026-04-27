@@ -7,6 +7,8 @@
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+    <link href="/src/runtime/runner.css" rel="stylesheet" />
+    <link href="/src/journey/journey.css" rel="stylesheet" />
     <script>
       tailwind.config = {
         darkMode: "class",
@@ -43,6 +45,8 @@
     </style>
   </head>
   <body class="bg-surface text-on-surface font-body min-h-screen flex flex-col">
+    <a href="#cdl-main" class="cdl-sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-[100] focus:bg-slate-900 focus:text-white focus:px-3 focus:py-2 focus:rounded">Skip to main content</a>
+    <div id="cdl-journey-mount"></div>
     <header class="bg-slate-50 border-b border-slate-200/80 flex justify-between items-center w-full px-6 py-4 max-w-full top-0 z-50 sticky">
       <div class="flex items-center gap-4">
         <div class="w-10 h-10 rounded-full overflow-hidden bg-surface-container-highest">
@@ -103,10 +107,11 @@
           <div class="lg:col-span-4 flex flex-col gap-6">
             <div class="bg-surface-container-lowest p-6 rounded-2xl border border-outline-variant/10 shadow-sm">
               <div class="flex items-center gap-3 mb-4">
-                <span class="material-symbols-outlined text-tertiary">terminal</span>
-                <h3 class="font-headline font-bold text-on-surface">Repair Prompt</h3>
+                <span class="material-symbols-outlined text-tertiary" aria-hidden="true">terminal</span>
+                <h3 class="font-headline font-bold text-on-surface">What to fix</h3>
               </div>
-              <p id="repair-prompt-text" class="text-on-surface-variant text-sm leading-relaxed mb-6">A buggy version of your regression workflow is shown below. It flips the predictor and outcome in the formula and plot mapping, leading to an invalid interpretation. Fix the logic.</p>
+              <p id="repair-prompt-text" class="text-on-surface text-sm leading-relaxed mb-3">A buggy version of your regression workflow is shown below. It flips the predictor and outcome in the formula and plot mapping, leading to an invalid interpretation. Fix the logic.</p>
+              <p class="text-xs text-on-surface-variant leading-relaxed mb-6">This is a deliberately broken variant — not your own code. The point is to test whether you can recognize the same kind of bug if it ever appeared in your work.</p>
               <div class="space-y-3">
                 <div class="flex items-center gap-3 p-3 bg-surface-container-lowest rounded border-l-2 border-error"><span class="material-symbols-outlined text-error text-[20px]">error</span><span class="text-[11px] font-mono text-on-surface">Potential: invalid slope and misleading plot</span></div>
                 <div class="flex items-center gap-3 p-3 bg-surface-container-lowest rounded border-l-2 border-secondary"><span class="material-symbols-outlined text-secondary text-[20px]">info</span><span id="repair-issue-label" class="text-[11px] font-mono text-on-surface">Detected in: regression formula and scatterplot mapping</span></div>
@@ -118,7 +123,7 @@
             </div>
             <div class="bg-surface-container-lowest p-6 rounded-2xl border border-outline-variant/10 shadow-sm">
               <p class="font-mono text-[10px] uppercase tracking-[0.18em] text-tertiary mb-2">Student Repair Note</p>
-              <p class="text-[10px] font-mono uppercase tracking-[0.18em] text-slate-400 mb-3">Responses save automatically</p>
+              <p class="text-[10px] font-mono uppercase tracking-[0.18em] text-slate-600 mb-3">Responses save automatically</p>
               <label class="block text-sm text-on-surface-variant mb-3" for="repair-answer">Name the exact formula or mapping you would fix and explain the correction.</label>
               <textarea id="repair-answer" name="repair_answer" autocomplete="off" class="w-full min-h-[160px] bg-surface-container-low border-none focus:ring-0 p-3 text-sm rounded-sm resize-none" placeholder="I would restore exam_score ~ hours_studied in lm() and map x = hours_studied, y = exam_score in ggplot so the slope and scatterplot match the intended interpretation..."></textarea>
             </div>
@@ -138,16 +143,21 @@
           <div class="lg:col-span-8 bg-surface-container-lowest rounded-2xl border border-outline-variant/10 shadow-sm overflow-hidden flex flex-col min-h-[500px]">
             <div class="bg-surface-container-high px-4 py-2 flex items-center justify-between border-b border-outline-variant/5">
               <div class="flex items-center gap-4">
-                <div class="flex gap-1.5"><div class="w-2.5 h-2.5 rounded-full bg-error/40"></div><div class="w-2.5 h-2.5 rounded-full bg-secondary/40"></div><div class="w-2.5 h-2.5 rounded-full bg-tertiary/40"></div></div>
+                <div class="flex gap-1.5" aria-hidden="true"><div class="w-2.5 h-2.5 rounded-full bg-error/40"></div><div class="w-2.5 h-2.5 rounded-full bg-secondary/40"></div><div class="w-2.5 h-2.5 rounded-full bg-tertiary/40"></div></div>
                 <span id="repair-source-file" class="text-[11px] font-mono text-outline uppercase tracking-wider">scatterplot_regression_defense_repair.R</span>
               </div>
               <span class="text-[10px] font-mono text-outline">L: 14 C: 22</span>
             </div>
             <div id="repair-code-block" class="flex-1 p-6 font-mono text-sm leading-relaxed overflow-auto bg-slate-950 text-slate-300"></div>
+            <div class="bg-slate-900 px-4 pt-3 pb-1">
+              <p class="font-mono text-[10px] uppercase tracking-[0.18em] text-slate-300 mb-2">Editable scratchpad — apply your fix here, then Run.</p>
+              <textarea id="repair-code-input" name="repair_code" autocomplete="off" spellcheck="false" class="w-full min-h-[180px] bg-transparent border border-slate-700 rounded p-3 text-slate-100 font-mono text-xs leading-relaxed resize-y focus:outline-none focus:border-tertiary"></textarea>
+            </div>
+            <div id="repair-runner-mount" class="bg-slate-900 px-4 pb-4"></div>
             <div class="p-4 bg-surface-container flex justify-between items-center gap-4">
               <div class="flex items-center gap-2"><div class="w-2 h-2 rounded-full bg-error animate-pulse"></div><span class="text-[10px] font-mono text-on-surface uppercase tracking-tighter">Formula / plot mismatch detected</span></div>
               <div class="flex gap-3">
-                <button class="bg-surface-container-high text-on-surface-variant font-headline font-bold text-xs px-6 py-2 rounded-lg hover:bg-surface-container-highest transition-colors flex items-center gap-2" type="button"><span class="material-symbols-outlined text-[16px]">refresh</span>Reset Draft</button>
+                <button id="repair-reset-btn" class="bg-surface-container-high text-on-surface-variant font-headline font-bold text-xs px-6 py-2 rounded-lg hover:bg-surface-container-highest transition-colors flex items-center gap-2" type="button"><span class="material-symbols-outlined text-[16px]">refresh</span>Reset Draft</button>
                 <a id="repair-next-link" class="bg-primary text-white font-headline font-bold text-xs px-8 py-2 rounded-lg shadow-sm hover:opacity-90 transition-opacity flex items-center gap-2 no-underline" href="./student-result.html"><span class="material-symbols-outlined text-[16px]">published_with_changes</span><span id="repair-next-label">Verify Repair</span></a>
               </div>
             </div>

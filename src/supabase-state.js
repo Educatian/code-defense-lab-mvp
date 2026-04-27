@@ -1,3 +1,24 @@
+// ⚠️  MULTI-TENANT WARNING — DEMO USE ONLY
+// ─────────────────────────────────────────
+// This module syncs the entire workspace state to a SINGLE shared row in
+// Supabase, keyed by VITE_SUPABASE_WORKSPACE_ID. Every visitor of the deployed
+// demo writes to the same row, so each save stomps the previous one. There is
+// no auth, no per-instructor partitioning, and no RLS that would prevent it.
+//
+// This is intentional for the public read-only demo (last write wins, no real
+// student data is at risk). It is NOT safe for any production / pilot use.
+//
+// To make this safe:
+//   1. Apply supabase/migrations/0002_workspace_states_per_owner_rls.sql
+//      (locks RLS to per-owner rows under auth.uid())
+//   2. Apply supabase/migrations/0003_commercial_schema.sql
+//      (real multi-tenant tables: instructors, students, courses, attempts, …)
+//   3. Add a Supabase Auth flow (magic link or OAuth) before swapping
+//      workspaceId for an auth-derived per-instructor id.
+//
+// Until step 3 lands, do NOT point this MVP at a Supabase project that holds
+// any non-synthetic data.
+
 import { createClient } from "@supabase/supabase-js";
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;

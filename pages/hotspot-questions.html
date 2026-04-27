@@ -7,6 +7,7 @@
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+    <link href="/src/journey/journey.css" rel="stylesheet" />
     <script>
       tailwind.config = {
         darkMode: "class",
@@ -44,6 +45,8 @@
     </style>
   </head>
   <body class="bg-surface font-body text-on-surface">
+    <a href="#cdl-main" class="cdl-sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-[100] focus:bg-slate-900 focus:text-white focus:px-3 focus:py-2 focus:rounded">Skip to main content</a>
+    <div id="cdl-journey-mount"></div>
     <header class="fixed top-0 z-50 w-full flex justify-between items-center px-6 py-4 bg-slate-50 border-b border-surface-container">
       <div class="flex items-center gap-4">
         <div class="w-10 h-10 rounded-full overflow-hidden bg-surface-container-highest">
@@ -115,13 +118,8 @@
               <span id="hotspot-assignment-title" class="px-2 py-0.5 rounded text-[10px] font-mono bg-surface-container-highest text-on-surface-variant">READ-ONLY</span>
             </div>
           </div>
-          <div class="flex-1 overflow-auto p-6 bg-[#fcfdfe] font-mono text-sm leading-relaxed relative">
-            <div class="flex">
-              <div class="w-10 text-right pr-4 text-outline-variant select-none border-r border-surface-container mr-4">
-                1<br />2<br />3<br />4<br />5<br />6<br />7<br />8<br />9<br />10<br />11<br />12<br />13<br />14<br />15<br />16<br />17<br />18<br />19<br />20
-              </div>
-              <div id="hotspot-code-block" class="flex-1 whitespace-pre text-slate-700"></div>
-            </div>
+          <div class="flex-1 overflow-auto p-6 bg-[#fcfdfe]">
+            <div id="hotspot-code-block"></div>
           </div>
         </section>
 
@@ -129,32 +127,32 @@
           <div class="flex-1 space-y-4">
             <div class="bg-surface-container-lowest p-6 shadow-sm rounded-2xl border border-outline-variant/10">
               <div class="flex items-center gap-2 mb-4">
-                <span class="w-6 h-6 rounded bg-tertiary text-white flex items-center justify-center text-[10px] font-bold font-mono">Q1</span>
-                <h3 class="font-headline font-bold text-sm text-slate-800">Operational Intent</h3>
+                <span class="w-6 h-6 rounded bg-tertiary text-white flex items-center justify-center text-[10px] font-bold font-mono" aria-hidden="true">Q1</span>
+                <h3 id="hotspot-q1-title" class="font-headline font-bold text-sm text-slate-800">Operational Intent</h3>
               </div>
-              <p id="hotspot-question-1" class="text-sm text-on-surface-variant mb-4 leading-relaxed">Why is <code class="bg-surface-container px-1 py-0.5 rounded font-mono text-tertiary">lm(exam_score ~ hours_studied, ...)</code> the line that anchors the statistical claim?</p>
-              <textarea id="hotspot-answer-1" name="hotspot_answer_1" autocomplete="off" class="w-full h-24 bg-surface-container-low border-none focus:ring-0 p-3 text-sm rounded-sm" placeholder="Explain how the formula defines predictor, outcome, and the meaning of slope..."></textarea>
+              <p id="hotspot-question-1" class="text-sm text-on-surface mb-4 leading-relaxed">Why is <code class="bg-surface-container px-1 py-0.5 rounded font-mono text-tertiary">lm(exam_score ~ hours_studied, ...)</code> the line that anchors the statistical claim?</p>
+              <textarea id="hotspot-answer-1" name="hotspot_answer_1" autocomplete="off" aria-labelledby="hotspot-q1-title hotspot-question-1" class="w-full h-24 bg-surface-container-low border-none focus:ring-0 p-3 text-sm rounded-sm" placeholder="Explain how the formula defines predictor, outcome, and the meaning of slope..."></textarea>
             </div>
             <div class="bg-surface-container-lowest p-6 shadow-sm rounded-2xl border border-outline-variant/10">
               <div class="flex items-center gap-2 mb-4">
-                <span class="w-6 h-6 rounded bg-secondary text-white flex items-center justify-center text-[10px] font-bold font-mono">Q2</span>
-                <h3 class="font-headline font-bold text-sm text-slate-800">Boundary Logic</h3>
+                <span class="w-6 h-6 rounded bg-secondary text-white flex items-center justify-center text-[10px] font-bold font-mono" aria-hidden="true">Q2</span>
+                <h3 id="hotspot-q2-title" class="font-headline font-bold text-sm text-slate-800">Boundary Logic</h3>
               </div>
-              <p id="hotspot-question-2" class="text-sm text-on-surface-variant mb-4 leading-relaxed">What role does <code class="bg-surface-container px-1 py-0.5 rounded font-mono text-tertiary">geom_smooth(method = "lm")</code> play in the scatterplot?</p>
-              <textarea id="hotspot-answer-2" name="hotspot_answer_2" autocomplete="off" class="w-full h-24 bg-surface-container-low border-none focus:ring-0 p-3 text-sm rounded-sm" placeholder="Explain how the visual layer supports interpretation of the fitted relationship..."></textarea>
+              <p id="hotspot-question-2" class="text-sm text-on-surface mb-4 leading-relaxed">What role does <code class="bg-surface-container px-1 py-0.5 rounded font-mono text-tertiary">geom_smooth(method = "lm")</code> play in the scatterplot?</p>
+              <textarea id="hotspot-answer-2" name="hotspot_answer_2" autocomplete="off" aria-labelledby="hotspot-q2-title hotspot-question-2" class="w-full h-24 bg-surface-container-low border-none focus:ring-0 p-3 text-sm rounded-sm" placeholder="Explain how the visual layer supports interpretation of the fitted relationship..."></textarea>
             </div>
             <div class="bg-surface-container-lowest p-6 shadow-sm rounded-2xl border border-outline-variant/10">
               <div class="flex items-center gap-2 mb-4">
-                <span class="w-6 h-6 rounded bg-error text-white flex items-center justify-center text-[10px] font-bold font-mono">Q3</span>
-                <h3 class="font-headline font-bold text-sm text-slate-800">Edge Case Analysis</h3>
+                <span class="w-6 h-6 rounded bg-error text-white flex items-center justify-center text-[10px] font-bold font-mono" aria-hidden="true">Q3</span>
+                <h3 id="hotspot-q3-title" class="font-headline font-bold text-sm text-slate-800">Edge Case Analysis</h3>
               </div>
-              <p id="hotspot-question-3" class="text-sm text-on-surface-variant mb-4 leading-relaxed">Why does this workflow remove incomplete rows before fitting the model or drawing the plot?</p>
-              <textarea id="hotspot-answer-3" name="hotspot_answer_3" autocomplete="off" class="w-full h-24 bg-surface-container-low border-none focus:ring-0 p-3 text-sm rounded-sm" placeholder="Discuss why missing rows can distort lm() or the scatterplot if left untreated..."></textarea>
+              <p id="hotspot-question-3" class="text-sm text-on-surface mb-4 leading-relaxed">Why does this workflow remove incomplete rows before fitting the model or drawing the plot?</p>
+              <textarea id="hotspot-answer-3" name="hotspot_answer_3" autocomplete="off" aria-labelledby="hotspot-q3-title hotspot-question-3" class="w-full h-24 bg-surface-container-low border-none focus:ring-0 p-3 text-sm rounded-sm" placeholder="Discuss why missing rows can distort lm() or the scatterplot if left untreated..."></textarea>
             </div>
           </div>
           <div class="bg-surface-container-lowest p-5 border border-outline-variant/10 shadow-sm rounded-2xl">
             <p id="hotspot-focus-card" class="text-[11px] text-on-surface-variant mb-2 leading-relaxed">If the explanation is solid here, the next step asks for mental execution of the same logic without running the code.</p>
-            <p class="text-[10px] font-mono uppercase tracking-[0.18em] text-slate-400 mb-3">Responses save automatically</p>
+            <p class="text-[10px] font-mono uppercase tracking-[0.18em] text-slate-600 mb-3">Responses save automatically</p>
             <a id="hotspot-next-link" class="w-full flex items-center justify-center gap-3 bg-primary text-white py-3 rounded px-6 font-mono text-xs font-bold tracking-widest uppercase hover:bg-slate-700 transition-colors no-underline" href="./trace-mode-task.html">
               <span id="hotspot-next-label">Next Task: Trace Mode</span>
               <span class="material-symbols-outlined text-sm">arrow_forward</span>

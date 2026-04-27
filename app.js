@@ -64,31 +64,51 @@ function statusClass(status) {
 function renderTable() {
   if (!tableBody) return;
 
-  tableBody.innerHTML = studentRows
-    .map(
-      (student) => `
-        <tr data-view-target="${student.view}">
-          <td>
-            <strong>${student.name}</strong><br />
-            <small>${student.view === "professor-student-detail" ? "Highest priority review" : "Normal review path"}</small>
-          </td>
-          <td>${student.provenance}</td>
-          <td>${student.tests}</td>
-          <td>${student.hotspot}</td>
-          <td>${student.trace}</td>
-          <td>${student.mutation}</td>
-          <td>${student.repair}</td>
-          <td><strong>${student.consistency}</strong></td>
-          <td><span class="${statusClass(student.status)}">${student.status}</span></td>
-        </tr>
-      `
-    )
-    .join("");
+  while (tableBody.firstChild) tableBody.removeChild(tableBody.firstChild);
 
-  tableBody.querySelectorAll("tr[data-view-target]").forEach((row) => {
-    row.addEventListener("click", () => {
-      activateView(row.dataset.viewTarget);
+  studentRows.forEach((student) => {
+    const tr = document.createElement("tr");
+    tr.dataset.viewTarget = student.view;
+
+    const nameCell = document.createElement("td");
+    const nameStrong = document.createElement("strong");
+    nameStrong.textContent = student.name;
+    const nameSmall = document.createElement("small");
+    nameSmall.textContent =
+      student.view === "professor-student-detail"
+        ? "Highest priority review"
+        : "Normal review path";
+    nameCell.append(nameStrong, document.createElement("br"), nameSmall);
+
+    const cells = [
+      student.provenance,
+      student.tests,
+      student.hotspot,
+      student.trace,
+      student.mutation,
+      student.repair,
+    ].map((value) => {
+      const td = document.createElement("td");
+      td.textContent = value;
+      return td;
     });
+
+    const consistencyCell = document.createElement("td");
+    const consistencyStrong = document.createElement("strong");
+    consistencyStrong.textContent = student.consistency;
+    consistencyCell.appendChild(consistencyStrong);
+
+    const statusCell = document.createElement("td");
+    const statusSpan = document.createElement("span");
+    statusSpan.className = statusClass(student.status);
+    statusSpan.textContent = student.status;
+    statusCell.appendChild(statusSpan);
+
+    tr.append(nameCell, ...cells, consistencyCell, statusCell);
+    tr.addEventListener("click", () => {
+      activateView(tr.dataset.viewTarget);
+    });
+    tableBody.appendChild(tr);
   });
 }
 

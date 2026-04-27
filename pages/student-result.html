@@ -7,6 +7,7 @@
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+    <link href="/src/journey/journey.css" rel="stylesheet" />
     <script>
       tailwind.config = {
         darkMode: "class",
@@ -45,6 +46,8 @@
     </style>
   </head>
   <body class="bg-surface font-body text-on-surface selection:bg-slate-200 antialiased">
+    <a href="#cdl-main" class="cdl-sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-[100] focus:bg-slate-900 focus:text-white focus:px-3 focus:py-2 focus:rounded">Skip to main content</a>
+    <div id="cdl-journey-mount"></div>
     <header class="bg-slate-50 border-b border-slate-200/80 flex justify-between items-center w-full px-6 py-4 max-w-full sticky z-50">
       <div class="flex items-center gap-4">
         <div class="w-10 h-10 rounded-full overflow-hidden bg-surface-container-highest">
@@ -61,7 +64,8 @@
         </nav>
       </div>
     </header>
-    <main class="max-w-7xl mx-auto px-6 py-8 pb-32">
+    <main id="cdl-main" class="max-w-7xl mx-auto px-6 py-8 pb-32">
+      <aside id="result-next-action-mount" class="mb-6" aria-live="polite"></aside>
       <div class="rounded-2xl bg-surface-container-lowest border border-outline-variant/10 p-5 shadow-sm mb-6">
         <div class="flex flex-col md:flex-row md:items-end justify-between gap-4">
           <div>
@@ -168,39 +172,39 @@
           </div>
         </div>
       </div>
-      <div class="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div class="bg-surface-container-lowest p-5 rounded-2xl border border-outline-variant/10 shadow-sm">
-          <p class="font-mono text-[10px] uppercase tracking-[0.18em] text-tertiary mb-2">What Went Well</p>
-          <p id="result-strength-summary" class="text-sm text-on-surface-variant leading-relaxed">Your strongest evidence will appear here once the checkpoints are completed.</p>
+      <div id="result-summary-row" class="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div data-result-card="strength" class="bg-surface-container-lowest p-5 rounded-2xl border border-outline-variant/10 shadow-sm">
+          <p class="font-mono text-[10px] uppercase tracking-[0.18em] text-tertiary mb-2">What went well</p>
+          <p id="result-strength-summary" class="text-sm text-on-surface leading-relaxed">Your strongest evidence will appear here once the checkpoints are completed.</p>
         </div>
-        <div class="bg-surface-container-lowest p-5 rounded-2xl border border-outline-variant/10 shadow-sm">
-          <p class="font-mono text-[10px] uppercase tracking-[0.18em] text-tertiary mb-2">Needs Attention</p>
-          <p id="result-gap-summary" class="text-sm text-on-surface-variant leading-relaxed">The main gap in understanding will be summarized here.</p>
+        <div data-result-card="gap" class="bg-surface-container-lowest p-5 rounded-2xl border border-outline-variant/10 shadow-sm">
+          <p class="font-mono text-[10px] uppercase tracking-[0.18em] text-tertiary mb-2">Needs attention</p>
+          <p id="result-gap-summary" class="text-sm text-on-surface leading-relaxed">The main gap in understanding will be summarized here.</p>
         </div>
-        <div class="bg-surface-container-lowest p-5 rounded-2xl border border-outline-variant/10 shadow-sm">
-          <p class="font-mono text-[10px] uppercase tracking-[0.18em] text-tertiary mb-2">Next Learning Step</p>
-          <p id="result-next-step" class="text-sm text-on-surface-variant leading-relaxed">A targeted next step will appear here after the assessment flow is completed.</p>
+        <div data-result-card="next" class="bg-surface-container-lowest p-5 rounded-2xl border border-outline-variant/10 shadow-sm">
+          <p class="font-mono text-[10px] uppercase tracking-[0.18em] text-tertiary mb-2">Next learning step</p>
+          <p id="result-next-step" class="text-sm text-on-surface leading-relaxed">A targeted next step will appear here after the assessment flow is completed.</p>
         </div>
       </div>
-      <div class="mt-6 bg-surface-container-lowest p-6 rounded-2xl border border-outline-variant/10 shadow-sm">
+      <div id="result-rubric-section" class="mt-6 bg-surface-container-lowest p-6 rounded-2xl border border-outline-variant/10 shadow-sm">
         <div class="flex items-center justify-between gap-4 mb-5">
           <div>
-            <p class="font-mono text-[10px] uppercase tracking-[0.18em] text-tertiary mb-2">Rubric Detail</p>
+            <p class="font-mono text-[10px] uppercase tracking-[0.18em] text-tertiary mb-2">Rubric detail</p>
             <h3 class="font-headline text-xl font-bold text-on-surface">Why this feedback was generated</h3>
           </div>
-          <span class="text-xs text-on-surface-variant">Checkpoint by checkpoint</span>
+          <span class="text-xs text-on-surface">Checkpoint by checkpoint</span>
         </div>
         <div id="result-rubric-dimensions" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
       </div>
-      <div class="mt-6 grid grid-cols-1 lg:grid-cols-3 gap-4">
-        <div class="bg-surface-container-lowest p-5 rounded-2xl border border-outline-variant/10 shadow-sm">
-          <p class="font-mono text-[10px] uppercase tracking-[0.18em] text-tertiary mb-2">Hint Usage</p>
-          <p id="result-hint-usage" class="text-sm text-on-surface-variant leading-relaxed">No hints opened.</p>
+      <div id="result-portfolio-row" class="mt-6 grid grid-cols-1 lg:grid-cols-3 gap-4">
+        <div data-result-card="hint" class="bg-surface-container-lowest p-5 rounded-2xl border border-outline-variant/10 shadow-sm">
+          <p class="font-mono text-[10px] uppercase tracking-[0.18em] text-tertiary mb-2">Hint usage</p>
+          <p id="result-hint-usage" class="text-sm text-on-surface leading-relaxed">No hints opened.</p>
         </div>
-        <div class="bg-surface-container-lowest p-5 rounded-2xl border border-outline-variant/10 shadow-sm lg:col-span-2">
+        <div data-result-card="portfolio" class="bg-surface-container-lowest p-5 rounded-2xl border border-outline-variant/10 shadow-sm lg:col-span-2">
           <div class="flex items-center justify-between gap-4 mb-4">
             <div>
-              <p class="font-mono text-[10px] uppercase tracking-[0.18em] text-tertiary mb-2">Process Portfolio</p>
+              <p class="font-mono text-[10px] uppercase tracking-[0.18em] text-tertiary mb-2">Process portfolio</p>
               <h3 class="font-headline text-lg font-bold text-on-surface">How your reasoning evolved across checkpoints</h3>
             </div>
           </div>

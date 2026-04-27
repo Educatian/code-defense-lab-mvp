@@ -19,3 +19,8 @@ commercial/out/
 
 # Claude Design handoff bundle (reference material, not source)
 .cdl-design-fetch/
+
+# Playwright artifacts (specs are source; outputs are not)
+test-results/
+playwright-report/
+.playwright/
