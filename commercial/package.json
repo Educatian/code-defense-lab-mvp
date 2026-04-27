@@ -8,7 +8,7 @@
     "start": "next start"
   },
   "dependencies": {
-    "@anthropic-ai/sdk": "^0.40.0",
+    "@anthropic-ai/sdk": "^0.91.1",
     "@r-wasm/webr": "^0.2.0",
     "better-sqlite3": "^12.9.0",
     "drizzle-orm": "^0.45.2",
