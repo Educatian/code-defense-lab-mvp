@@ -9,7 +9,9 @@
     "preview": "vite preview",
     "test:e2e": "playwright test",
     "test:e2e:headed": "playwright test --headed",
-    "capture:screenshots": "playwright test --config=playwright.screenshots.config.js"
+    "capture:screenshots": "playwright test --config=playwright.screenshots.config.js",
+    "video:dev": "npm --prefix studio run studio",
+    "video:render": "npm --prefix studio run render"
   },
   "devDependencies": {
     "@playwright/test": "^1.59.1",

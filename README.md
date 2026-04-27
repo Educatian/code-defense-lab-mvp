@@ -152,6 +152,18 @@ npm run capture:screenshots          # writes docs/screenshots/*.png
 
 Add new pages to [`tests/screenshots/capture.spec.js`](tests/screenshots/capture.spec.js) and re-run.
 
+### Onboarding video (Remotion)
+
+The 30-second walkthrough on the landing page is rendered from a Remotion composition in [`studio/`](studio/) and shipped as a static MP4 in `public/videos/`. The root MVP stays Vanilla JS — only `studio/` needs React.
+
+```bash
+cd studio && npm install              # one-time, ~470 MB (Remotion + headless Chrome)
+npm run video:dev                     # interactive Remotion Studio preview
+npm run video:render                  # writes public/videos/onboarding.mp4 + poster
+```
+
+Six checkpoint labels live in **one** file ([`src/journey/journey.js`](src/journey/journey.js)) — when you change them there, mirror in [`studio/src/Onboarding.tsx`](studio/src/Onboarding.tsx) and re-render.
+
 ---
 
 ## Learning experience design

@@ -827,6 +827,42 @@ code {
   padding: 2rem 1.5rem 4rem;
 }
 
+.landing-video {
+  margin: 0 0 2.5rem;
+}
+
+.landing-video figure {
+  margin: 0;
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  box-shadow: var(--shadow);
+  background: #0b1220;
+}
+
+.landing-video video {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 16 / 9;
+  background: #0b1220;
+}
+
+.landing-video figcaption {
+  font: 500 0.78rem/1 var(--font-mono);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ink-muted);
+  padding: 0.85rem 1.1rem;
+  background: rgba(255, 255, 255, 0.7);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .landing-video video {
+    /* User opted into reduced motion — keep the poster, do not auto-play.
+       (We don't autoplay anyway, but be explicit for clarity.) */
+  }
+}
+
 .landing-hero {
   min-height: calc(100vh - 110px);
   display: grid;

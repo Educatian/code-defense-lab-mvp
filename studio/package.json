@@ -1,0 +1,21 @@
+{
+  "name": "code-defense-lab-studio",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Remotion compositions for Code Defense Lab. Renders the landing-page onboarding MP4.",
+  "scripts": {
+    "studio": "remotion studio",
+    "render": "remotion render Onboarding ../public/videos/onboarding.mp4 --codec h264 --concurrency 2"
+  },
+  "dependencies": {
+    "@remotion/cli": "4.0.380",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "remotion": "4.0.380"
+  },
+  "devDependencies": {
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "typescript": "^5"
+  }
+}
